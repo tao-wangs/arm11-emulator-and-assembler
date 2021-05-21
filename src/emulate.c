@@ -3,7 +3,7 @@
 
 #define INSTRUCTION_SIZE 4
 
-void readBin(char* fileName);
+int* readBin(char* fileName);
 long int fSize(char* fileName);
 
 int main(int argc, char **argv) {
@@ -14,12 +14,12 @@ int main(int argc, char **argv) {
 // returns int* of all instructions in the input bin file
 int* readBin(char* fileName) {
   long int fsize = fSize(fileName); 
-  int buffer[fsize];
+  int *prog = malloc(sizeof(int) * fsize);
   FILE *fp;
   fp = fopen(fileName,"r");
-  fread(buffer, INSTRUCTION_SIZE, (fsize/INSTRUCTION_SIZE), fp);
+  fread(prog, INSTRUCTION_SIZE, (fsize/INSTRUCTION_SIZE), fp);
   fclose(fp);
-  return buffer;
+  return prog;
 }
 
 //returns the size of a file in bytes
