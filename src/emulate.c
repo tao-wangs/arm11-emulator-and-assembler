@@ -3,7 +3,7 @@
 
 #define INSTRUCTION_SIZE 4
 
-void readBin(char* fileName);
+int* readBin(char* fileName);
 long int fSize(char* fileName);
 
 int main(int argc, char **argv) {
