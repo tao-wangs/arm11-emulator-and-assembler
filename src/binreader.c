@@ -42,7 +42,6 @@ char* binRep(unsigned int inst){
       
     }
   }
-  printf("\n");
 
   return rep;    
 }
