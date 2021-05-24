@@ -2,14 +2,16 @@
 #include <stdio.h>
 
 #define INSTRUCTION_SIZE 4
+#define UINT_SIZE sizeof(unsigned int)
 
-int* readBin(char* fileName);
+unsigned int* readBin(char* fileName);
 long int fSize(char* fileName);
+char* binRep(unsigned int inst);
 
 // returns int* of all instructions in the input bin file
-int* readBin(char* fileName) {
+unsigned int* readBin(char* fileName) {
   long int fsize = fSize(fileName); 
-  int *prog = malloc(sizeof(int) * fsize);
+  unsigned int *prog = malloc(sizeof(unsigned int) * fsize);
   FILE *fp;
   fp = fopen(fileName,"r");
   fread(prog, INSTRUCTION_SIZE, (fsize/INSTRUCTION_SIZE), fp);
@@ -24,4 +26,23 @@ long int fSize(char* fileName){
   long int size = ftell(fp);
   fclose(fp);
   return size;
+}
+
+char* binRep(unsigned int inst){
+  char* rep = malloc(UINT_SIZE);
+  unsigned int shifted;  
+
+  for(int i = 0; i < UINT_SIZE * 8; i++){
+    shifted = inst >> i;
+    if (shifted & 1){
+      rep[((UINT_SIZE*8)-1)-i] = '1';
+      
+    } else {
+      rep[((UINT_SIZE*8)-1)-i] = '0';
+      
+    }
+  }
+  printf("\n");
+
+  return rep;    
 }
