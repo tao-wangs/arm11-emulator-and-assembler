@@ -38,7 +38,7 @@ int conditionCodeIsSet(char setConditionCode) {
 }	
 
 int operationIsArithmetic(char *opcode) {
-
+	
 }
 
 int operationIsLogic(char *opcode) {

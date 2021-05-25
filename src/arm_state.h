@@ -20,34 +20,4 @@ typedef struct {
 void initialise(ARM_STATE *state);
 void terminate(ARM_STATE *state);
 
-typedef enum {
-    eq = "0000",
-    ne = "0001",
-    ge = "1010",
-    lt = "1011",
-    gt = "1100",
-    le = "1101",
-    al = "1110"
-} COND_CODE;
-
-typedef enum {
-    and = "0000",
-    eor = "0001",
-    sub = "0010",
-    rsb = "0011",
-    add = "0100",
-    tst = "1000",
-    teq = "1001",
-    cmp = "1010",
-    orr = "1100",
-    mov = "1101"
-} OPCODE;
-
-typedef enum {
-    N = "1000",
-    Z = "0100",
-    C = "0010",
-    V = "0001"
-} FLAG;
-
 #endif
