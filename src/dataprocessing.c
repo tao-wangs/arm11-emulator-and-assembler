@@ -3,7 +3,7 @@
 #include "dataprocessing.h"
 
 
-void dataProcessingInstruction(char *instruction) {
+void dataProcessingInstruction(char *instruction, ARM_STATE *ARM_machine) {
 	char *cond = malloc(4);
 	char *immediateOperand = malloc(1);
 	char *opcode = malloc(4);
@@ -53,48 +53,48 @@ int operationIsLogic(char *opcode) {
 		strcmp(opcode, mov));
 }
 
-int executeAND(int rn, int operand2, int rd) {
+int executeAND(char *rn, char *operand2, char *rd) {
 	ARM_machine.registers[atoi(rd)] = ARM_machine.registers[atoi(rn)] & atoi(operand2);
 	return ARM_machine.registers[atoi(rd)];
 }
 
-int executeEOR(int rn, int operand2, int rd) {
+int executeEOR(char *rn, char *operand2, char *rd) {
 	ARM_machine.registers[atoi(rd)] = ARM_machine.registers[atoi(rn)] ^ atoi(operand2);
 	return ARM_machine.registers[atoi(rd)];
 }s
 
-int executeSUB(int rn, int operand2, int rd) {
+int executeSUB(char *rn, char *operand2, char *rd) {
 	ARM_machine.registers[atoi(rd)] = ARM_machine.registers[atoi(rn)] - atoi(operand2);
 	return ARM_machine.registers[atoi(rd)];
 }
 
-int executeRSB(int rn, int operand2, int rd) {
+int executeRSB(char *rn, char *operand2, char *rd) {
 	ARM_machine.registers[atoi(rd)] = atoi(operand2) - ARM_machine.registers[atoi(rn)];
 	return ARM_machine.registers[atoi(rd)];
 }
 
-int executeADD(int rn, int operand2, int rd) {
+int executeADD(char *rn, char *operand2, char *rd) {
 	ARM_machine.registers[atoi(rd)] = ARM_machine.registers[atoi(rn)] + atoi(operand2);
 	return ARM_machine.registers[atoi(rd)];
 }
 		
-int executeTST(int rn, int operand2, int rd) {
+int executeTST(char *rn, char *operand2, char *rd) {
 	return ARM_machine.registers[atoi(rn)] & atoi(operand2);
 }
 
-int executeTEQ(int rn, int operand2, int rd) {
+int executeTEQ(char *rn, char *operand2, char *rd) {
 	return ARM_machine.registers[atoi(rn)] ^ atoi(operand2);
 }
 
-int executeCMP(int rn, int operand2, int rd) {
+int executeCMP(char *rn, char *operand2, char *rd) {
 	return ARM_machine.registers[atoi(rn)] - atoi(operand2);	
 }
 
-int executeORR(int rn, int operand2, int rd) {
+int executeORR(char *rn, char *operand2, char *rd) {
 	return ARM_machine.registers[atoi(rn)] || atoi(operand2);
 }
 
-int executeMOV(int operand2, int rd) {
+void executeMOV(char *operand2, char *rd) {
 	ARM_machine.registers[atoi(rd)] = atoi(operand2);
 }
 
