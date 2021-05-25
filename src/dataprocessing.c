@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "dataprocessing.h"
+
 void dataProcessingInstruction(char *instruction) {
 	char cond[4];
 	char immediateOperand;
@@ -38,9 +40,17 @@ int conditionCodeIsSet(char setConditionCode) {
 }	
 
 int operationIsArithmetic(char *opcode) {
-	
+	return !(strcmp(opcode, sub) || 
+			strcmp(opcode, rsb) || 
+			strcmp(opcode, add) || 
+			strcmp(opcode, cmp));
 }
 
 int operationIsLogic(char *opcode) {
-
+	return !(strcmp(opcode, and) ||
+			strcmp(opcode, eor) ||
+			strcmp(opcode, orr) ||
+			strcmp(opcode, teq) ||
+			strcmp(opcode, tst) ||
+			strcmp(opcode, mov));
 }
