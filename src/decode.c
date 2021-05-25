@@ -4,6 +4,9 @@
 
 enum INSTRUCTION_TYPE {DataProcessing, Multiply, SingleDataTransfer, Branch};
 
+enum INSTRUCTION_TYPE decode(unsigned int instruction);
+
+//decides whether an instruction is one of the four instruction types;
 enum INSTRUCTION_TYPE decode(unsigned int instruction) {
     unsigned int mask1 = 0x0C000000;
     unsigned int mask2 = 0x0FC000F0;
@@ -22,6 +25,6 @@ enum INSTRUCTION_TYPE decode(unsigned int instruction) {
             return Branch;   
         default:
             assert(temp == 3);
-            //error
+            //throw an error because 0b11 isn't used so the instruction must be invalid
     }
 }
