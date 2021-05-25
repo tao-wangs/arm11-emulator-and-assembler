@@ -2,6 +2,7 @@
 #define ARM_STATE_H
 
 #define MEM_CAPACITY 65536
+#define NUM_ALLIGNED_ADDRS 16384
 #define NUM_REGISTERS 17
 #define WORD_SIZE 4
 
@@ -12,7 +13,7 @@
 
 //data structure to capture the state of the ARM machine
 typedef struct {
-    int memory[MEM_CAPACITY];
+    int *memory;
     int registers[NUM_REGISTERS];
 } ARM_STATE;
 

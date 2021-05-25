@@ -5,14 +5,17 @@
 void initialise(ARM_STATE *state);
 void terminate(ARM_STATE *state);
 
+//allocates space for memory
 //sets value of all registers to 0 
 //sets value of all memory locations to 0
 void initialise(ARM_STATE *state) {
+    state->memory = malloc(MEM_CAPACITY);
+
     for (int i = 0; i < NUM_REGISTERS; i++) {
         state->registers[i] = 0;
     }
 
-    for (int i = 0; i < MEM_CAPACITY; i++) {
+    for (int i = 0; i < NUM_ALLIGNED_ADDRS; i++) {
         state->memory[i] = 0;
     }
 }
@@ -26,7 +29,7 @@ void terminate(ARM_STATE *state) {
         printf("$%d: %x\n", i, state->registers[i]);
     }
     printf("Non-zero memory:\n");
-    for (int i = 0; i < MEM_CAPACITY; i++) {
+    for (int i = 0; i < NUM_ALLIGNED_ADDRS; i++) {
         if (state->memory[i] != 0) {
             printf("0x%x: %x\n", i * WORD_SIZE, state->memory[i]);
         }
