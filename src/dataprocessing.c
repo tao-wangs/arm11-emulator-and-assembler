@@ -36,30 +36,30 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 		case 2:
 			res = executeSUB(rn, operand2, rd, machinePtr);
 			if (conditionCodeIsSet(setConditionCode) == 1) {
-				if (checkForUnsignedOverflow(rn, ~(operand2) + 1) == 1) {
-					setCBitFlagTo0();
+				if ((checkForUnsignedOverflow(binConverter(rn), (~(binConverter(operand2))) + 1)) == 1) {
+					setCBitFlagTo0(machinePtr);
 				} else {
-					setCBitFlagTo1();
+					setCBitFlagTo1(machinePtr);
 				}	
 			}
 			break;
 		case 3:
 			res = executeRSB(rn, operand2, rd, machinePtr);
 			if (conditionCodeIsSet(setConditionCode) == 1) {
-				if (checkForUnsignedOverflow(rn, ~(operand2) + 1) == 1) {
-					setCBitFlagTo0();
+				if ((checkForUnsignedOverflow(binConverter(rn), (~(binConverter(operand2))) + 1)) == 1) {
+					setCBitFlagTo0(machinePtr);
 				} else {
-					setCBitFlagTo1();
+					setCBitFlagTo1(machinePtr);
 				}	
 			}
 			break;
 		case 4:
 			res = executeADD(rn, operand2, rd, machinePtr);
 			if (conditionCodeIsSet(setConditionCode) == 1) {
-				if (checkForUnsignedOverflow(rn, ~(operand2) + 1) == 1) {
-					setCBitFlagTo1();
+				if ((checkForUnsignedOverflow(binConverter(rn), binConverter(operand2))) == 1) {
+					setCBitFlagTo1(machinePtr);
 				} else {
-					setCBitFlagTo0();
+					setCBitFlagTo0(machinePtr);
 				}	
 			}	
 			break;
@@ -72,10 +72,10 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 		case 10:
 			res = executeCMP(rn, operand2, rd, machinePtr);
 			if (conditionCodeIsSet(setConditionCode) == 1) {
-				if (checkForUnsignedOverflow(rn, ~(operand2) + 1) == 1) {
-					setCBitFlagTo0();
+				if ((checkForUnsignedOverflow(binConverter(rn), (~(binConverter(operand2))) + 1)) == 1) {
+					setCBitFlagTo0(machinePtr);
 				} else {
-					setCBitFlagTo1();
+					setCBitFlagTo1(machinePtr);
 				}	
 			}			
 			break;
@@ -89,26 +89,36 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 			break;
 	}
 	
-	int mask = 1 << 31;
-	int masked_res = res & mask;
+
+	int nMask = 0x80000000;
+    	int zMask = 0x40000000;
+    	int cMask = 0x20000000;
+    	int vMask = 0x10000000;
+
+	int masked_res = res & nMask;
 	
 	if (conditionCodeIsSet(setConditionCode) == 1) {
 		// This will check if the result is all zeros and appropriately set the Z bit if it is.
 		if (res == 0) {
-			machinePtr->registers[16] = machinePtr->registers[16] | (1 << 30);
-		} else {
-			machinePtr->registers[16] = machinePtr->registers[16] & ~(1 << 30);
+			machinePtr->registers[16] |= zMask;
+			// (1 << 30);
+		} if (res != 0) {
+			machinePtr->registers[16] &= 0xBFFFFFFF;
+			// ~(1 << 30);
 		}
 		// This will set the N bit to the logical value of bit 31 of the result.
-		machinePtr->registers[16] = machinePtr->registers[16] | masked_res;	
+		machinePtr->registers[16] = machinePtr->registers[16] | masked_res ;	
+	}
+	
+		printf("The result is: %d \n", res);
 }
 
 void setCBitFlagTo1(ARM_STATE *machinePtr) {
-	machinePtr->registers[16] = machinePtr->registers[16] | (1<29);
+	machinePtr->registers[16] = machinePtr->registers[16] | (1<<29);
 }
 
 void setCBitFlagTo0(ARM_STATE *machinePtr) {
-	machinePtr->registers[16] = machinePtr->registers[16] & ~(1<29);
+	machinePtr->registers[16] = machinePtr->registers[16] & ~(1<<29);
 }
 
 // Checks whether the binary addition of two integers would result in there being unsigned overflow.
@@ -203,5 +213,21 @@ int binConverter(char *str) {
 		cnt *= 2; 
 	}
 
+	
+
 	return res;
+}
+
+int main(void) {
+	ARM_STATE machine;
+	ARM_STATE *ptr = &machine;
+
+	initialise(ptr);
+	
+	dataProcessingInstruction("00000010100100000001000000000000",ptr);
+
+	executeMOV("00000000000000000000000000000000", "0000", ptr);
+	terminate(ptr);
+
+	return 0;
 }
