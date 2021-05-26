@@ -1,6 +1,8 @@
 #ifndef DATA_PROCESSING_H
 #define DATA_PROCESSING_H
 
+#include "arm_state.h"
+
 #define eq "0000"
 #define ne "0001"
 #define ge "1010"
@@ -24,5 +26,23 @@
 #define Z_flag "0100"
 #define C_flag "0010"
 #define V_flag "0001"
+
+void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr);
+
+int immediateOperandBitIsSet(char *immediateOperand);
+int conditionCodeIsSet(char *setConditionCode);
+int operationIsArithmetic(char *opcode);
+int operationIsLogic(char *opcode);
+
+int executeAND(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
+int executeEOR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
+int executeSUB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
+int executeRSB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
+int executeADD(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
+int executeTST(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
+int executeTEQ(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
+int executeCMP(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
+int executeORR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
+void executeMOV(char *operand2, char *rd, ARM_STATE *machinePtr);
 
 #endif
