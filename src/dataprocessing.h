@@ -46,5 +46,7 @@ int executeORR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
 void executeMOV(char *operand2, char *rd, ARM_STATE *machinePtr);
 
 int binConverter(char *str);
+char *zeroExtend(char *operand2);
+char *rotate(int rotateAmt, char *operand2);
 
 #endif

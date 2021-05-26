@@ -4,6 +4,7 @@
 
 #include "dataprocessing.h"
 #include "arm_state.h"
+#include "binreader.h"
 
 // main method for executing a data processing instruction
 void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
@@ -24,6 +25,13 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 	strncpy(rd, instruction+16, 4);
 	strncpy(operand2, instruction+20, 12);
 
+	if (immediateOperandBitIsSet) {
+		char *rotateAmt;
+		strncpy(rotateAmt, operand2, 4);
+		operand2 = zeroExtend(operand2+4);
+		operand2 = rotate(2 * binConverter(rotateAmt), operand2);
+	}
+	
 	int res;
 	
 	switch (binConverter(opcode)) {
@@ -150,4 +158,22 @@ int binConverter(char *str) {
 	}
 
 	return res;
+}
+
+char *zeroExtend(char *operand2) {
+	char *ptr = malloc(32);
+	int zeroLen = 32 - strlen(operand2);
+
+	memset(ptr, '0', zeroLen);
+	memcpy(ptr + zeroLen, operand2, strlen(operand2));
+
+	return ptr;
+}
+
+char *rotate(int rotateAmt, char *operand2) {
+	int num = binConverter(operand2);
+
+	int rotated = num >> rotateAmt | num << (32 - rotateAmt);
+
+	return binRep(rotated);
 }
