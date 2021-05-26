@@ -26,7 +26,7 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 
 	int res;
 	
-	switch (atoi(opcode)) {
+	switch (binConverter(opcode)) {
 		case 0:
 			res = executeAND(rn, operand2, rd, machinePtr);
 			break;
@@ -91,47 +91,63 @@ int operationIsLogic(char *opcode) {
 }
 
 int executeAND(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[atoi(rd)] = machinePtr->registers[atoi(rn)] & atoi(operand2);
-	return machinePtr->registers[atoi(rd)];
+	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] & binConverter(operand2);
+	return machinePtr->registers[binConverter(rd)];
 }
 
 int executeEOR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[atoi(rd)] = machinePtr->registers[atoi(rn)] ^ atoi(operand2);
-	return machinePtr->registers[atoi(rd)];
+	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] ^ binConverter(operand2);
+	return machinePtr->registers[binConverter(rd)];
 }
 
 int executeSUB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[atoi(rd)] = machinePtr->registers[atoi(rn)] - atoi(operand2);
-	return machinePtr->registers[atoi(rd)];
+	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] - binConverter(operand2);
+	return machinePtr->registers[binConverter(rd)];
 }
 
 int executeRSB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[atoi(rd)] = atoi(operand2) - machinePtr->registers[atoi(rn)];
-	return machinePtr->registers[atoi(rd)];
+	machinePtr->registers[binConverter(rd)] = binConverter(operand2) - machinePtr->registers[binConverter(rn)];
+	return machinePtr->registers[binConverter(rd)];
 }
 
 int executeADD(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[atoi(rd)] = machinePtr->registers[atoi(rn)] + atoi(operand2);
-	return machinePtr->registers[atoi(rd)];
+	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] + binConverter(operand2);
+	return machinePtr->registers[binConverter(rd)];
 }
 		
 int executeTST(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	return machinePtr->registers[atoi(rn)] & atoi(operand2);
+	return machinePtr->registers[binConverter(rn)] & binConverter(operand2);
 }
 
 int executeTEQ(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	return machinePtr->registers[atoi(rn)] ^ atoi(operand2);
+	return machinePtr->registers[binConverter(rn)] ^ binConverter(operand2);
 }
 
 int executeCMP(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	return machinePtr->registers[atoi(rn)] - atoi(operand2);	
+	return machinePtr->registers[binConverter(rn)] - binConverter(operand2);	
 }
 
 int executeORR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[atoi(rd)] = machinePtr->registers[atoi(rn)] | atoi(operand2);
-	return machinePtr->registers[atoi(rd)];
+	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] | binConverter(operand2);
+	return machinePtr->registers[binConverter(rd)];
 }
 
 void executeMOV(char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[atoi(rd)] = atoi(operand2);
+	machinePtr->registers[binConverter(rd)] = binConverter(operand2);
+}
+
+int binConverter(char *str) {
+	int res = 0;
+	int cnt = 1;
+	int len = strlen(str);
+
+	for (int i = 0; i < len; i++) {
+		if (str[(len - 1) - i] == '1') {
+			res += cnt;
+		}
+
+		cnt *= 2; 
+	}
+
+	return res;
 }

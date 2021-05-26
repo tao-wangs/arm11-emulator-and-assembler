@@ -45,4 +45,6 @@ int executeCMP(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
 int executeORR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
 void executeMOV(char *operand2, char *rd, ARM_STATE *machinePtr);
 
+int binConverter(char *str);
+
 #endif
