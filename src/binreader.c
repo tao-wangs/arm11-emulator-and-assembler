@@ -42,7 +42,7 @@ long int fSize(char* fileName){
 }
 
 char* binRep(unsigned int inst){
-  char* rep = malloc(UINT_SIZE);
+  char* rep = malloc(32 * sizeof(char));
   unsigned int shifted;  
 
   for(int i = 0; i < UINT_SIZE * 8; i++){
