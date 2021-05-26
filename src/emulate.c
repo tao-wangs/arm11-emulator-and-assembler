@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
   //fetch decode execute loop here until termination
   
   loadInstrToMem(machinePtr, argv[1]);
-
+  //pipeline(machinePtr);
   terminate(machinePtr);
   return 0;
 }

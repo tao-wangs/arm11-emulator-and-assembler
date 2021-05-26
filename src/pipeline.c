@@ -53,7 +53,7 @@ void pipeline(ARM_STATE *state){
 	  pipePtr->decodedInstr = 0;
           goto fetch;	  
 	default:
-	  printf("Instruction not recognised");
+	  printf("Instruction not recognised\n");
 	  exit(1);
       }
 
