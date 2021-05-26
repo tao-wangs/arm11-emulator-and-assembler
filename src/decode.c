@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-enum INSTRUCTION_TYPE {DataProcessing, Multiply, SingleDataTransfer, Branch};
+#include "decode.h"
 
 enum INSTRUCTION_TYPE decode(unsigned int instruction);
 
@@ -25,6 +25,7 @@ enum INSTRUCTION_TYPE decode(unsigned int instruction) {
             return Branch;   
         default:
             assert(temp == 3);
-            //throw an error because 0b11 isn't used so the instruction must be invalid
+	    printf("error in decoding instruction..");
+	    exit(1); //throw an error because 0b11 isn't used so the instruction must be invalid
     }
 }
