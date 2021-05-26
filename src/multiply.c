@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "emulate.c"
+
+#include "arm_state.h"
 
 typedef enum {
     EQ = 0x0,

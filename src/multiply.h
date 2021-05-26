@@ -1,6 +1,7 @@
 #ifndef MULTIPLY_H
 #define MULTIPLY_H
 #include "arm_state.h"
+#include <stdbool.h>
 
 void decodeMultiply(unsigned int instruction, ARM_STATE *machinePtr);
 bool conditionMet(unsigned int conditionCode, ARM_STATE *machine);
