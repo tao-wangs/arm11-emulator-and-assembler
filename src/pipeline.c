@@ -1,8 +1,13 @@
-#define INSTRUCTION_SIZE 4
-#define PC 15
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "binreader.h"
 #include "decode.h"
 #include "arm_state.h"
+#include "multiply.h"
+
+#define PC 15
+#define INSTRUCTION_SIZE 4
 
 typedef struct {
   int fetchedInstr;
@@ -34,18 +39,30 @@ void pipeline(ARM_STATE *state){
       type = decode(pipePtr->fetchedInstr);
       pipePtr->decodedInstr = pipePtr->fetchedInstr;
       
-      
+      state->registers[PC] += 4;
       pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
       
       
     } else {
       
       //insert switch case here for each type of instruction to execute
-       
+      switch (type){
+        case Multiply:
+	  decodeMultiply(pipePtr->decodedInstr, state);
+	case Branch:
+	  pipePtr->decodedInstr = 0;
+          goto fetch;	  
+	default:
+	  printf("Instruction not recognised");
+	  exit(1);
+      }
+
       type = decode(pipePtr->fetchedInstr);
       pipePtr->decodedInstr = pipePtr->fetchedInstr;
-
-      pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
+      
+      fetch:
+        state->registers[PC] += 4;
+        pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
 
     }
   } while(pipePtr->fetchedInstr != 0);
