@@ -26,10 +26,19 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 	strncpy(operand2, instruction+20, 12);
 
 	if (immediateOperandBitIsSet) {
-		char *rotateAmt;
+		char *rotateAmt = malloc(4);
 		strncpy(rotateAmt, operand2, 4);
 		operand2 = zeroExtend(operand2+4);
-		operand2 = rotate(2 * binConverter(rotateAmt), operand2);
+		operand2 = rotateRight(operand2, 2 * binConverter(rotateAmt));
+	} else {
+		char *rm = malloc(4);
+		char *shift = malloc(8);
+		strncpy(rm, immediateOperand+8, 4);
+		strncpy(shift, immediateOperand, 8);
+
+		if (shift[7] == '0') {
+			operand2 = shiftByConst(rm, shift, machinePtr);
+		}
 	}
 	
 	int res;
@@ -170,10 +179,58 @@ char *zeroExtend(char *operand2) {
 	return ptr;
 }
 
-char *rotate(int rotateAmt, char *operand2) {
+char *rotateRight(char *operand2, int rotateAmt) {
 	int num = binConverter(operand2);
 
 	int rotated = num >> rotateAmt | num << (32 - rotateAmt);
 
 	return binRep(rotated);
+}
+
+char *shiftByConst(char *rm, char *shift, ARM_STATE *ptr) {
+
+	int val = ptr->registers[binConverter(rm)];
+	char *type = malloc(2);
+	char *shiftAmt = malloc(5);
+	int carryout;
+	char *res;
+
+	strncpy(shiftAmt, shift, 5);
+	strncpy(type, shift+5, 2);
+
+	int amt = binConverter(shiftAmt);
+	char *binReg = binRep(val);
+
+	switch(binConverter(type)) {
+		case 0:
+			carryout = (binReg[amt - 1] - '0');
+			val = val << amt;
+			res = binRep(val);
+			break;
+		case 1:
+			carryout = (binReg[32 - amt] - '0');
+			val = val >> amt;
+			res = binRep(val);
+			break;
+		case 2:
+			carryout = (binReg[32 - amt] - '0');
+			val = val >> amt;
+			res = binRep(val);
+			memset(res, res[0], amt + 1);
+			break;
+		case 3:
+			carryout = (binReg[32 - amt] - '0');
+			res = rotateRight(binReg, amt);
+			break;
+		default:
+			break;
+	}
+
+	if (carryout) {
+		ptr->registers[CPSR] |= C_MASK;
+	} else {
+		ptr->registers[CPSR] &= ~C_MASK;
+	}
+
+	return res;
 }

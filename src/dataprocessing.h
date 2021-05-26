@@ -27,6 +27,8 @@
 #define C_flag "0010"
 #define V_flag "0001"
 
+#define C_MASK 0b00100000000000000000000000000000
+
 void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr);
 
 int immediateOperandBitIsSet(char *immediateOperand);
@@ -47,6 +49,7 @@ void executeMOV(char *operand2, char *rd, ARM_STATE *machinePtr);
 
 int binConverter(char *str);
 char *zeroExtend(char *operand2);
-char *rotate(int rotateAmt, char *operand2);
+char *rotateRight(char *operand2, int rotateAmt);
+char *shiftByConst(char *rm, char *shift, ARM_STATE *ptr);
 
 #endif
