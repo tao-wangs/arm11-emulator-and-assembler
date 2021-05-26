@@ -52,9 +52,15 @@ void pipeline(ARM_STATE *state){
 	case Branch:
 	  pipePtr->decodedInstr = 0;
           goto fetch;	  
+	case DataProcessing:
+	  printf("Instruction type not implemented yet, stopping pipeline execution...\n");
+	  break;
+	case SingleDataTransfer:
+	  printf("Instruction type not implemented yet, stopping pipeline execution...\n");
+	  break;
 	default:
-	  printf("Instruction not recognised\n");
-	  exit(1);
+	  printf("Instruction not recognised, stopping pipeline execution...\n");
+	  break;
       }
 
       type = decode(pipePtr->fetchedInstr);
