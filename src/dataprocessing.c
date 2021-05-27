@@ -27,15 +27,17 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 	strncpy(operand2, instruction+20, 12);
 
 	if (immediateOperandBitIsSet(immediateOperand)) {
+		printf("1");
 		char *rotateAmt = malloc(4);
 		strncpy(rotateAmt, operand2, 4);
 		operand2 = zeroExtend(operand2+4);
 		operand2 = rotateRight(operand2, 2 * binConverter(rotateAmt));
 	} else {
+		printf("0");
 		char *rm = malloc(4);
 		char *shift = malloc(8);
-		strncpy(rm, immediateOperand+8, 4);
-		strncpy(shift, immediateOperand, 8);
+		strncpy(rm, operand2+8, 4);
+		strncpy(shift, operand2, 8);
 
 		if (shift[7] == '0') {
 			operand2 = shiftByConst(rm, shift, machinePtr);
@@ -82,7 +84,7 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 		updateFlags(opcode, res, carryout, machinePtr);
 	}
 
-	printf("The result is: %i\n", res);
+	printf("The result is: %u\n", res);
 }
 
 int main(void) {
@@ -92,26 +94,23 @@ int main(void) {
 
 	initialise(ptr);
 
-	char *mov0 = "11110011101100000000000000000101"; //$0 = 5
-	dataProcessingInstruction(mov0, ptr);
-	char *mov1 = "11110011101100000001000000000110"; //$1 = 6
+	char *mov1 = "11110011101100000000000100000010"; //$0 = 10000000000000000000000000000000
 	dataProcessingInstruction(mov1, ptr);
-	char *and1 = "11110010000100000010000000000110"; //$0 & 6
-	dataProcessingInstruction(and1, ptr);
-	char *and2 = "11110000000100000011000000000001"; //$0 & $1
-	dataProcessingInstruction(and2, ptr); 
+	char *add1 = "11110000100100000001000000000000"; //$0 * 2
+	dataProcessingInstruction(add1, ptr);
 	
 	terminate(ptr);
 
 	return 0;
 }
 
+//Sets the CPSR's flags based on the result and the carryout of the operation
 void updateFlags(char *opcode, int res, int carryout, ARM_STATE *machinePtr) {
 	
 	machinePtr->registers[CPSR] |= (res & N_mask);
 
 	if (res == 0) {
-		machinePtr->registers[CPSR] != Z_mask;
+		machinePtr->registers[CPSR] |= Z_mask;
 	} else {
 		machinePtr->registers[CPSR] &= ~Z_mask;
 	}
@@ -176,7 +175,7 @@ int executeRSB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int ca
 }
 
 int executeADD(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
-	int res = machinePtr->registers[binConverter(rn)] + binConverter(operand2);
+	uint res = machinePtr->registers[binConverter(rn)] + binConverter(operand2);
 	carryout = (res > INT_MAX) ? 1 : 0;
 	machinePtr->registers[binConverter(rd)] = res;
 	return machinePtr->registers[binConverter(rd)];
@@ -205,6 +204,7 @@ void executeMOV(char *operand2, char *rd, ARM_STATE *machinePtr) {
 	machinePtr->registers[binConverter(rd)] = binConverter(operand2);
 }
 
+//Converts a binary string into its denary value
 int binConverter(char *str) {
 	int res = 0;
 	int cnt = 1;
@@ -221,6 +221,7 @@ int binConverter(char *str) {
 	return res;
 }
 
+//Zero extends a binary string to 32 bits
 char *zeroExtend(char *operand2) {
 	char *ptr = malloc(32);
 	int zeroLen = 32 - strlen(operand2);
@@ -231,6 +232,7 @@ char *zeroExtend(char *operand2) {
 	return ptr;
 }
 
+//Rotates a binary string by a specified amount
 char *rotateRight(char *operand2, int rotateAmt) {
 	int num = binConverter(operand2);
 
@@ -239,6 +241,7 @@ char *rotateRight(char *operand2, int rotateAmt) {
 	return binRep(rotated);
 }
 
+//Shifts the value in register rm by a specified amount in a specified way (left, right, arithmetic etc)
 char *shiftByConst(char *rm, char *shift, ARM_STATE *ptr) {
 
 	int val = ptr->registers[binConverter(rm)];
