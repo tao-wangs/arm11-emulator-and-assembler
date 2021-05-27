@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
 #include "dataprocessing.h"
 #include "arm_state.h"
@@ -85,23 +84,6 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 	}
 
 	printf("The result is: %u\n", res);
-}
-
-int main(void) {
-
-	ARM_STATE machine;
-	ARM_STATE *ptr = &machine;
-
-	initialise(ptr);
-
-	char *mov1 = "11110011101100000000000100000010"; //$0 = 10000000000000000000000000000000
-	dataProcessingInstruction(mov1, ptr);
-	char *add1 = "11110000100100000001000000000000"; //$0 * 2
-	dataProcessingInstruction(add1, ptr);
-	
-	terminate(ptr);
-
-	return 0;
 }
 
 //Sets the CPSR's flags based on the result and the carryout of the operation
