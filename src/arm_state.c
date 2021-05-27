@@ -27,17 +27,14 @@ void terminate(ARM_STATE *state) {
     printf("Registers:\n");
     for (int i = 0; i < NUM_REGISTERS; i++) {
         switch (i)
-        {
+        {   
             case 10:
             case 11:
             case 12:
                 printf("$%d : %8d (0x%08x)\n", i, state->registers[i], state->registers[i]);
                 break;
-            case 13:
-                printf("SP  : %8d (0x%08x)\n", state->registers[SP], state->registers[SP]);
-                break;
-            case 14:
-                printf("LR  : %8d (0x%08x)\n", state->registers[LR], state->registers[LR]);
+            case SP:
+            case LR:
                 break;
             case 15:
                 printf("PC  : %8d (0x%08x)\n", state->registers[PC], state->registers[PC]);
@@ -58,9 +55,8 @@ void terminate(ARM_STATE *state) {
             int byte3 = (state->memory[i] & 0x00FF0000) >> 16; //a0
             int byte4 = (state->memory[i] & 0xFF000000) >> 24; //e3
             int littleEndianForm = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4; //it is now 01 10 a0 e3
-            printf("0x%08x: %08x\n", i * WORD_SIZE, littleEndianForm);
+            printf("0x%08x: 0x%08x\n", i * WORD_SIZE, littleEndianForm);
         }
     }
-    printf("Emulator terminated.\n");
 }
 
