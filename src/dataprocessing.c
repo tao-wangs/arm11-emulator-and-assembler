@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "dataprocessing.h"
 #include "arm_state.h"
+#include "binreader.h"
 
 // main method for executing a data processing instruction
 void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
@@ -24,7 +26,26 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 	strncpy(rd, instruction+16, 4);
 	strncpy(operand2, instruction+20, 12);
 
-	int res;
+	if (immediateOperandBitIsSet(immediateOperand)) {
+		printf("1");
+		char *rotateAmt = malloc(4);
+		strncpy(rotateAmt, operand2, 4);
+		operand2 = zeroExtend(operand2+4);
+		operand2 = rotateRight(operand2, 2 * binConverter(rotateAmt));
+	} else {
+		printf("0");
+		char *rm = malloc(4);
+		char *shift = malloc(8);
+		strncpy(rm, operand2+8, 4);
+		strncpy(shift, operand2, 8);
+
+		if (shift[7] == '0') {
+			operand2 = shiftByConst(rm, shift, machinePtr);
+		}
+	}
+	
+	int res = 0;
+	int carryout = 0;
 	
 	switch (binConverter(opcode)) {
 		case 0:
@@ -34,34 +55,13 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 			res = executeEOR(rn, operand2, rd, machinePtr);
 			break;
 		case 2:
-			res = executeSUB(rn, operand2, rd, machinePtr);
-			if (conditionCodeIsSet(setConditionCode) == 1) {
-				if ((checkForUnsignedOverflow(binConverter(rn), (~(binConverter(operand2))) + 1)) == 1) {
-					setCBitFlagTo0(machinePtr);
-				} else {
-					setCBitFlagTo1(machinePtr);
-				}	
-			}
+			res = executeSUB(rn, operand2, rd, machinePtr, carryout);
 			break;
 		case 3:
-			res = executeRSB(rn, operand2, rd, machinePtr);
-			if (conditionCodeIsSet(setConditionCode) == 1) {
-				if ((checkForUnsignedOverflow(binConverter(rn), (~(binConverter(operand2))) + 1)) == 1) {
-					setCBitFlagTo0(machinePtr);
-				} else {
-					setCBitFlagTo1(machinePtr);
-				}	
-			}
+			res = executeRSB(rn, operand2, rd, machinePtr, carryout);
 			break;
 		case 4:
-			res = executeADD(rn, operand2, rd, machinePtr);
-			if (conditionCodeIsSet(setConditionCode) == 1) {
-				if ((checkForUnsignedOverflow(binConverter(rn), binConverter(operand2))) == 1) {
-					setCBitFlagTo1(machinePtr);
-				} else {
-					setCBitFlagTo0(machinePtr);
-				}	
-			}	
+			res = executeADD(rn, operand2, rd, machinePtr, carryout);
 			break;
 		case 8:
 			res = executeTST(rn, operand2, rd, machinePtr);
@@ -70,14 +70,7 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 			res = executeTEQ(rn, operand2, rd, machinePtr);
 			break;
 		case 10:
-			res = executeCMP(rn, operand2, rd, machinePtr);
-			if (conditionCodeIsSet(setConditionCode) == 1) {
-				if ((checkForUnsignedOverflow(binConverter(rn), (~(binConverter(operand2))) + 1)) == 1) {
-					setCBitFlagTo0(machinePtr);
-				} else {
-					setCBitFlagTo1(machinePtr);
-				}	
-			}			
+			res = executeCMP(rn, operand2, rd, machinePtr, carryout);
 			break;
 		case 12:
 			res = executeORR(rn, operand2, rd, machinePtr);
@@ -85,45 +78,48 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 		case 13:
 			executeMOV(operand2, rd, machinePtr);
 			break;
-		default:
-			break;
 	}
-	
 
-	int nMask = 0x80000000;
-    	int zMask = 0x40000000;
-    	int cMask = 0x20000000;
-    	int vMask = 0x10000000;
-
-	int masked_res = res & nMask;
-	
-	if (conditionCodeIsSet(setConditionCode) == 1) {
-		// This will check if the result is all zeros and appropriately set the Z bit if it is.
-		if (res == 0) {
-			machinePtr->registers[16] |= zMask;
-			// (1 << 30);
-		} if (res != 0) {
-			machinePtr->registers[16] &= 0xBFFFFFFF;
-			// ~(1 << 30);
-		}
-		// This will set the N bit to the logical value of bit 31 of the result.
-		machinePtr->registers[16] = machinePtr->registers[16] | masked_res ;	
+	if (conditionCodeIsSet(setConditionCode)) {
+		updateFlags(opcode, res, carryout, machinePtr);
 	}
+
+	printf("The result is: %u\n", res);
+}
+
+int main(void) {
+
+	ARM_STATE machine;
+	ARM_STATE *ptr = &machine;
+
+	initialise(ptr);
+
+	char *mov1 = "11110011101100000000000100000010"; //$0 = 10000000000000000000000000000000
+	dataProcessingInstruction(mov1, ptr);
+	char *add1 = "11110000100100000001000000000000"; //$0 * 2
+	dataProcessingInstruction(add1, ptr);
 	
-		printf("The result is: %d \n", res);
+	terminate(ptr);
+
+	return 0;
 }
 
-void setCBitFlagTo1(ARM_STATE *machinePtr) {
-	machinePtr->registers[16] = machinePtr->registers[16] | (1<<29);
-}
+//Sets the CPSR's flags based on the result and the carryout of the operation
+void updateFlags(char *opcode, int res, int carryout, ARM_STATE *machinePtr) {
+	
+	machinePtr->registers[CPSR] |= (res & N_mask);
 
-void setCBitFlagTo0(ARM_STATE *machinePtr) {
-	machinePtr->registers[16] = machinePtr->registers[16] & ~(1<<29);
-}
+	if (res == 0) {
+		machinePtr->registers[CPSR] |= Z_mask;
+	} else {
+		machinePtr->registers[CPSR] &= ~Z_mask;
+	}
 
-// Checks whether the binary addition of two integers would result in there being unsigned overflow.
-int checkForUnsignedOverflow(int rn, int operand2) {
-	return (rn + operand2) < rn;
+	if (operationIsArithmetic(opcode) && carryout) {
+		machinePtr->registers[CPSR] |= C_mask;
+	} else {
+		machinePtr->registers[CPSR] &= ~C_mask;
+	}
 }
 
 // Checks whether the immediate operand bit is set to 1 or not.
@@ -164,18 +160,24 @@ int executeEOR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
 	return machinePtr->registers[binConverter(rd)];
 }
 
-int executeSUB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] - binConverter(operand2);
+int executeSUB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
+	int res = machinePtr->registers[binConverter(rn)] + ~(binConverter(operand2)) + 1;
+	carryout = (res > INT_MAX) ? 1 : 0;
+	machinePtr->registers[binConverter(rd)] = res;
 	return machinePtr->registers[binConverter(rd)];
 }
 
-int executeRSB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[binConverter(rd)] = binConverter(operand2) - machinePtr->registers[binConverter(rn)];
+int executeRSB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
+	int res = binConverter(operand2) + ~(machinePtr->registers[binConverter(rn)]) + 1;
+	carryout = (res > INT_MAX) ? 1 : 0;
+	machinePtr->registers[binConverter(rd)] = res;
 	return machinePtr->registers[binConverter(rd)];
 }
 
-int executeADD(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] + binConverter(operand2);
+int executeADD(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
+	uint res = machinePtr->registers[binConverter(rn)] + binConverter(operand2);
+	carryout = (res > INT_MAX) ? 1 : 0;
+	machinePtr->registers[binConverter(rd)] = res;
 	return machinePtr->registers[binConverter(rd)];
 }
 		
@@ -187,7 +189,9 @@ int executeTEQ(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
 	return machinePtr->registers[binConverter(rn)] ^ binConverter(operand2);
 }
 
-int executeCMP(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
+int executeCMP(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
+	int res = machinePtr->registers[binConverter(rn)] + ~(binConverter(operand2)) + 1;
+	carryout = (res > INT_MAX) ? 1 : 0;
 	return machinePtr->registers[binConverter(rn)] - binConverter(operand2);	
 }
 
@@ -200,6 +204,7 @@ void executeMOV(char *operand2, char *rd, ARM_STATE *machinePtr) {
 	machinePtr->registers[binConverter(rd)] = binConverter(operand2);
 }
 
+//Converts a binary string into its denary value
 int binConverter(char *str) {
 	int res = 0;
 	int cnt = 1;
@@ -213,21 +218,72 @@ int binConverter(char *str) {
 		cnt *= 2; 
 	}
 
-	
-
 	return res;
 }
 
-int main(void) {
-	ARM_STATE machine;
-	ARM_STATE *ptr = &machine;
+//Zero extends a binary string to 32 bits
+char *zeroExtend(char *operand2) {
+	char *ptr = malloc(32);
+	int zeroLen = 32 - strlen(operand2);
 
-	initialise(ptr);
-	
-	dataProcessingInstruction("00000010100100000001000000000000",ptr);
+	memset(ptr, '0', zeroLen);
+	memcpy(ptr + zeroLen, operand2, strlen(operand2));
 
-	executeMOV("00000000000000000000000000000000", "0000", ptr);
-	terminate(ptr);
+	return ptr;
+}
 
-	return 0;
+//Rotates a binary string by a specified amount
+char *rotateRight(char *operand2, int rotateAmt) {
+	int num = binConverter(operand2);
+
+	int rotated = num >> rotateAmt | num << (32 - rotateAmt);
+
+	return binRep(rotated);
+}
+
+//Shifts the value in register rm by a specified amount in a specified way (left, right, arithmetic etc)
+char *shiftByConst(char *rm, char *shift, ARM_STATE *ptr) {
+
+	int val = ptr->registers[binConverter(rm)];
+	char *type = malloc(2);
+	char *shiftAmt = malloc(5);
+	int carryout;
+	char *res;
+
+	strncpy(shiftAmt, shift, 5);
+	strncpy(type, shift+5, 2);
+
+	int amt = binConverter(shiftAmt);
+	char *binReg = binRep(val);
+
+	switch(binConverter(type)) {
+		case 0:
+			carryout = (binReg[amt - 1] - '0');
+			val = val << amt;
+			res = binRep(val);
+			break;
+		case 1:
+			carryout = (binReg[32 - amt] - '0');
+			val = val >> amt;
+			res = binRep(val);
+			break;
+		case 2:
+			carryout = (binReg[32 - amt] - '0');
+			val = val >> amt;
+			res = binRep(val);
+			memset(res, res[0], amt + 1);
+			break;
+		case 3:
+			carryout = (binReg[32 - amt] - '0');
+			res = rotateRight(binReg, amt);
+			break;
+	}
+
+	if (carryout) {
+		ptr->registers[CPSR] |= C_mask;
+	} else {
+		ptr->registers[CPSR] &= ~C_mask;
+	}
+
+	return res;
 }
