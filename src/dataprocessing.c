@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "dataprocessing.h"
 #include "arm_state.h"
@@ -25,7 +26,7 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 	strncpy(rd, instruction+16, 4);
 	strncpy(operand2, instruction+20, 12);
 
-	if (immediateOperandBitIsSet) {
+	if (immediateOperandBitIsSet(immediateOperand)) {
 		char *rotateAmt = malloc(4);
 		strncpy(rotateAmt, operand2, 4);
 		operand2 = zeroExtend(operand2+4);
@@ -41,7 +42,8 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 		}
 	}
 	
-	int res;
+	int res = 0;
+	int carryout = 0;
 	
 	switch (binConverter(opcode)) {
 		case 0:
@@ -51,13 +53,13 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 			res = executeEOR(rn, operand2, rd, machinePtr);
 			break;
 		case 2:
-			res = executeSUB(rn, operand2, rd, machinePtr);
+			res = executeSUB(rn, operand2, rd, machinePtr, carryout);
 			break;
 		case 3:
-			res = executeRSB(rn, operand2, rd, machinePtr);
+			res = executeRSB(rn, operand2, rd, machinePtr, carryout);
 			break;
 		case 4:
-			res = executeADD(rn, operand2, rd, machinePtr);
+			res = executeADD(rn, operand2, rd, machinePtr, carryout);
 			break;
 		case 8:
 			res = executeTST(rn, operand2, rd, machinePtr);
@@ -66,7 +68,7 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 			res = executeTEQ(rn, operand2, rd, machinePtr);
 			break;
 		case 10:
-			res = executeCMP(rn, operand2, rd, machinePtr);
+			res = executeCMP(rn, operand2, rd, machinePtr, carryout);
 			break;
 		case 12:
 			res = executeORR(rn, operand2, rd, machinePtr);
@@ -74,8 +76,50 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 		case 13:
 			executeMOV(operand2, rd, machinePtr);
 			break;
-		default:
-			break;
+	}
+
+	if (conditionCodeIsSet(setConditionCode)) {
+		updateFlags(opcode, res, carryout, machinePtr);
+	}
+
+	printf("The result is: %i\n", res);
+}
+
+int main(void) {
+
+	ARM_STATE machine;
+	ARM_STATE *ptr = &machine;
+
+	initialise(ptr);
+
+	char *mov0 = "11110011101100000000000000000101"; //$0 = 5
+	dataProcessingInstruction(mov0, ptr);
+	char *mov1 = "11110011101100000001000000000110"; //$1 = 6
+	dataProcessingInstruction(mov1, ptr);
+	char *and1 = "11110010000100000010000000000110"; //$0 & 6
+	dataProcessingInstruction(and1, ptr);
+	char *and2 = "11110000000100000011000000000001"; //$0 & $1
+	dataProcessingInstruction(and2, ptr); 
+	
+	terminate(ptr);
+
+	return 0;
+}
+
+void updateFlags(char *opcode, int res, int carryout, ARM_STATE *machinePtr) {
+	
+	machinePtr->registers[CPSR] |= (res & N_mask);
+
+	if (res == 0) {
+		machinePtr->registers[CPSR] != Z_mask;
+	} else {
+		machinePtr->registers[CPSR] &= ~Z_mask;
+	}
+
+	if (operationIsArithmetic(opcode) && carryout) {
+		machinePtr->registers[CPSR] |= C_mask;
+	} else {
+		machinePtr->registers[CPSR] &= ~C_mask;
 	}
 }
 
@@ -117,18 +161,24 @@ int executeEOR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
 	return machinePtr->registers[binConverter(rd)];
 }
 
-int executeSUB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] - binConverter(operand2);
+int executeSUB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
+	int res = machinePtr->registers[binConverter(rn)] + ~(binConverter(operand2)) + 1;
+	carryout = (res > INT_MAX) ? 1 : 0;
+	machinePtr->registers[binConverter(rd)] = res;
 	return machinePtr->registers[binConverter(rd)];
 }
 
-int executeRSB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[binConverter(rd)] = binConverter(operand2) - machinePtr->registers[binConverter(rn)];
+int executeRSB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
+	int res = binConverter(operand2) + ~(machinePtr->registers[binConverter(rn)]) + 1;
+	carryout = (res > INT_MAX) ? 1 : 0;
+	machinePtr->registers[binConverter(rd)] = res;
 	return machinePtr->registers[binConverter(rd)];
 }
 
-int executeADD(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] + binConverter(operand2);
+int executeADD(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
+	int res = machinePtr->registers[binConverter(rn)] + binConverter(operand2);
+	carryout = (res > INT_MAX) ? 1 : 0;
+	machinePtr->registers[binConverter(rd)] = res;
 	return machinePtr->registers[binConverter(rd)];
 }
 		
@@ -140,7 +190,9 @@ int executeTEQ(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
 	return machinePtr->registers[binConverter(rn)] ^ binConverter(operand2);
 }
 
-int executeCMP(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
+int executeCMP(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
+	int res = machinePtr->registers[binConverter(rn)] + ~(binConverter(operand2)) + 1;
+	carryout = (res > INT_MAX) ? 1 : 0;
 	return machinePtr->registers[binConverter(rn)] - binConverter(operand2);	
 }
 
@@ -222,14 +274,12 @@ char *shiftByConst(char *rm, char *shift, ARM_STATE *ptr) {
 			carryout = (binReg[32 - amt] - '0');
 			res = rotateRight(binReg, amt);
 			break;
-		default:
-			break;
 	}
 
 	if (carryout) {
-		ptr->registers[CPSR] |= C_MASK;
+		ptr->registers[CPSR] |= C_mask;
 	} else {
-		ptr->registers[CPSR] &= ~C_MASK;
+		ptr->registers[CPSR] &= ~C_mask;
 	}
 
 	return res;

@@ -27,7 +27,12 @@
 #define C_flag "0010"
 #define V_flag "0001"
 
-#define C_MASK 0b00100000000000000000000000000000
+#define N_mask 0x80000000
+#define Z_mask 0x40000000
+#define C_mask 0x20000000
+#define V_mask 0x10000000
+
+#define INT_MAX 0xFFFFFFFF
 
 void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr);
 
@@ -38,12 +43,12 @@ int operationIsLogic(char *opcode);
 
 int executeAND(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
 int executeEOR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
-int executeSUB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
-int executeRSB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
-int executeADD(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
+int executeSUB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout);
+int executeRSB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout);
+int executeADD(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout);
 int executeTST(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
 int executeTEQ(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
-int executeCMP(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
+int executeCMP(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout);
 int executeORR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
 void executeMOV(char *operand2, char *rd, ARM_STATE *machinePtr);
 
@@ -51,5 +56,6 @@ int binConverter(char *str);
 char *zeroExtend(char *operand2);
 char *rotateRight(char *operand2, int rotateAmt);
 char *shiftByConst(char *rm, char *shift, ARM_STATE *ptr);
+void updateFlags(char *opcode, int res, int carryout, ARM_STATE *ptr);
 
 #endif
