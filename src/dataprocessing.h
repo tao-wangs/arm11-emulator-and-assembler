@@ -36,22 +36,6 @@
 
 void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr);
 
-int immediateOperandBitIsSet(char *immediateOperand);
-int conditionCodeIsSet(char *setConditionCode);
-int operationIsArithmetic(char *opcode);
-int operationIsLogic(char *opcode);
-
-int executeAND(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
-int executeEOR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
-int executeSUB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout);
-int executeRSB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout);
-int executeADD(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout);
-int executeTST(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
-int executeTEQ(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
-int executeCMP(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout);
-int executeORR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr);
-void executeMOV(char *operand2, char *rd, ARM_STATE *machinePtr);
-
 int binConverter(char *str);
 char *zeroExtend(char *operand2);
 char *rotateRight(char *operand2, int rotateAmt);
