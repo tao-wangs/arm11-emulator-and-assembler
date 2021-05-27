@@ -28,23 +28,27 @@ void terminate(ARM_STATE *state) {
     for (int i = 0; i < NUM_REGISTERS; i++) {
         switch (i)
         {
+            case 10:
+            case 11:
+            case 12:
+                printf("$%d : %8d (0x%08x)\n", i, state->registers[i], state->registers[i]);
+                break;
             case 13:
-                printf("SP: %x\n", state->registers[SP]);
+                printf("SP  : %8d (0x%08x)\n", state->registers[SP], state->registers[SP]);
                 break;
             case 14:
-                printf("LR: %x\n", state->registers[LR]);
+                printf("LR  : %8d (0x%08x)\n", state->registers[LR], state->registers[LR]);
                 break;
             case 15:
-                printf("PC: %x\n", state->registers[PC]);
+                printf("PC  : %8d (0x%08x)\n", state->registers[PC], state->registers[PC]);
                 break;
             case 16:
-                printf("CPSR: %x\n", state->registers[CPSR]);
+                printf("CPSR: %8d (0x%08x)\n", state->registers[CPSR], state->registers[CPSR]);
                 break;
             default:
-                printf("$%d: %x\n", i, state->registers[i]);
+                printf("$%d  : %8d (0x%08x)\n", i, state->registers[i], state->registers[i]);
         } 
     }
-
     
     printf("Non-zero memory:\n");
     for (int i = 0; i < NUM_ALLIGNED_ADDRS; i++) {
