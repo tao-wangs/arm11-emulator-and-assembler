@@ -1,118 +1,127 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #include "dataprocessing.h"
 #include "arm_state.h"
-#include "binreader.h"
 
 // main method for executing a data processing instruction
 void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 
-	char *cond = malloc(4);
-	char *immediateOperand = malloc(1);
-	char *opcode = malloc(4);
-	char *setConditionCode = malloc(1);
-	char *rn = malloc(4);
-	char *rd = malloc(4);
-	char *operand2 = malloc(12);
-	
-	int condMask = 11110000000000000000000000000000;
 	int cond_shift = 28;
-	int immediateMask = 10000000000000000000000000;
-	int immediate_shift = 25;
-	int opcodeMask = 1111000000000000000000000;
+	int imm_shift = 25;
 	int opcode_shift = 21;
-	int setMask = 100000000000000000000;
 	int set_shift = 20;
-	int rnMask = 11110000000000000000;
 	int rn_shift = 16;
-	int rdMask = 1111000000000000;
 	int rd_shift = 12;
-	int operand2Mask = 111111111111;
 	
+	int instructionAsInt = binConverter(instruction);
 	
-	uint32_t instructionAsInt = atoi(instruction);
-	
-	int cond = (instructionAsInt & condMask) << cond_shift;
-	int immediateOperand = (instructionAsInt & immediateMask) << immediate_shift; 
-	int opcode = (instructionAsInt & opcodeMask) << opcode_shift;
-	int setConditionCode = (instructionAsInt & setMask) << set_shift;
-	int rn = (instructionAsInt & rnMask) << rn_shift;
-	int rd = (instructionAsInt & rdMask) << rd_shift;
-	int operand2 = (instructionAndInt & operand2Mask);
-	
-	strncpy(cond, instruction, 4);
-	strncpy(immediateOperand, instruction+6, 1);
-	strncpy(opcode, instruction+7, 4);
-	strncpy(setConditionCode, instruction+11, 1);
-	strncpy(rn, instruction+12, 4);
-	strncpy(rd, instruction+16, 4);
-	strncpy(operand2, instruction+20, 12);
+	int condCode = instructionAsInt >> cond_shift;
+	int immOperand = (instructionAsInt >> imm_shift) & ONE_BIT_MASK;
+	int opcode = (instructionAsInt >> opcode_shift) & FOUR_BIT_MASK;
+	int setFlags = (instructionAsInt >> set_shift) & ONE_BIT_MASK;
+	int rn = (instructionAsInt >> rn_shift) & FOUR_BIT_MASK;
+	int rd = (instructionAsInt >> rd_shift) & FOUR_BIT_MASK;
+	uint32_t operand2 = instructionAsInt & TWELVE_BIT_MASK;
 
-	if (immediateOperandBitIsSet(immediateOperand)) {
-		printf("1");
-		char *rotateAmt = malloc(4);
-		strncpy(rotateAmt, operand2, 4);
-		operand2 = zeroExtend(operand2+4);
-		operand2 = rotateRight(operand2, 2 * binConverter(rotateAmt));
-	} else {
-		printf("0");
-		char *rm = malloc(4);
-		char *shift = malloc(8);
-		strncpy(rm, operand2+8, 4);
-		strncpy(shift, operand2, 8);
+	if (conditionMet(condCode, machinePtr)) {
 
-		if (shift[7] == '0') {
-			operand2 = shiftByConst(rm, shift, machinePtr);
+		if (immediateOperandBitIsSet(immOperand)) {
+			printf("1");
+			int rotateAmt = operand2 >> 8;
+			operand2 = rotateRight(operand2, 2 * rotateAmt);
+		} else {
+			printf("0");
+			int rm = operand2 & FOUR_BIT_MASK;
+			int shift = operand2 >> 4; 
+
+			if (shift & 0x1 == 0) {
+				operand2 = shiftByConst(rm, shift, machinePtr);
+			}
 		}
-	}
-	
-	int res = 0;
-	int carryout = 0;
-	
-	switch (binConverter(opcode)) {
-		case 0:
-			res = executeAND(rn, operand2, rd, machinePtr);
-			break;
-		case 1:
-			res = executeEOR(rn, operand2, rd, machinePtr);
-			break;
-		case 2:
-			res = executeSUB(rn, operand2, rd, machinePtr, carryout);
-			break;
-		case 3:
-			res = executeRSB(rn, operand2, rd, machinePtr, carryout);
-			break;
-		case 4:
-			res = executeADD(rn, operand2, rd, machinePtr, carryout);
-			break;
-		case 8:
-			res = executeTST(rn, operand2, rd, machinePtr);
-			break;
-		case 9:
-			res = executeTEQ(rn, operand2, rd, machinePtr);
-			break;
-		case 10:
-			res = executeCMP(rn, operand2, rd, machinePtr, carryout);
-			break;
-		case 12:
-			res = executeORR(rn, operand2, rd, machinePtr);
-			break;
-		case 13:
-			executeMOV(operand2, rd, machinePtr);
-			break;
-	}
 
-	if (conditionCodeIsSet(setConditionCode)) {
-		updateFlags(opcode, res, carryout, machinePtr);
-	}
+		int res;
+		int carryout = 0;
 
-	printf("The result is: %u\n", res);
+		switch (opcode) {
+			case and:
+				res = executeAND(rn, operand2, rd, machinePtr);
+				break;
+			case eor:
+				res = executeEOR(rn, operand2, rd, machinePtr);
+				break;
+			case sub:
+				res = executeSUB(rn, operand2, rd, machinePtr, carryout);
+				break;
+			case rsb:
+				res = executeRSB(rn, operand2, rd, machinePtr, carryout);
+				break;
+			case add:
+				res = executeADD(rn, operand2, rd, machinePtr, carryout);
+				break;
+			case tst:
+				res = executeTST(rn, operand2, rd, machinePtr);
+				break;
+			case teq:
+				res = executeTEQ(rn, operand2, rd, machinePtr);
+				break;
+			case cmp:
+				res = executeCMP(rn, operand2, rd, machinePtr, carryout);
+				break;
+			case orr:
+				res = executeORR(rn, operand2, rd, machinePtr);
+				break;
+			case mov:
+				executeMOV(operand2, rd, machinePtr);
+				break;
+			default:
+				printf("Opcode of instruction not recognised.");
+				return;
+		}
+
+		if (conditionCodeIsSet(setFlags)) {
+			updateFlags(opcode, res, carryout, machinePtr);
+		}
+
+	printf("The result is %u\n", res);
+
+	} else {
+		printf("Condition not met.");
+	}
+}
+
+bool conditionMet(unsigned int condCode, ARM_STATE *ptr) {
+
+    unsigned int n = (ptr->registers[CPSR] & N_mask) >> 31; 
+    unsigned int z = (ptr->registers[CPSR] & Z_mask) >> 30; 
+    unsigned int c = (ptr->registers[CPSR] & C_mask) >> 29;
+    unsigned int v = (ptr->registers[CPSR] & V_mask) >> 28;
+
+    switch (condCode) {
+        case eq:
+            return z;
+        case ne: 
+            return !z;
+        case ge : 
+            return (n == v);
+        case lt: 
+            return !(n == v);
+        case gt: 
+            return (!z && (n == v));
+        case le: 
+            return (z || !(n == v));
+        case al:  
+            return true;
+        default: 
+            return false;
+    }
 }
 
 //Sets the CPSR's flags based on the result and the carryout of the operation
-void updateFlags(char *opcode, int res, int carryout, ARM_STATE *machinePtr) {
+void updateFlags(int opcode, int res, int carryout, ARM_STATE *machinePtr) {
 	
 	machinePtr->registers[CPSR] |= (res & N_mask);
 
@@ -130,94 +139,77 @@ void updateFlags(char *opcode, int res, int carryout, ARM_STATE *machinePtr) {
 }
 
 // Checks whether the immediate operand bit is set to 1 or not.
-int immediateOperandBitIsSet(char *immediateOperand) {
-	return strcmp(immediateOperand, "1") == 0;
-	// return immediateOperand == 1;
+int immediateOperandBitIsSet(int immOperand) {
+	return immOperand == 1;
 }
 
 // Check whether the flags condition code is set.
-int conditionCodeIsSet(char *setConditionCode) {
-	return strcmp(setConditionCode, "1") == 0;
-	// return setConditionCode == 1;
+int conditionCodeIsSet(int setFlags) {
+	return setFlags == 1;
 }	
 
 // Check whether the operation is arithmetic
-int operationIsArithmetic(char *opcode) {
-	return !(strcmp(opcode, sub) && 
-			strcmp(opcode, rsb) && 
-			strcmp(opcode, add) && 
-			strcmp(opcode, cmp));
-	// return (opcode == sub || opcode == rsb || opcode == add || opcode == cmp); 
-	// Would need to change the constants to their denary value, and not leave them in binary in the header file.
+int operationIsArithmetic(int opcode) {
+	return (opcode == sub || opcode == rsb || opcode == add || opcode == cmp);
 }
 
 // Check whether the operation is logical
-int operationIsLogic(char *opcode) {
-	return !(strcmp(opcode, and) &&
-			strcmp(opcode, eor) &&
-			strcmp(opcode, orr) &&
-			strcmp(opcode, teq) &&
-			strcmp(opcode, tst) &&
-			strcmp(opcode, mov));
-	// return (opcode == and || opcode == eor || opcode == teq || opcode == tst || opcode == mov);
-	// Would need to change the constants to their denary value, and not leave them in binary in the header file.
+int operationIsLogic(int opcode) {
+	return (opcode == and || opcode == eor || opcode == teq || opcode == tst || opcode == mov);
 }
 
-int executeAND(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] & binConverter(operand2);
-	return machinePtr->registers[binConverter(rd)];
-	// 	machinePtr->registers[rd] = machinePtr->registers[rn] & operand2;
-	// 	Here don't we need operand2 in its binary form though to be able to and with it effectively?
-	//	return machinePtr->registers[rd];
+int executeAND(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+	machinePtr->registers[rd] = machinePtr->registers[rn] & operand2;
+	return machinePtr->registers[rd];
 }
 
-int executeEOR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] ^ binConverter(operand2);
-	return machinePtr->registers[binConverter(rd)];
+int executeEOR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+	machinePtr->registers[rd] = machinePtr->registers[rn] ^ operand2;
+	return machinePtr->registers[rd];
 }
 
-int executeSUB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
-	int res = machinePtr->registers[binConverter(rn)] + ~(binConverter(operand2)) + 1;
+int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int carryout) {
+	int res = machinePtr->registers[rn] + ~operand2 + 1;
 	carryout = (res > INT_MAX) ? 1 : 0;
-	machinePtr->registers[binConverter(rd)] = res;
-	return machinePtr->registers[binConverter(rd)];
+	machinePtr->registers[rd] = machinePtr->registers[rn] - operand2;
+	return machinePtr->registers[rd];
 }
 
-int executeRSB(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
-	int res = binConverter(operand2) + ~(machinePtr->registers[binConverter(rn)]) + 1;
+int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int carryout) {
+	int res = operand2 + ~(machinePtr->registers[rn]) + 1;
 	carryout = (res > INT_MAX) ? 1 : 0;
-	machinePtr->registers[binConverter(rd)] = res;
-	return machinePtr->registers[binConverter(rd)];
+	machinePtr->registers[rd] = operand2 - machinePtr->registers[rn];
+	return machinePtr->registers[rd];
 }
 
-int executeADD(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
-	uint res = machinePtr->registers[binConverter(rn)] + binConverter(operand2);
+int executeADD(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int carryout) {
+	uint res = machinePtr->registers[rn] + operand2;
 	carryout = (res > INT_MAX) ? 1 : 0;
-	machinePtr->registers[binConverter(rd)] = res;
-	return machinePtr->registers[binConverter(rd)];
+	machinePtr->registers[rd] = res;
+	return machinePtr->registers[rd];
 }
 		
-int executeTST(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	return machinePtr->registers[binConverter(rn)] & binConverter(operand2);
+int executeTST(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+	return machinePtr->registers[rn] & operand2;
 }
 
-int executeTEQ(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	return machinePtr->registers[binConverter(rn)] ^ binConverter(operand2);
+int executeTEQ(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+	return machinePtr->registers[rn] ^ operand2;
 }
 
-int executeCMP(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr, int carryout) {
-	int res = machinePtr->registers[binConverter(rn)] + ~(binConverter(operand2)) + 1;
+int executeCMP(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int carryout) {
+	int res = machinePtr->registers[rn] + ~operand2 + 1;
 	carryout = (res > INT_MAX) ? 1 : 0;
-	return machinePtr->registers[binConverter(rn)] - binConverter(operand2);	
+	return machinePtr->registers[rn] - operand2;	
 }
 
-int executeORR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] | binConverter(operand2);
-	return machinePtr->registers[binConverter(rd)];
+int executeORR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+	machinePtr->registers[rd] = machinePtr->registers[rn] | operand2;
+	return machinePtr->registers[rd];
 }
 
-void executeMOV(char *operand2, char *rd, ARM_STATE *machinePtr) {
-	machinePtr->registers[binConverter(rd)] = binConverter(operand2);
+void executeMOV(uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+	machinePtr->registers[rd] = operand2;
 }
 
 //Converts a binary string into its denary value
@@ -237,61 +229,36 @@ int binConverter(char *str) {
 	return res;
 }
 
-//Zero extends a binary string to 32 bits
-char *zeroExtend(char *operand2) {
-	char *ptr = malloc(32);
-	int zeroLen = 32 - strlen(operand2);
-
-	memset(ptr, '0', zeroLen);
-	memcpy(ptr + zeroLen, operand2, strlen(operand2));
-
-	return ptr;
-}
-
 //Rotates a binary string by a specified amount
-char *rotateRight(char *operand2, int rotateAmt) {
-	int num = binConverter(operand2);
-
-	int rotated = num >> rotateAmt | num << (32 - rotateAmt);
-
-	return binRep(rotated);
+uint32_t rotateRight(uint32_t operand2 , int rotateAmt) {
+	int rotated = operand2 >> rotateAmt | operand2 << (32 - rotateAmt);
+	return rotated;
 }
 
 //Shifts the value in register rm by a specified amount in a specified way (left, right, arithmetic etc)
-char *shiftByConst(char *rm, char *shift, ARM_STATE *ptr) {
+int shiftByConst(int rm, int shift, ARM_STATE *ptr) {
 
-	int val = ptr->registers[binConverter(rm)];
-	char *type = malloc(2);
-	char *shiftAmt = malloc(5);
+	int val = ptr->registers[rm];
 	int carryout;
-	char *res;
+	int amt = shift >> 3;
+	int type = (shift >> 1) & 2;
 
-	strncpy(shiftAmt, shift, 5);
-	strncpy(type, shift+5, 2);
-
-	int amt = binConverter(shiftAmt);
-	char *binReg = binRep(val);
-
-	switch(binConverter(type)) {
+	switch(type) {
 		case 0:
-			carryout = (binReg[amt - 1] - '0');
-			val = val << amt;
-			res = binRep(val);
+			carryout = (val >> (REG_SIZE - amt)) & ONE_BIT_MASK;
+			val = (uint) val << amt;
 			break;
 		case 1:
-			carryout = (binReg[32 - amt] - '0');
-			val = val >> amt;
-			res = binRep(val);
+			carryout = (val >> amt) & ONE_BIT_MASK;
+			val = (uint) val >> amt;
 			break;
 		case 2:
-			carryout = (binReg[32 - amt] - '0');
+			carryout = (val >> amt) & ONE_BIT_MASK;
 			val = val >> amt;
-			res = binRep(val);
-			memset(res, res[0], amt + 1);
 			break;
 		case 3:
-			carryout = (binReg[32 - amt] - '0');
-			res = rotateRight(binReg, amt);
+			carryout = (val >> amt) & ONE_BIT_MASK;
+			val = rotateRight(val, amt);
 			break;
 	}
 
@@ -301,5 +268,5 @@ char *shiftByConst(char *rm, char *shift, ARM_STATE *ptr) {
 		ptr->registers[CPSR] &= ~C_mask;
 	}
 
-	return res;
+	return val;
 }
