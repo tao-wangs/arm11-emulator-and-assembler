@@ -17,6 +17,31 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 	char *rd = malloc(4);
 	char *operand2 = malloc(12);
 	
+	int condMask = 11110000000000000000000000000000;
+	int cond_shift = 28;
+	int immediateMask = 10000000000000000000000000;
+	int immediate_shift = 25;
+	int opcodeMask = 1111000000000000000000000;
+	int opcode_shift = 21;
+	int setMask = 100000000000000000000;
+	int set_shift = 20;
+	int rnMask = 11110000000000000000;
+	int rn_shift = 16;
+	int rdMask = 1111000000000000;
+	int rd_shift = 12;
+	int operand2Mask = 111111111111;
+	
+	
+	uint32_t instructionAsInt = atoi(instruction);
+	
+	int cond = (instructionAsInt & condMask) << cond_shift;
+	int immediateOperand = (instructionAsInt & immediateMask) << immediate_shift; 
+	int opcode = (instructionAsInt & opcodeMask) << opcode_shift;
+	int setConditionCode = (instructionAsInt & setMask) << set_shift;
+	int rn = (instructionAsInt & rnMask) << rn_shift;
+	int rd = (instructionAsInt & rdMask) << rd_shift;
+	int operand2 = (instructionAndInt & operand2Mask);
+	
 	strncpy(cond, instruction, 4);
 	strncpy(immediateOperand, instruction+6, 1);
 	strncpy(opcode, instruction+7, 4);
@@ -107,11 +132,13 @@ void updateFlags(char *opcode, int res, int carryout, ARM_STATE *machinePtr) {
 // Checks whether the immediate operand bit is set to 1 or not.
 int immediateOperandBitIsSet(char *immediateOperand) {
 	return strcmp(immediateOperand, "1") == 0;
+	// return immediateOperand == 1;
 }
 
 // Check whether the flags condition code is set.
 int conditionCodeIsSet(char *setConditionCode) {
 	return strcmp(setConditionCode, "1") == 0;
+	// return setConditionCode == 1;
 }	
 
 // Check whether the operation is arithmetic
@@ -120,6 +147,8 @@ int operationIsArithmetic(char *opcode) {
 			strcmp(opcode, rsb) && 
 			strcmp(opcode, add) && 
 			strcmp(opcode, cmp));
+	// return (opcode == sub || opcode == rsb || opcode == add || opcode == cmp); 
+	// Would need to change the constants to their denary value, and not leave them in binary in the header file.
 }
 
 // Check whether the operation is logical
@@ -130,11 +159,16 @@ int operationIsLogic(char *opcode) {
 			strcmp(opcode, teq) &&
 			strcmp(opcode, tst) &&
 			strcmp(opcode, mov));
+	// return (opcode == and || opcode == eor || opcode == teq || opcode == tst || opcode == mov);
+	// Would need to change the constants to their denary value, and not leave them in binary in the header file.
 }
 
 int executeAND(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
 	machinePtr->registers[binConverter(rd)] = machinePtr->registers[binConverter(rn)] & binConverter(operand2);
 	return machinePtr->registers[binConverter(rd)];
+	// 	machinePtr->registers[rd] = machinePtr->registers[rn] & operand2;
+	// 	Here don't we need operand2 in its binary form though to be able to and with it effectively?
+	//	return machinePtr->registers[rd];
 }
 
 int executeEOR(char *rn, char *operand2, char *rd, ARM_STATE *machinePtr) {
