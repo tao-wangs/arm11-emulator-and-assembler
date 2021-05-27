@@ -11,9 +11,9 @@ void executeBranch(unsigned int instr, ARM_STATE *state){
   unsigned int cond = (instr & condMask) >> 28;
 
   if (conditionMet(cond, state)){
-    offset = offset << 2;
+    offset <<= 2;
     if (checkSign){
-      offset = offset | 0xFC000000; //add 6 1s for sign extension 
+      offset |= 0xFC000000; //add 6 1s for sign extension 
     }
 
     state->registers[PC] += offset;
