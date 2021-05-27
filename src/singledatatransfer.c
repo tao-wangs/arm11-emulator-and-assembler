@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include "arm_state.h"
+#include "multiply.h"
 
 typedef enum {
     EQ = 0x0,
@@ -145,40 +146,4 @@ unsigned int rotateRight(unsigned int value, int shift) {
       return value;
     }
     return (value >> shift) | (value << (32 - shift));
-}
-
-/* flags in CPSR:
-n = last result was negative
-z = last result was zero
-c = last result caused a bit to be carried out
-v = last result overflowed */
-bool conditionMet(unsigned int conditionCode, ARM_STATE *machine) {
-    int nMask = 0x8000000;
-    int zMask = 0x4000000;
-    int cMask = 0x2000000;
-    int vMask = 0x1000000;
-
-    unsigned char n = (machine->registers[CPSR] & nMask) >> 31; 
-    unsigned char z = (machine->registers[CPSR] & zMask) >> 30; 
-    unsigned char c = (machine->registers[CPSR] & cMask) >> 29; 
-    unsigned char v = (machine->registers[CPSR] & vMask) >> 28; 
-
-    switch (conditionCode) {
-        case EQ:
-            return z;
-        case NE: 
-            return !z;
-        case GE : 
-            return (n == v);
-        case LT: 
-            return !(n == v);
-        case GT: 
-            return (!z && (n == v));
-        case LE: 
-            return (z || !(n == v));
-        case AL:  
-            return true;
-        default: 
-            return false;
-    }
 }
