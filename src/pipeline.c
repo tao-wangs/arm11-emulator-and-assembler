@@ -5,6 +5,8 @@
 #include "decode.h"
 #include "arm_state.h"
 #include "multiply.h"
+#include "singledatatransfer.h"
+#include "branch.h"
 
 #define PC 15
 #define INSTRUCTION_SIZE 4
@@ -49,28 +51,34 @@ void pipeline(ARM_STATE *state){
       switch (type){
         case Multiply:
 	  decodeMultiply(pipePtr->decodedInstr, state);
+	  printf("Multiply instruction executed\n");
 	case Branch:
+	  executeBranch(pipePtr->decodedInstr, state);
+	  printf("Branch instruction executed\n");
 	  pipePtr->decodedInstr = 0;
-          goto fetch;	  
+          goto fetch; // skip decode
 	case DataProcessing:
 	  printf("Instruction type not implemented yet, stopping pipeline execution...\n");
-	  break;
+	  goto stop;
 	case SingleDataTransfer:
-	  printf("Instruction type not implemented yet, stopping pipeline execution...\n");
-	  break;
+	  decodeSDT(pipePtr->decodedInstr, state);
+	  printf("SDT instruction executed\n");
 	default:
 	  printf("Instruction not recognised, stopping pipeline execution...\n");
-	  break;
+	  goto stop;
       }
 
       type = decode(pipePtr->fetchedInstr);
       pipePtr->decodedInstr = pipePtr->fetchedInstr;
       
       fetch:
-        state->registers[PC] += 4;
-        pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
+      state->registers[PC] += 4;
+      pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
 
     }
   } while(pipePtr->fetchedInstr != 0);
+  
+  stop:
+  printf("pipeline stopped\n");
 }
 
