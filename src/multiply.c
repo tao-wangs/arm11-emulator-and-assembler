@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-
 #include "arm_state.h"
 
 typedef enum {
@@ -36,12 +35,16 @@ void decodeMultiply(unsigned int instruction, ARM_STATE *machinePtr) {
     int Rs = (instruction & rsMask) >> 8;
     int Rm = (instruction & rmMask) >> 12;
 
-    if (conditionMet(Cond, machinePtr)) {
-        if (A == 1) {
-            executeMultiplyAccumulate(Rm, Rs, Rn, Rd, S, machinePtr);
-        }
-        executeMultiply(Rm, Rs, Rd, S, machinePtr);
+
+    if (!conditionMet(Cond, machinePtr)) {
+        return;
     }
+
+    if (A == 1) {
+        executeMultiplyAccumulate(Rm, Rs, Rn, Rd, S, machinePtr);
+    }
+
+    executeMultiply(Rm, Rs, Rd, S, machinePtr);
 }
 
 void executeMultiply(int Rm, int Rs, int Rd, int S, ARM_STATE *machine) {
