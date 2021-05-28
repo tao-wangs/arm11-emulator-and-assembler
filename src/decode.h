@@ -8,7 +8,8 @@ typedef enum  {
     DataProcessing,
     Multiply,
     SingleDataTransfer,
-    Branch
+    Branch,
+    Halt
 } INSTRUCTION_TYPE;
 
 typedef enum {
