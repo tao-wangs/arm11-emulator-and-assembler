@@ -1,6 +1,8 @@
 #ifndef DATA_PROCESSING_H
 #define DATA_PROCESSING_H
 
+#include <stdint.h>
+
 #include "arm_state.h"
 
 #define eq 0b0000
@@ -40,20 +42,20 @@ int conditionCodeIsSet(int setFlags);
 int operationIsArithmetic(int opcode);
 int operationIsLogic(int opcode);
 
-int executeAND(int rn, u_int32_t operand2, int rd, ARM_STATE *machinePtr);
-int executeEOR(int rn, u_int32_t operand2, int rd, ARM_STATE *machinePtr);
-int executeSUB(int rn, u_int32_t operand2, int rd, ARM_STATE *machinePtr, int carryout);
-int executeRSB(int rn, u_int32_t operand2, int rd, ARM_STATE *machinePtr, int carryout);
-int executeADD(int rn, u_int32_t operand2, int rd, ARM_STATE *machinePtr, int carryout);
-int executeTST(int rn, u_int32_t operand2, int rd, ARM_STATE *machinePtr);
-int executeTEQ(int rn, u_int32_t operand2, int rd, ARM_STATE *machinePtr);
-int executeCMP(int rn, u_int32_t operand2, int rd, ARM_STATE *machinePtr, int carryout);
-int executeORR(int rn, u_int32_t operand2, int rd, ARM_STATE *machinePtr);
-void executeMOV(u_int32_t operand2, int rd, ARM_STATE *machinePtr);
+int executeAND(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
+int executeEOR(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
+int executeSUB(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int carryout);
+int executeRSB(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int carryout);
+int executeADD(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int carryout);
+int executeTST(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
+int executeTEQ(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
+int executeCMP(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int carryout);
+int executeORR(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
+void executeMOV(uint32_t operand2, int rd, ARM_STATE *machinePtr);
 
 int binConverter(char *str);
 int zeroExtend(int operand2);
-u_int32_t rotateRight(u_int32_t operand2, int rotateAmt);
+uint32_t rotateRight(uint32_t operand2, int rotateAmt);
 int shiftByConst(int rm, int shift, ARM_STATE *ptr);
 void updateFlags(int opcode, int res, int carryout, ARM_STATE *ptr);
 bool conditionMet(unsigned int condCode, ARM_STATE *ptr);
