@@ -1,6 +1,8 @@
 #ifndef DATA_PROCESSING_H
 #define DATA_PROCESSING_H
 
+#include <stdint.h>
+
 #include "arm_state.h"
 
 #define eq 0b0000
