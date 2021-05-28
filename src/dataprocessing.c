@@ -30,7 +30,7 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 			int shift = operand2 >> 4;
 
 			if ((shift & 0x1) == 0) {
-				operand2 = shiftByConst(rm, shift, machinePtr);
+				operand2 = shiftByConst(rm, shift, setFlags, machinePtr);
 			}
 		}
 
@@ -201,7 +201,7 @@ uint32_t rotateRight(uint32_t operand2 , int rotateAmt) {
 }
 
 //Shifts the value in register rm by a specified amount in a specified way (left, right, arithmetic etc)
-int shiftByConst(int rm, int shift, ARM_STATE *ptr) {
+int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr) {
 
 	int val = ptr->registers[rm];
 	int carryout;
@@ -226,12 +226,13 @@ int shiftByConst(int rm, int shift, ARM_STATE *ptr) {
 			val = rotateRight(val, amt);
 			break;
 	}
-
-	if (carryout) {
-		ptr->registers[CPSR] |= C_mask;
-	} else {
-		ptr->registers[CPSR] &= ~C_mask;
+	
+	if (conditionCodeIsSet(setFlags)) {
+		if (carryout) {
+			ptr->registers[CPSR] |= C_mask;
+		} else {
+			ptr->registers[CPSR] &= ~C_mask;
+		}
 	}
-
 	return val;
 }
