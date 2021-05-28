@@ -8,7 +8,7 @@
 #include "decode.h"
 
 // main method for executing a data processing instruction
-void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
+void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 
 	int cond_shift = 28;
 	int imm_shift = 25;
@@ -16,16 +16,14 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 	int set_shift = 20;
 	int rn_shift = 16;
 	int rd_shift = 12;
-	
-	int instructionAsInt = binConverter(instruction);
-	
-	int condCode = (unsigned int) instructionAsInt >> cond_shift;
-	int immOperand = (instructionAsInt >> imm_shift) & ONE_BIT_MASK;
-	int opcode = (instructionAsInt >> opcode_shift) & FOUR_BIT_MASK;
-	int setFlags = (instructionAsInt >> set_shift) & ONE_BIT_MASK;
-	int rn = (instructionAsInt >> rn_shift) & FOUR_BIT_MASK;
-	int rd = (instructionAsInt >> rd_shift) & FOUR_BIT_MASK;
-	uint32_t operand2 = instructionAsInt & TWELVE_BIT_MASK;
+
+	int condCode = (unsigned int) instruction >> cond_shift;
+	int immOperand = (instruction >> imm_shift) & ONE_BIT_MASK;
+	int opcode = (instruction >> opcode_shift) & FOUR_BIT_MASK;
+	int setFlags = (instruction >> set_shift) & ONE_BIT_MASK;
+	int rn = (instruction >> rn_shift) & FOUR_BIT_MASK;
+	int rd = (instruction >> rd_shift) & FOUR_BIT_MASK;
+	uint32_t operand2 = instruction & TWELVE_BIT_MASK;
 
 	if (conditionMet(condCode, machinePtr)) {
 
@@ -36,7 +34,7 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 		} else {
 			//printf("0");
 			int rm = operand2 & FOUR_BIT_MASK;
-			int shift = operand2 >> 4; 
+			int shift = operand2 >> 4;
 
 			if ((shift & 0x1) == 0) {
 				operand2 = shiftByConst(rm, shift, machinePtr);
@@ -95,7 +93,7 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 
 //Sets the CPSR's flags based on the result and the carryout of the operation
 void updateFlags(int opcode, int res, int carryout, ARM_STATE *machinePtr) {
-	
+
 	machinePtr->registers[CPSR] |= (res & N_mask);
 
 	if (res == 0) {
@@ -119,7 +117,7 @@ int immediateOperandBitIsSet(int immOperand) {
 // Check whether the flags condition code is set.
 int conditionCodeIsSet(int setFlags) {
 	return setFlags == 1;
-}	
+}
 
 // Check whether the operation is arithmetic
 int operationIsArithmetic(int opcode) {
@@ -161,7 +159,7 @@ int executeADD(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int ca
 	machinePtr->registers[rd] = res;
 	return machinePtr->registers[rd];
 }
-		
+
 int executeTST(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 	return machinePtr->registers[rn] & operand2;
 }
@@ -173,7 +171,7 @@ int executeTEQ(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 int executeCMP(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int carryout) {
 	int res = machinePtr->registers[rn] + ~operand2 + 1;
 	carryout = (res > INT_MAX) ? 1 : 0;
-	return machinePtr->registers[rn] - operand2;	
+	return machinePtr->registers[rn] - operand2;
 }
 
 int executeORR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
@@ -196,7 +194,7 @@ int binConverter(char *str) {
 			res += cnt;
 		}
 
-		cnt *= 2; 
+		cnt *= 2;
 	}
 
 	return res;

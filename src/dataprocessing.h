@@ -35,7 +35,7 @@
 #define INT_MAX 0xFFFFFFFF
 #define REG_SIZE 32
 
-void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr);
+void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr);
 
 int immediateOperandBitIsSet(int immOperand);
 int conditionCodeIsSet(int setFlags);

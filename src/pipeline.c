@@ -62,7 +62,7 @@ void pipeline(ARM_STATE *state){
     	  goto fetch; // skip decode
 	  break;
 	case DataProcessing:
-	  dataProcessingInstruction(binRep(pipePtr->decodedInstr), state);
+	  dataProcessingInstruction(pipePtr->decodedInstr, state);
 	  //printf("Data processing instruction executed\n");
 	  break;
 	case SingleDataTransfer:
