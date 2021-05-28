@@ -43,6 +43,7 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 
 		int res;
 		int carryout = 0;
+		int* carryptr = &carryout;
 
 		switch (opcode) {
 			case and:
@@ -52,13 +53,13 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 				res = executeEOR(rn, operand2, rd, machinePtr);
 				break;
 			case sub:
-				res = executeSUB(rn, operand2, rd, machinePtr, carryout);
+				res = executeSUB(rn, operand2, rd, machinePtr, carryptr);
 				break;
 			case rsb:
-				res = executeRSB(rn, operand2, rd, machinePtr, carryout);
+				res = executeRSB(rn, operand2, rd, machinePtr, carryptr);
 				break;
 			case add:
-				res = executeADD(rn, operand2, rd, machinePtr, carryout);
+				res = executeADD(rn, operand2, rd, machinePtr, carryptr);
 				break;
 			case tst:
 				res = executeTST(rn, operand2, rd, machinePtr);
@@ -67,7 +68,7 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 				res = executeTEQ(rn, operand2, rd, machinePtr);
 				break;
 			case cmp:
-				res = executeCMP(rn, operand2, rd, machinePtr, carryout);
+				res = executeCMP(rn, operand2, rd, machinePtr, carryptr);
 				break;
 			case orr:
 				res = executeORR(rn, operand2, rd, machinePtr);
@@ -139,23 +140,23 @@ int executeEOR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 	return machinePtr->registers[rd];
 }
 
-int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int carryout) {
+int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
 	int res = machinePtr->registers[rn] + ~operand2 + 1;
-	carryout = (res > INT_MAX) ? 1 : 0;
+	*carryptr = (res > INT_MAX) ? 1 : 0;
 	machinePtr->registers[rd] = machinePtr->registers[rn] - operand2;
 	return machinePtr->registers[rd];
 }
 
-int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int carryout) {
+int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
 	int res = operand2 + ~(machinePtr->registers[rn]) + 1;
-	carryout = (res > INT_MAX) ? 1 : 0;
+	*carryptr = (res > INT_MAX) ? 1 : 0;
 	machinePtr->registers[rd] = operand2 - machinePtr->registers[rn];
 	return machinePtr->registers[rd];
 }
 
-int executeADD(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int carryout) {
+int executeADD(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
 	uint res = machinePtr->registers[rn] + operand2;
-	carryout = (res > INT_MAX) ? 1 : 0;
+	*carryptr = (res > INT_MAX) ? 1 : 0;
 	machinePtr->registers[rd] = res;
 	return machinePtr->registers[rd];
 }
@@ -168,9 +169,9 @@ int executeTEQ(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 	return machinePtr->registers[rn] ^ operand2;
 }
 
-int executeCMP(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int carryout) {
+int executeCMP(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
 	int res = machinePtr->registers[rn] + ~operand2 + 1;
-	carryout = (res > INT_MAX) ? 1 : 0;
+	*carryptr = (res > INT_MAX) ? 1 : 0;
 	return machinePtr->registers[rn] - operand2;
 }
 

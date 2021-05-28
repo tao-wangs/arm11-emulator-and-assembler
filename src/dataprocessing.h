@@ -44,12 +44,12 @@ int operationIsLogic(int opcode);
 
 int executeAND(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
 int executeEOR(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
-int executeSUB(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int carryout);
-int executeRSB(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int carryout);
-int executeADD(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int carryout);
+int executeSUB(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int* carryptr);
+int executeRSB(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int* carryptr);
+int executeADD(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int* carryptr);
 int executeTST(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
 int executeTEQ(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
-int executeCMP(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int carryout);
+int executeCMP(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int* carryptr);
 int executeORR(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
 void executeMOV(uint32_t operand2, int rd, ARM_STATE *machinePtr);
 
