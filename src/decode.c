@@ -43,12 +43,10 @@ v = last result overflowed */
 bool conditionMet(unsigned int conditionCode, ARM_STATE *machine) {
     int nMask = 0x8000000;
     int zMask = 0x4000000;
-    int cMask = 0x2000000;
     int vMask = 0x1000000;
 
     unsigned char n = (machine->registers[CPSR] & nMask) >> 31; 
     unsigned char z = (machine->registers[CPSR] & zMask) >> 30; 
-    unsigned char c = (machine->registers[CPSR] & cMask) >> 29; 
     unsigned char v = (machine->registers[CPSR] & vMask) >> 28; 
 
     switch (conditionCode) {
