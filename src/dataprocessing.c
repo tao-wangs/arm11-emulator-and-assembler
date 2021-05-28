@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #include "dataprocessing.h"
-#include "arm_state.h"
+#include "decode.h"
 
 // main method for executing a data processing instruction
 void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
@@ -38,7 +38,7 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 			int rm = operand2 & FOUR_BIT_MASK;
 			int shift = operand2 >> 4; 
 
-			if (shift & 0x1 == 0) {
+			if ((shift & 0x1) == 0) {
 				operand2 = shiftByConst(rm, shift, machinePtr);
 			}
 		}
@@ -91,33 +91,6 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 	} else {
 		printf("Condition not met.");
 	}
-}
-
-bool conditionMet(unsigned int condCode, ARM_STATE *ptr) {
-
-    unsigned int n = (ptr->registers[CPSR] & N_mask) >> 31; 
-    unsigned int z = (ptr->registers[CPSR] & Z_mask) >> 30; 
-    unsigned int c = (ptr->registers[CPSR] & C_mask) >> 29;
-    unsigned int v = (ptr->registers[CPSR] & V_mask) >> 28;
-
-    switch (condCode) {
-        case eq:
-            return z;
-        case ne: 
-            return !z;
-        case ge : 
-            return (n == v);
-        case lt: 
-            return !(n == v);
-        case gt: 
-            return (!z && (n == v));
-        case le: 
-            return (z || !(n == v));
-        case al:  
-            return true;
-        default: 
-            return false;
-    }
 }
 
 //Sets the CPSR's flags based on the result and the carryout of the operation

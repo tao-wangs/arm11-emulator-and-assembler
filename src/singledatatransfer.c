@@ -2,31 +2,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <assert.h>
-#include "arm_state.h"
-#include "multiply.h"
 
-typedef enum {
-    EQ = 0x0,
-    NE = 0x1,
-    GE = 0xA, 
-    LT = 0xB,
-    GT = 0xC, 
-    LE = 0xD, 
-    AL = 0xE
-} CONDITION_CODE;
-
-typedef enum {
-    LSL,
-    LSR,
-    ASR,
-    ROR,
-} SHIFT_TYPE;
-
-void decodeSDT(unsigned int instruction, ARM_STATE *machinePtr);
-void executeLoad(int P, int U, int Rn, int Rd, int Offset, ARM_STATE *machine);
-void executeStore(int P, int U, int Rn, int Rd, int Offset, ARM_STATE *machine);
-unsigned int rotateRight(unsigned int value, int shift);
-bool conditionMet(unsigned int conditionCode, ARM_STATE *machine);
+#include "decode.h"
+#include "singledatatransfer.h"
 
 void decodeSDT(unsigned int instruction, ARM_STATE *machinePtr) {
     int condMask = 0xF0000000;
@@ -84,7 +62,7 @@ void decodeSDT(unsigned int instruction, ARM_STATE *machinePtr) {
                 default: ;
                     assert (shiftType == ROR);
                     Offset = machinePtr->registers[Rm] = 
-                        rotateRight((unsigned int) machinePtr->registers[Rm], integer);
+                        rotateRightSDT((unsigned int) machinePtr->registers[Rm], integer);
             }
         } else { //this is the optional part on page 7 of spec
             assert (bit4 == 1);
@@ -107,7 +85,7 @@ void decodeSDT(unsigned int instruction, ARM_STATE *machinePtr) {
                 default: ;
                     assert (shiftType == ROR);
                     Offset = machinePtr->registers[Rm] = 
-                        rotateRight((unsigned int) machinePtr->registers[Rm], shiftAmount);
+                        rotateRightSDT((unsigned int) machinePtr->registers[Rm], shiftAmount);
             }
         }
         (L == 1) ? executeLoad(P, U, Rn, Rd, Offset, machinePtr) : executeStore(P, U, Rn, Rd, Offset, machinePtr);
@@ -141,7 +119,7 @@ void executeStore(int P, int U, int Rn, int Rd, int Offset, ARM_STATE *machine) 
 }
 
 
-unsigned int rotateRight(unsigned int value, int shift) {
+unsigned int rotateRightSDT(unsigned int value, int shift) {
     if ((shift &= 31) == 0) {
       return value;
     }
