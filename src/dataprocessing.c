@@ -19,7 +19,7 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 	
 	int instructionAsInt = binConverter(instruction);
 	
-	int condCode = instructionAsInt >> cond_shift;
+	int condCode = (unsigned int) instructionAsInt >> cond_shift;
 	int immOperand = (instructionAsInt >> imm_shift) & ONE_BIT_MASK;
 	int opcode = (instructionAsInt >> opcode_shift) & FOUR_BIT_MASK;
 	int setFlags = (instructionAsInt >> set_shift) & ONE_BIT_MASK;
@@ -30,11 +30,11 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 	if (conditionMet(condCode, machinePtr)) {
 
 		if (immediateOperandBitIsSet(immOperand)) {
-			printf("1");
+			//printf("1");
 			int rotateAmt = operand2 >> 8;
 			operand2 = rotateRight(operand2, 2 * rotateAmt);
 		} else {
-			printf("0");
+			//printf("0");
 			int rm = operand2 & FOUR_BIT_MASK;
 			int shift = operand2 >> 4; 
 
@@ -78,7 +78,7 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 				executeMOV(operand2, rd, machinePtr);
 				break;
 			default:
-				printf("Opcode of instruction not recognised.");
+				//printf("Opcode of instruction not recognised.");
 				return;
 		}
 
@@ -86,10 +86,10 @@ void dataProcessingInstruction(char *instruction, ARM_STATE *machinePtr) {
 			updateFlags(opcode, res, carryout, machinePtr);
 		}
 
-	printf("The result is %u\n", res);
+	//printf("The result is %u\n", res);
 
 	} else {
-		printf("Condition not met.");
+		//printf("Condition not met.\n");
 	}
 }
 
