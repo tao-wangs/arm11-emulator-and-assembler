@@ -46,8 +46,6 @@ void pipeline(ARM_STATE *state){
       state->registers[PC] += 4;
       pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
       
-      state->registers[PC] += 4; 
-      
     } else {
       
       //insert switch case here for each type of instruction to execute
@@ -59,7 +57,8 @@ void pipeline(ARM_STATE *state){
 	case Branch:
 	  executeBranch(pipePtr->decodedInstr, state);
 	  pipePtr->decodedInstr = 0;
-          goto fetch; // skip decode
+    printf("Branch instruction executed\n")
+    goto fetch; // skip decode
 	  break;
 	case DataProcessing:
 	  dataProcessingInstruction(binRep(pipePtr->decodedInstr), state);
@@ -86,8 +85,8 @@ void pipeline(ARM_STATE *state){
 
     }
   } 
-  printf("stopped while loop\n"); 
+
   stop:
-  printf("pipeline stopped\nfetch: %x\ndecode:%x\n", pipePtr->fetchedInstr, pipePtr->decodedInstr);
+  printf("pipeline stopped");
 }
 
