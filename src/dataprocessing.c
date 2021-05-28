@@ -10,13 +10,6 @@
 // main method for executing a data processing instruction
 void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 
-	int cond_shift = 28;
-	int imm_shift = 25;
-	int opcode_shift = 21;
-	int set_shift = 20;
-	int rn_shift = 16;
-	int rd_shift = 12;
-
 	int condCode = (unsigned int) instruction >> cond_shift;
 	int immOperand = (instruction >> imm_shift) & ONE_BIT_MASK;
 	int opcode = (instruction >> opcode_shift) & FOUR_BIT_MASK;
