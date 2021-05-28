@@ -39,12 +39,13 @@ void pipeline(ARM_STATE *state){
     if(pipePtr->decodedInstr == 0){
       if(pipePtr->fetchedInstr == 0){
 	pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
+	state->registers[PC] += 4;
       }
       type = decode(pipePtr->fetchedInstr);
       pipePtr->decodedInstr = pipePtr->fetchedInstr;
       
-      state->registers[PC] += 4;
       pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
+      state->registers[PC] += 4;
       
     } else {
       
@@ -57,8 +58,8 @@ void pipeline(ARM_STATE *state){
 	case Branch:
 	  executeBranch(pipePtr->decodedInstr, state);
 	  pipePtr->decodedInstr = 0;
-    printf("Branch instruction executed\n")
-    goto fetch; // skip decode
+    	  printf("Branch instruction executed\n");
+    	  goto fetch; // skip decode
 	  break;
 	case DataProcessing:
 	  dataProcessingInstruction(binRep(pipePtr->decodedInstr), state);
@@ -80,13 +81,13 @@ void pipeline(ARM_STATE *state){
       pipePtr->decodedInstr = pipePtr->fetchedInstr;
       
       fetch:
-      state->registers[PC] += 4;
       pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
+      state->registers[PC] += 4;
 
     }
   } 
 
   stop:
-  printf("pipeline stopped");
+  printf("pipeline stopped\n");
 }
 
