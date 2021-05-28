@@ -18,10 +18,9 @@ void decodeMultiply(unsigned int instruction, ARM_STATE *machinePtr) {
     int A = (instruction & aMask) >> 21;
     int S = (instruction & sMask) >> 20;
     int Rd = (instruction & rdMask) >> 16;
-    int Rn = (instruction & rnMask);
+    int Rn = (instruction & rnMask) >> 12;
     int Rs = (instruction & rsMask) >> 8;
-    int Rm = (instruction & rmMask) >> 12;
-
+    int Rm = (instruction & rmMask);
 
     if (!conditionMet(Cond, machinePtr)) {
         return;
@@ -29,6 +28,7 @@ void decodeMultiply(unsigned int instruction, ARM_STATE *machinePtr) {
 
     if (A == 1) {
         executeMultiplyAccumulate(Rm, Rs, Rn, Rd, S, machinePtr);
+        return;
     }
 
     executeMultiply(Rm, Rs, Rd, S, machinePtr);
@@ -43,14 +43,22 @@ void executeMultiply(int Rm, int Rs, int Rd, int S, ARM_STATE *machine) {
     machine->registers[Rd] = result;
 
     int zMask = 0x4000000;
+    int bit31Mask = 0x80000000;
 
     if (S == 1) {
+        int bit31 = ((unsigned int) result & bit31Mask) >> 31;
+        
         if (result == 0) {
-            
             machine->registers[CPSR] |= zMask;
         }
-        machine->registers[CPSR] |= (result >> (WORD_SIZE - 1));
-    }   
+        
+        if (bit31 == 1) {
+            machine->registers[CPSR] |= bit31Mask;
+            return;
+        }
+
+        machine->registers[CPSR] &= ~bit31Mask;
+    }  
 }
 
 void executeMultiplyAccumulate(int Rm, int Rs, int Rn, int Rd, int S, ARM_STATE *machine) {
@@ -61,11 +69,20 @@ void executeMultiplyAccumulate(int Rm, int Rs, int Rn, int Rd, int S, ARM_STATE 
     int result = operand1 * operand2 + operand3;
 
     int zMask = 0x4000000;
+    int bit31Mask = 0x80000000;
 
     if (S == 1) {
+        int bit31 = ((unsigned int) result & bit31Mask) >> 31;
+        
         if (result == 0) {
             machine->registers[CPSR] |= zMask;
         }
-        machine->registers[CPSR] |= (result >> (WORD_SIZE - 1));
+        
+        if (bit31 == 1) {
+            machine->registers[CPSR] |= bit31Mask;
+            return;
+        }
+
+        machine->registers[CPSR] &= ~bit31Mask;
     }  
 }
