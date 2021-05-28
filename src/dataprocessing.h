@@ -35,6 +35,13 @@
 #define INT_MAX 0xFFFFFFFF
 #define REG_SIZE 32
 
+#define cond_shift 28
+#define imm_shift 25
+#define opcode_shift 21
+#define set_shift 20
+#define rn_shift 16
+#define rd_shift 12
+
 void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr);
 
 int immediateOperandBitIsSet(int immOperand);
