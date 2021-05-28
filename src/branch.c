@@ -11,7 +11,7 @@ void executeBranch(unsigned int instr, ARM_STATE *state){
   int checkSign = (instr & signedMask) >> 23;
   int offset = (instr & offMask);
   unsigned int cond = (instr & condMask) >> 28;
-
+  
   if (conditionMet(cond, state)){
     offset <<= 2;
     if (checkSign){

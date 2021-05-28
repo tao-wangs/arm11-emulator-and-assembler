@@ -7,7 +7,9 @@
 #include "multiply.h"
 #include "singledatatransfer.h"
 #include "branch.h"
+#include "dataprocessing.h"
 
+#define eof 26
 #define PC 15
 #define INSTRUCTION_SIZE 4
 
@@ -33,7 +35,7 @@ void pipeline(ARM_STATE *state){
   pipePtr->fetchedInstr = 0;
   pipePtr->decodedInstr = 0; 
 
-  do {
+  while (type!=Halt) {
     if(pipePtr->decodedInstr == 0){
       if(pipePtr->fetchedInstr == 0){
 	pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
@@ -44,7 +46,6 @@ void pipeline(ARM_STATE *state){
       state->registers[PC] += 4;
       pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
       
-      
     } else {
       
       //insert switch case here for each type of instruction to execute
@@ -52,19 +53,26 @@ void pipeline(ARM_STATE *state){
         case Multiply:
 	  decodeMultiply(pipePtr->decodedInstr, state);
 	  printf("Multiply instruction executed\n");
+	  break;
 	case Branch:
 	  executeBranch(pipePtr->decodedInstr, state);
-	  printf("Branch instruction executed\n");
 	  pipePtr->decodedInstr = 0;
-          goto fetch; // skip decode
+    printf("Branch instruction executed\n")
+    goto fetch; // skip decode
+	  break;
 	case DataProcessing:
-	  printf("Instruction type not implemented yet, stopping pipeline execution...\n");
-	  goto stop;
+	  dataProcessingInstruction(binRep(pipePtr->decodedInstr), state);
+	  printf("Data processing instruction executed\n");
+	  break;
 	case SingleDataTransfer:
 	  decodeSDT(pipePtr->decodedInstr, state);
 	  printf("SDT instruction executed\n");
+	  break;
+	case Halt:
+	  printf("Halt instruction detected...\n");
+	  goto stop;
 	default:
-	  printf("Instruction not recognised, stopping pipeline execution...\n");
+	  printf("Instruction not recognised, stopping execution...");
 	  goto stop;
       }
 
@@ -76,9 +84,9 @@ void pipeline(ARM_STATE *state){
       pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
 
     }
-  } while(pipePtr->fetchedInstr != 0);
-  
+  } 
+
   stop:
-  printf("pipeline stopped\n");
+  printf("pipeline stopped");
 }
 

@@ -9,8 +9,14 @@
 INSTRUCTION_TYPE decode(unsigned int instruction) {
     unsigned int mask1 = 0x0C000000;
     unsigned int mask2 = 0x0FC000F0;
+    unsigned int haltMask = 0x00000000;
     unsigned int temp = (instruction & mask1) >> 26;
     unsigned int temp2 = (instruction & mask2) >> 4;
+
+    if(!(instruction | haltMask)){
+    	return Halt;
+    }
+
     switch (temp)
     {
         case 0:
