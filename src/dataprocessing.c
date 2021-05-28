@@ -226,7 +226,7 @@ int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr) {
 			val = rotateRight(val, amt);
 			break;
 	}
-	
+
 	if (conditionCodeIsSet(setFlags)) {
 		if (carryout) {
 			ptr->registers[CPSR] |= C_mask;
