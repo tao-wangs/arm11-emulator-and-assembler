@@ -25,7 +25,7 @@ void loadInstrToMem(ARM_STATE *state, char *progName){
 }
 
 void pipeline(ARM_STATE *state){
-  enum INSTRUCTION_TYPE type;
+  INSTRUCTION_TYPE type;
  
   PIPELINE_STATE pipe;
   PIPELINE_STATE *pipePtr = &pipe;

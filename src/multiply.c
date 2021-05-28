@@ -1,22 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "arm_state.h"
 
-typedef enum {
-    EQ = 0x0,
-    NE = 0x1,
-    GE = 0xA, 
-    LT = 0xB,
-    GT = 0xC, 
-    LE = 0xD, 
-    AL = 0xE
-} CONDITION_CODE;
-
-void decodeMultiply(unsigned int instruction, ARM_STATE *machinePtr);
-bool conditionMet(unsigned int conditionCode, ARM_STATE *machine);
-void executeMultiply(int Rm, int Rs, int Rd, int S, ARM_STATE *machine);
-void executeMultiplyAccumulate(int Rm, int Rs, int Rn, int Rd, int S, ARM_STATE *machine);
+#include "decode.h"
+#include "multiply.h"
 
 void decodeMultiply(unsigned int instruction, ARM_STATE *machinePtr) {
     int condMask = 0xF0000000;
@@ -81,40 +68,4 @@ void executeMultiplyAccumulate(int Rm, int Rs, int Rn, int Rd, int S, ARM_STATE 
         }
         machine->registers[CPSR] |= (result >> (WORD_SIZE - 1));
     }  
-}
-
-/* flags in CPSR:
-n = last result was negative
-z = last result was zero
-c = last result caused a bit to be carried out
-v = last result overflowed */
-bool conditionMet(unsigned int conditionCode, ARM_STATE *machine) {
-    int nMask = 0x8000000;
-    int zMask = 0x4000000;
-    int cMask = 0x2000000;
-    int vMask = 0x1000000;
-
-    unsigned char n = (machine->registers[CPSR] & nMask) >> 31; 
-    unsigned char z = (machine->registers[CPSR] & zMask) >> 30; 
-    unsigned char c = (machine->registers[CPSR] & cMask) >> 29; 
-    unsigned char v = (machine->registers[CPSR] & vMask) >> 28; 
-
-    switch (conditionCode) {
-        case EQ:
-            return z;
-        case NE: 
-            return !z;
-        case GE : 
-            return (n == v);
-        case LT: 
-            return !(n == v);
-        case GT: 
-            return (!z && (n == v));
-        case LE: 
-            return (z || !(n == v));
-        case AL:  
-            return true;
-        default: 
-            return false;
-    }
 }

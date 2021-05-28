@@ -1,5 +1,7 @@
-#include "multiply.h"
 #include <stdio.h>
+
+#include "branch.h"
+#include "decode.h"
 
 void executeBranch(unsigned int instr, ARM_STATE *state){
   int condMask = 0xF0000000;
