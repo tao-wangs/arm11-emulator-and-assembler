@@ -10,12 +10,12 @@
 // main method for executing a data processing instruction
 void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 
-	int condCode = (unsigned int) instruction >> cond_shift;
-	int immOperand = (instruction >> imm_shift) & ONE_BIT_MASK;
-	int opcode = (instruction >> opcode_shift) & FOUR_BIT_MASK;
-	int setFlags = (instruction >> set_shift) & ONE_BIT_MASK;
-	int rn = (instruction >> rn_shift) & FOUR_BIT_MASK;
-	int rd = (instruction >> rd_shift) & FOUR_BIT_MASK;
+	int condCode = (unsigned int) instruction >> COND_SHIFT;
+	int immOperand = (instruction >> IMM_SHIFT) & ONE_BIT_MASK;
+	int opcode = (instruction >> OPCODE_SHIFT) & FOUR_BIT_MASK;
+	int setFlags = (instruction >> SET_SHIFT) & ONE_BIT_MASK;
+	int rn = (instruction >> RN_SHIFT) & FOUR_BIT_MASK;
+	int rd = (instruction >> RD_SHIFT) & FOUR_BIT_MASK;
 	uint32_t operand2 = instruction & TWELVE_BIT_MASK;
 
 	if (conditionMet(condCode, machinePtr)) {
@@ -39,34 +39,34 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 		int* carryptr = &carryout;
 
 		switch (opcode) {
-			case and:
+			case AND:
 				res = executeAND(rn, operand2, rd, machinePtr);
 				break;
-			case eor:
+			case EOR:
 				res = executeEOR(rn, operand2, rd, machinePtr);
 				break;
-			case sub:
+			case SUB:
 				res = executeSUB(rn, operand2, rd, machinePtr, carryptr);
 				break;
-			case rsb:
+			case RSB:
 				res = executeRSB(rn, operand2, rd, machinePtr, carryptr);
 				break;
-			case add:
+			case ADD:
 				res = executeADD(rn, operand2, rd, machinePtr, carryptr);
 				break;
-			case tst:
+			case TST:
 				res = executeTST(rn, operand2, rd, machinePtr);
 				break;
-			case teq:
+			case TEQ:
 				res = executeTEQ(rn, operand2, rd, machinePtr);
 				break;
-			case cmp:
+			case CMP:
 				res = executeCMP(rn, operand2, rd, machinePtr, carryptr);
 				break;
-			case orr:
+			case ORR:
 				res = executeORR(rn, operand2, rd, machinePtr);
 				break;
-			case mov:
+			case MOV:
 				executeMOV(operand2, rd, machinePtr);
 				break;
 			default:
@@ -88,18 +88,18 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 //Sets the CPSR's flags based on the result and the carryout of the operation
 void updateFlags(int opcode, int res, int carryout, ARM_STATE *machinePtr) {
 
-	machinePtr->registers[CPSR] |= (res & N_mask);
+	machinePtr->registers[CPSR] |= (res & N_MASK);
 
 	if (res == 0) {
-		machinePtr->registers[CPSR] |= Z_mask;
+		machinePtr->registers[CPSR] |= Z_MASK;
 	} else {
-		machinePtr->registers[CPSR] &= ~Z_mask;
+		machinePtr->registers[CPSR] &= ~Z_MASK;
 	}
 
 	if (operationIsArithmetic(opcode) && carryout) {
-		machinePtr->registers[CPSR] |= C_mask;
+		machinePtr->registers[CPSR] |= C_MASK;
 	} else {
-		machinePtr->registers[CPSR] &= ~C_mask;
+		machinePtr->registers[CPSR] &= ~C_MASK;
 	}
 }
 
@@ -209,19 +209,19 @@ int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr) {
 	int type = (shift >> 1) & 2;
 
 	switch(type) {
-		case lsl:
+		case LSL:
 			carryout = (val >> (REG_SIZE - amt)) & ONE_BIT_MASK;
 			val = (uint) val << amt;
 			break;
-		case lsr:
+		case LSR:
 			carryout = (val >> amt) & ONE_BIT_MASK;
 			val = (uint) val >> amt;
 			break;
-		case asr:
+		case ASR:
 			carryout = (val >> amt) & ONE_BIT_MASK;
 			val = val >> amt;
 			break;
-		case ror:
+		case ROR:
 			carryout = (val >> amt) & ONE_BIT_MASK;
 			val = rotateRight(val, amt);
 			break;
@@ -229,9 +229,9 @@ int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr) {
 
 	if (conditionCodeIsSet(setFlags)) {
 		if (carryout) {
-			ptr->registers[CPSR] |= C_mask;
+			ptr->registers[CPSR] |= C_MASK;
 		} else {
-			ptr->registers[CPSR] &= ~C_mask;
+			ptr->registers[CPSR] &= ~C_MASK;
 		}
 	}
 	return val;
