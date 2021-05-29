@@ -7,13 +7,10 @@
 
 //decides whether an instruction is one of the four instruction types;
 INSTRUCTION_TYPE decode(unsigned int instruction) {
-    unsigned int mask1 = 0x0C000000;
-    unsigned int mask2 = 0x0FC000F0;
-    unsigned int haltMask = 0x00000000;
-    unsigned int temp = (instruction & mask1) >> 26;
-    unsigned int temp2 = (instruction & mask2) >> 4;
+    unsigned int temp = (instruction & MASK_1) >> 26;
+    unsigned int temp2 = (instruction & MASK_2) >> 4;
 
-    if(!(instruction | haltMask)){
+    if(!(instruction | HALT_MASK)){
     	return Halt;
     }
 
@@ -42,9 +39,9 @@ c = last result caused a bit to be carried out
 v = last result overflowed */
 bool conditionMet(unsigned int conditionCode, ARM_STATE *machine) {
 
-    unsigned char n = (machine->registers[CPSR] & nMask) >> 31; 
-    unsigned char z = (machine->registers[CPSR] & zMask) >> 30; 
-    unsigned char v = (machine->registers[CPSR] & vMask) >> 28; 
+    unsigned char n = (machine->registers[CPSR] & N_MASK) >> 31; 
+    unsigned char z = (machine->registers[CPSR] & Z_MASK) >> 30; 
+    unsigned char v = (machine->registers[CPSR] & V_MASK) >> 28; 
 
     switch (conditionCode) {
         case EQ:

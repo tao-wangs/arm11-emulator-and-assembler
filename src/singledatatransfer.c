@@ -7,29 +7,18 @@
 #include "singledatatransfer.h"
 
 void decodeSDT(unsigned int instruction, ARM_STATE *machinePtr) {
-    int condMask = 0xF0000000;
-    int iMask = 0x02000000;
-    int pMask = 0x01000000;
-    int uMask = 0x00800000;
-    int lMask = 0x00100000;
-    int rnMask = 0x000F0000;
-    int rdMask = 0x0000F000;
-    int offsetMask = 0x00000FFF;
 
-    int Cond = (instruction & condMask) >> 28;
-    int I = (instruction & iMask) >> 25;
-    int P = (instruction & pMask) >> 24;
-    int U = (instruction & uMask) >> 23;
-    int L = (instruction & lMask) >> 20;
-    int Rn = (instruction & rnMask) >> 16;
-    int Rd = (instruction & rdMask) >> 12;
-    int Offset = (instruction & offsetMask);
+    int Cond = (instruction & COND_MASK) >> 28;
+    int I = (instruction & I_MASK) >> 25;
+    int P = (instruction & P_MASK) >> 24;
+    int U = (instruction & U_MASK) >> 23;
+    int L = (instruction & L_MASK) >> 20;
+    int Rn = (instruction & RN_MASK) >> 16;
+    int Rd = (instruction & RD_MASK) >> 12;
+    int Offset = (instruction & OFFSET_MASK);
 
-    int shiftMask = 0x00000FF0;
-    int rmMask = 0x0000000F;
-
-    int shift = (Offset & shiftMask) >> 4;
-    int Rm = (Offset & rmMask);
+    int shift = (Offset & SHIFT_MASK) >> 4;
+    int Rm = (Offset & RM_MASK);
 
     int bit4 = (shift & 0x01);
     

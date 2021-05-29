@@ -1,9 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-
-#define INSTRUCTION_SIZE 4
-#define UINT_SIZE sizeof(unsigned int)
+#include "binreader.h"
 
 unsigned int* readBin(char* fileName);
 long int fSize(char* fileName);

@@ -5,16 +5,16 @@
 
 #include "arm_state.h"
 
-#define AND 0b0000
-#define EOR 0b0001
-#define SUB 0b0010
-#define RSB 0b0011
-#define ADD 0b0100
-#define TST 0b1000
-#define TEQ 0b1001
-#define CMP 0b1010
-#define ORR 0b1100
-#define MOV 0b1101
+#define AND 0
+#define EOR 1
+#define SUB 2
+#define RSB 3
+#define ADD 4
+#define TST 8
+#define TEQ 9
+#define CMP 10
+#define ORR 12
+#define MOV 13
 
 #define FOUR_BIT_MASK 0xF
 #define ONE_BIT_MASK 0x1

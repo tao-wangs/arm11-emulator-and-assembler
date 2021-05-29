@@ -4,9 +4,13 @@
 #include <stdbool.h>
 #include "arm_state.h"
 
-#define nMask 0x80000000
-#define zMask 0x40000000
-#define vMask 0x10000000
+#define MASK_1 (unsigned int) 0x0C000000
+#define MASK_2 (unsigned int) 0x0FC000F0
+#define HALT_MASK (unsigned int) 0x00000000
+
+#define N_MASK 0x80000000
+#define Z_MASK 0x40000000
+#define V_MASK 0x10000000
 
 typedef enum  {
     DataProcessing,

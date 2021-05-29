@@ -6,21 +6,14 @@
 #include "multiply.h"
 
 void decodeMultiply(unsigned int instruction, ARM_STATE *machinePtr) {
-    int condMask = 0xF0000000;
-    int aMask = 0x00200000;
-    int sMask = 0x00100000;
-    int rdMask = 0x000F0000;
-    int rnMask = 0x0000F000;
-    int rsMask = 0x00000F00;
-    int rmMask = 0x0000000F;
 
-    int Cond = (instruction & condMask) >> 28;
-    int A = (instruction & aMask) >> 21;
-    int S = (instruction & sMask) >> 20;
-    int Rd = (instruction & rdMask) >> 16;
-    int Rn = (instruction & rnMask) >> 12;
-    int Rs = (instruction & rsMask) >> 8;
-    int Rm = (instruction & rmMask);
+    int Cond = (instruction & COND_MASK) >> 28;
+    int A = (instruction & A_MASK) >> 21;
+    int S = (instruction & S_MASK) >> 20;
+    int Rd = (instruction & RD_MASK) >> 16;
+    int Rn = (instruction & RN_MASK) >> 12;
+    int Rs = (instruction & RS_MASK) >> 8;
+    int Rm = (instruction & RM_MASK);
 
     if (!conditionMet(Cond, machinePtr)) {
         return;
@@ -43,18 +36,18 @@ void executeMultiply(int Rm, int Rs, int Rd, int S, ARM_STATE *machine) {
     machine->registers[Rd] = result;
 
     if (S == 1) {
-        int bit31 = ((unsigned int) result & bit31Mask) >> 31;
+        int bit31 = ((unsigned int) result & BIT31_MASK) >> 31;
         
         if (result == 0) {
-            machine->registers[CPSR] |= zMask;
+            machine->registers[CPSR] |= Z_MASK;
         }
         
         if (bit31 == 1) {
-            machine->registers[CPSR] |= bit31Mask;
+            machine->registers[CPSR] |= BIT31_MASK;
             return;
         }
 
-        machine->registers[CPSR] &= ~bit31Mask;
+        machine->registers[CPSR] &= ~BIT31_MASK;
     }  
 }
 
@@ -66,17 +59,17 @@ void executeMultiplyAccumulate(int Rm, int Rs, int Rn, int Rd, int S, ARM_STATE 
     int result = operand1 * operand2 + operand3;
 
     if (S == 1) {
-        int bit31 = ((unsigned int) result & bit31Mask) >> 31;
+        int bit31 = ((unsigned int) result & BIT31_MASK) >> 31;
         
         if (result == 0) {
-            machine->registers[CPSR] |= zMask;
+            machine->registers[CPSR] |= Z_MASK;
         }
         
         if (bit31 == 1) {
-            machine->registers[CPSR] |= bit31Mask;
+            machine->registers[CPSR] |= BIT31_MASK;
             return;
         }
 
-        machine->registers[CPSR] &= ~bit31Mask;
+        machine->registers[CPSR] &= ~BIT31_MASK;
     }  
 }

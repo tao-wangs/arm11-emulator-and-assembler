@@ -3,6 +3,10 @@
 
 #include "arm_state.h"
 
+#define COND_MASK 0xF0000000
+#define OFF_MASK 0x00FFFFFF
+#define SIGNED_MASK 0x00100000
+
 void executeBranch(unsigned int instr, ARM_STATE *state);
 
 #endif

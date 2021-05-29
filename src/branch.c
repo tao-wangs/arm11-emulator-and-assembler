@@ -3,14 +3,11 @@
 #include "branch.h"
 #include "decode.h"
 
-void executeBranch(unsigned int instr, ARM_STATE *state){
-  int condMask = 0xF0000000;
-  int offMask = 0x00FFFFFF;
-  int signedMask = 0x00100000;
+void executeBranch(unsigned int instr, ARM_STATE *state) {
 
-  int checkSign = (instr & signedMask) >> 23;
-  int offset = (instr & offMask);
-  unsigned int cond = (instr & condMask) >> 28;
+  int checkSign = (instr & SIGNED_MASK) >> 23;
+  int offset = (instr & OFF_MASK);
+  unsigned int cond = (instr & COND_MASK) >> 28;
   
   if (conditionMet(cond, state)){
     offset <<= 2;
