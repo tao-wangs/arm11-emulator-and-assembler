@@ -115,12 +115,12 @@ int conditionCodeIsSet(int setFlags) {
 
 // Check whether the operation is arithmetic
 int operationIsArithmetic(int opcode) {
-	return (opcode == sub || opcode == rsb || opcode == add || opcode == cmp);
+	return (opcode == SUB || opcode == RSB || opcode == ADD || opcode == CMP);
 }
 
 // Check whether the operation is logical
 int operationIsLogic(int opcode) {
-	return (opcode == and || opcode == eor || opcode == teq || opcode == tst || opcode == mov);
+	return (opcode == AND || opcode == EOR || opcode == TEQ || opcode == TST || opcode == MOV);
 }
 
 int executeAND(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {

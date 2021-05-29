@@ -27,10 +27,10 @@ typedef enum {
 } CONDITION_CODE;
 
 typedef enum {
-    LSL,
-    LSR,
-    ASR,
-    ROR,
+    LSL = 0,
+    LSR = 1,
+    ASR = 2,
+    ROR = 3,
 } SHIFT_TYPE;
 
 

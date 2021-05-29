@@ -5,11 +5,6 @@
 
 #include "arm_state.h"
 
-#define LSL 0b00
-#define LSR 0b01
-#define ASR 0b10
-#define ROR 0b11
-
 #define AND 0b0000
 #define EOR 0b0001
 #define SUB 0b0010

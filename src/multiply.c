@@ -42,9 +42,6 @@ void executeMultiply(int Rm, int Rs, int Rd, int S, ARM_STATE *machine) {
 
     machine->registers[Rd] = result;
 
-    int zMask = 0x4000000;
-    int bit31Mask = 0x80000000;
-
     if (S == 1) {
         int bit31 = ((unsigned int) result & bit31Mask) >> 31;
         
@@ -67,9 +64,6 @@ void executeMultiplyAccumulate(int Rm, int Rs, int Rn, int Rd, int S, ARM_STATE 
     int operand3 = machine->registers[Rn];
 
     int result = operand1 * operand2 + operand3;
-
-    int zMask = 0x4000000;
-    int bit31Mask = 0x80000000;
 
     if (S == 1) {
         int bit31 = ((unsigned int) result & bit31Mask) >> 31;
