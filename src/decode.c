@@ -41,9 +41,6 @@ z = last result was zero
 c = last result caused a bit to be carried out
 v = last result overflowed */
 bool conditionMet(unsigned int conditionCode, ARM_STATE *machine) {
-    int nMask = 0x8000000;
-    int zMask = 0x4000000;
-    int vMask = 0x1000000;
 
     unsigned char n = (machine->registers[CPSR] & nMask) >> 31; 
     unsigned char z = (machine->registers[CPSR] & zMask) >> 30; 

@@ -5,13 +5,10 @@
 
 #include "arm_state.h"
 
-#define eq 0b0000
-#define ne 0b0001
-#define ge 0b1010
-#define lt 0b1011
-#define gt 0b1100
-#define le 0b1101
-#define al 0b1110
+#define lsl 0b00
+#define lsr 0b01
+#define asr 0b10
+#define ror 0b11
 
 #define and 0b0000
 #define eor 0b0001

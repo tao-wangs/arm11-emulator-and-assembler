@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include "arm_state.h"
 
+#define nMask 0x80000000
+#define zMask 0x40000000
+#define vMask 0x10000000
+
 typedef enum  {
     DataProcessing,
     Multiply,

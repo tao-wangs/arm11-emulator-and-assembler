@@ -196,7 +196,7 @@ int binConverter(char *str) {
 
 //Rotates a binary string by a specified amount
 uint32_t rotateRight(uint32_t operand2 , int rotateAmt) {
-	int rotated = operand2 >> rotateAmt | operand2 << (32 - rotateAmt);
+	int rotated = operand2 >> rotateAmt | operand2 << (REG_SIZE - rotateAmt);
 	return rotated;
 }
 
@@ -209,19 +209,19 @@ int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr) {
 	int type = (shift >> 1) & 2;
 
 	switch(type) {
-		case 0:
+		case lsl:
 			carryout = (val >> (REG_SIZE - amt)) & ONE_BIT_MASK;
 			val = (uint) val << amt;
 			break;
-		case 1:
+		case lsr:
 			carryout = (val >> amt) & ONE_BIT_MASK;
 			val = (uint) val >> amt;
 			break;
-		case 2:
+		case asr:
 			carryout = (val >> amt) & ONE_BIT_MASK;
 			val = val >> amt;
 			break;
-		case 3:
+		case ror:
 			carryout = (val >> amt) & ONE_BIT_MASK;
 			val = rotateRight(val, amt);
 			break;
