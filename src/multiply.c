@@ -68,6 +68,8 @@ void executeMultiplyAccumulate(int Rm, int Rs, int Rn, int Rd, int S, ARM_STATE 
 
     int result = operand1 * operand2 + operand3;
 
+    machine->registers[Rd] = result;
+    
     int zMask = 0x4000000;
     int bit31Mask = 0x80000000;
 
