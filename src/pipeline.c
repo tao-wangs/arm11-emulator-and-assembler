@@ -28,12 +28,12 @@ void loadInstrToMem(ARM_STATE *state, char *progName){
 
 void pipeline(ARM_STATE *state){
   INSTRUCTION_TYPE type;
- 
+
   PIPELINE_STATE pipe;
   PIPELINE_STATE *pipePtr = &pipe;
 
   pipePtr->fetchedInstr = 0;
-  pipePtr->decodedInstr = 0; 
+  pipePtr->decodedInstr = 0;
 
   while (type!=Halt) {
     if(pipePtr->decodedInstr == 0){
@@ -43,12 +43,12 @@ void pipeline(ARM_STATE *state){
       }
       type = decode(pipePtr->fetchedInstr);
       pipePtr->decodedInstr = pipePtr->fetchedInstr;
-      
+
       pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
       state->registers[PC] += 4;
-      
+
     } else {
-      
+
       //insert switch case here for each type of instruction to execute
       switch (type){
         case Multiply:
@@ -79,13 +79,13 @@ void pipeline(ARM_STATE *state){
 
       type = decode(pipePtr->fetchedInstr);
       pipePtr->decodedInstr = pipePtr->fetchedInstr;
-      
+
       fetch:
       pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
       state->registers[PC] += 4;
 
     }
-  } 
+  }
 
   stop:
   return;

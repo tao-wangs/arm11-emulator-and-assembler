@@ -21,15 +21,15 @@ void decodeSDT(unsigned int instruction, ARM_STATE *machinePtr) {
     int Rm = (Offset & RM_MASK);
 
     int bit4 = (shift & 0x01);
-    
-    int integer = (shift & 0xF8) >> 3; 
+
+    int integer = (shift & 0xF8) >> 3;
     int Rs = (shift & 0xF0) >> 4;
-    
+
     int shiftType = (shift & 0x06) >> 1;
 
     if (!conditionMet(Cond, machinePtr)) {
         return;
-    }    
+    }
 
 
     //this section can definitely be condensed, not sure how yet though.
@@ -37,7 +37,7 @@ void decodeSDT(unsigned int instruction, ARM_STATE *machinePtr) {
         if (bit4 == 0) {
             switch (shiftType) {
                 case LSL: ;
-                    Offset = machinePtr->registers[Rm] = 
+                    Offset = machinePtr->registers[Rm] =
                         (unsigned int) machinePtr->registers[Rm] << integer;
                     break;
                 case LSR: ;
@@ -45,42 +45,42 @@ void decodeSDT(unsigned int instruction, ARM_STATE *machinePtr) {
                         (unsigned int) machinePtr->registers[Rm] >> integer;
                     break;
                 case ASR: ;
-                    Offset = machinePtr->registers[Rm] = 
+                    Offset = machinePtr->registers[Rm] =
                         machinePtr->registers[Rm] >> integer;
                     break;
                 default: ;
                     assert (shiftType == ROR);
-                    Offset = machinePtr->registers[Rm] = 
+                    Offset = machinePtr->registers[Rm] =
                         rotateRightSDT((unsigned int) machinePtr->registers[Rm], integer);
             }
         } else { //this is the optional part on page 7 of spec
             assert (bit4 == 1);
-            
+
             int shiftAmount = (machinePtr->registers[Rs] & 0x000000FF); //last byte of Rs
 
             switch (shiftType) {
-                case LSL: ;
-                    Offset = machinePtr->registers[Rm] = 
+                case LSL:
+                    Offset = machinePtr->registers[Rm] =
                         (unsigned int) machinePtr->registers[Rm] << shiftAmount;
                     break;
-                case LSR: ;
+                case LSR:
                     Offset = machinePtr->registers[Rm] =
                         (unsigned int) machinePtr->registers[Rm] >> shiftAmount;
                     break;
-                case ASR: ;
-                    Offset = machinePtr->registers[Rm] = 
+                case ASR:
+                    Offset = machinePtr->registers[Rm] =
                         machinePtr->registers[Rm] >> shiftAmount;
                     break;
-                default: ;
+                default:
                     assert (shiftType == ROR);
-                    Offset = machinePtr->registers[Rm] = 
+                    Offset = machinePtr->registers[Rm] =
                         rotateRightSDT((unsigned int) machinePtr->registers[Rm], shiftAmount);
             }
         }
         (L == 1) ? executeLoad(P, U, Rn, Rd, Offset, machinePtr) : executeStore(P, U, Rn, Rd, Offset, machinePtr);
     } else {
-        (L == 1) ? 
-        executeLoad(P, U, Rn, Rd, (unsigned int) Offset, machinePtr) : 
+        (L == 1) ?
+        executeLoad(P, U, Rn, Rd, (unsigned int) Offset, machinePtr) :
         executeStore(P, U, Rn, Rd, (unsigned int) Offset, machinePtr);
     }
 }

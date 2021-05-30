@@ -20,4 +20,4 @@ void executeLoad(int P, int U, int Rn, int Rd, int Offset, ARM_STATE *machine);
 void executeStore(int P, int U, int Rn, int Rd, int Offset, ARM_STATE *machine);
 unsigned int rotateRightSDT(unsigned int value, int shift);
 
-#endif  
+#endif

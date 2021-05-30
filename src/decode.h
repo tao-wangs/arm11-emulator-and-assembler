@@ -23,10 +23,10 @@ typedef enum  {
 typedef enum {
     EQ = 0x0,
     NE = 0x1,
-    GE = 0xA, 
+    GE = 0xA,
     LT = 0xB,
-    GT = 0xC, 
-    LE = 0xD, 
+    GT = 0xC,
+    LE = 0xD,
     AL = 0xE
 } CONDITION_CODE;
 

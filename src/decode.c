@@ -19,12 +19,12 @@ INSTRUCTION_TYPE decode(unsigned int instruction) {
         case 0:
             if (temp2 == 9) {
                 return Multiply;
-            } 
+            }
             return DataProcessing;
         case 1:
-            return SingleDataTransfer;    
+            return SingleDataTransfer;
         case 2:
-            return Branch;   
+            return Branch;
         default:
             assert(temp == 3);
 	    printf("error in decoding instruction..");
@@ -39,26 +39,26 @@ c = last result caused a bit to be carried out
 v = last result overflowed */
 bool conditionMet(unsigned int conditionCode, ARM_STATE *machine) {
 
-    unsigned char n = (machine->registers[CPSR] & N_MASK) >> 31; 
-    unsigned char z = (machine->registers[CPSR] & Z_MASK) >> 30; 
-    unsigned char v = (machine->registers[CPSR] & V_MASK) >> 28; 
+    unsigned char n = (machine->registers[CPSR] & N_MASK) >> 31;
+    unsigned char z = (machine->registers[CPSR] & Z_MASK) >> 30;
+    unsigned char v = (machine->registers[CPSR] & V_MASK) >> 28;
 
     switch (conditionCode) {
         case EQ:
             return z;
-        case NE: 
+        case NE:
             return !z;
-        case GE : 
+        case GE:
             return (n == v);
-        case LT: 
+        case LT:
             return !(n == v);
-        case GT: 
+        case GT:
             return (!z && (n == v));
-        case LE: 
+        case LE:
             return (z || !(n == v));
-        case AL:  
+        case AL:
             return true;
-        default: 
+        default:
             return false;
     }
 }

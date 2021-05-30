@@ -27,7 +27,7 @@ unsigned int* readBin(char* fileName) {
 //returns the size of a file in bytes
 long int fSize(char* fileName){
   FILE *fp = fopen(fileName, "r");
-  
+
   if(errno != 0){
     printf("Action returned the following errno: %i\n", errno);
     exit(errno);
@@ -41,18 +41,18 @@ long int fSize(char* fileName){
 
 char* binRep(unsigned int inst){
   char* rep = malloc(sizeof(char) * 32);
-  unsigned int shifted;  
+  unsigned int shifted;
 
   for(int i = 0; i < UINT_SIZE * 8; i++){
     shifted = inst >> i;
     if (shifted & 1){
       rep[((UINT_SIZE*8)-1)-i] = '1';
-      
+
     } else {
       rep[((UINT_SIZE*8)-1)-i] = '0';
-      
+
     }
   }
 
-  return rep;    
+  return rep;
 }

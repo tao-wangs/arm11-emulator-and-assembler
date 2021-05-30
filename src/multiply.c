@@ -37,18 +37,18 @@ void executeMultiply(int Rm, int Rs, int Rd, int S, ARM_STATE *machine) {
 
     if (S == 1) {
         int bit31 = ((unsigned int) result & BIT31_MASK) >> 31;
-        
+
         if (result == 0) {
             machine->registers[CPSR] |= Z_MASK;
         }
-        
+
         if (bit31 == 1) {
             machine->registers[CPSR] |= BIT31_MASK;
             return;
         }
 
         machine->registers[CPSR] &= ~BIT31_MASK;
-    }  
+    }
 }
 
 void executeMultiplyAccumulate(int Rm, int Rs, int Rn, int Rd, int S, ARM_STATE *machine) {
@@ -60,16 +60,16 @@ void executeMultiplyAccumulate(int Rm, int Rs, int Rn, int Rd, int S, ARM_STATE 
 
     if (S == 1) {
         int bit31 = ((unsigned int) result & BIT31_MASK) >> 31;
-        
+
         if (result == 0) {
             machine->registers[CPSR] |= Z_MASK;
         }
-        
+
         if (bit31 == 1) {
             machine->registers[CPSR] |= BIT31_MASK;
             return;
         }
 
         machine->registers[CPSR] &= ~BIT31_MASK;
-    }  
+    }
 }
