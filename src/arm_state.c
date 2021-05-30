@@ -49,13 +49,8 @@ void terminate(ARM_STATE *state) {
     
     printf("Non-zero memory:\n");
     for (int i = 0; i < NUM_ALLIGNED_ADDRS; i++) {
-        if (state->memory[i] != 0) { // take for example e3 a0 10 01 
-            int byte1 = (state->memory[i] & 0x000000FF); //01 
-            int byte2 = (state->memory[i] & 0x0000FF00) >> 8; //10
-            int byte3 = (state->memory[i] & 0x00FF0000) >> 16; //a0
-            int byte4 = (state->memory[i] & 0xFF000000) >> 24; //e3
-            int littleEndianForm = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4; //it is now 01 10 a0 e3
-            printf("0x%08x: 0x%08x\n", i * WORD_SIZE, littleEndianForm);
+        if (state->memory[i] != 0) {
+            printf("0x%08x: 0x%08x\n", i * WORD_SIZE, state->memory[i]);
         }
     }
 }

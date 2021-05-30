@@ -17,6 +17,7 @@
 #define MOV 13
 
 #define FOUR_BIT_MASK 0xF
+#define EIGHT_BIT_MASK 0xFF
 #define ONE_BIT_MASK 0x1
 #define TWELVE_BIT_MASK 0xFFF
 #define N_MASK 0x80000000
