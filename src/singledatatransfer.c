@@ -44,7 +44,7 @@ void decodeSDT(unsigned int instruction, ARM_STATE *machinePtr) {
     }    
 
     //this section can definitely be condensed, not sure how yet though.
-    if (I == 1) { //then offset is a shifted register
+    if (I == 1) { //means offset is a shifted register
         if (bit4 == 0) {
             switch (shiftType) {
                 case LSL: ;
@@ -71,20 +71,20 @@ void decodeSDT(unsigned int instruction, ARM_STATE *machinePtr) {
 
             switch (shiftType) {
                 case LSL: ;
-                    Offset = machinePtr->registers[Rm] = 
+                    Offset = 
                         machinePtr->registers[Rm] << shiftAmount;
                     break;
                 case LSR: ;
-                    Offset = machinePtr->registers[Rm] =
+                    Offset = 
                         (unsigned int) machinePtr->registers[Rm] >> shiftAmount;
                     break;
                 case ASR: ;
-                    Offset = machinePtr->registers[Rm] = 
+                    Offset = 
                         machinePtr->registers[Rm] >> shiftAmount;
                     break;
                 default: ;
                     assert (shiftType == ROR);
-                    Offset = machinePtr->registers[Rm] = 
+                    Offset =  
                         rotateRightSDT((unsigned int) machinePtr->registers[Rm], shiftAmount);
             }
         }
@@ -131,7 +131,7 @@ void executeLoad(int P, int U, int Rn, int Rd, unsigned int Offset, ARM_STATE *m
         }
         return; //exit method
     } //post indexing
-    switch(address % WORD_SIZE) {
+    switch(baseAddress % WORD_SIZE) {
             case 0: ;
                 machine->registers[Rd] = toLittleEndian(machine->memory[baseAddress / 4]);
                 break;
@@ -201,11 +201,12 @@ void executeStore(int P, int U, int Rn, int Rd, int Offset, ARM_STATE *machine) 
         }
         return; //exit method
     }
-    switch(address % WORD_SIZE) {
+
+    switch(baseAddress % WORD_SIZE) {
             case 0: ;
                 machine->memory[baseAddress / WORD_SIZE] = toLittleEndian(machine->registers[Rd]);
                 break;
-            case 1: ; 
+            case 1: ;
                 int newReplacement3Bytes1 = toLittleEndian(machine->registers[Rd]) & 0xFFFFFF00;
                 int newReplacement1Byte1 = toLittleEndian(machine->registers[Rd]) & 0x000000FF;
 
