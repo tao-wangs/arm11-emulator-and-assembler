@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <assert.h>
 
 #include "dataprocessing.h"
 #include "decode.h"
@@ -23,15 +24,15 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 		if (immediateOperandBitIsSet(immOperand)) {
 			//printf("1");
 			int rotateAmt = operand2 >> 8;
-			operand2 = rotateRight(operand2, 2 * rotateAmt);
+			int immediate = operand2 & EIGHT_BIT_MASK;
+			operand2 = rotateRight(immediate, 2 * rotateAmt);
 		} else {
 			//printf("0");
 			int rm = operand2 & FOUR_BIT_MASK;
 			int shift = operand2 >> 4;
-
-			if ((shift & 0x1) == 0) {
-				operand2 = shiftByConst(rm, shift, setFlags, machinePtr);
-			}
+			//if ((shift & 0x1) == 0) {
+			operand2 = shiftByConst(rm, shift, setFlags, machinePtr);
+			//}
 		}
 
 		int res;
@@ -203,30 +204,35 @@ uint32_t rotateRight(uint32_t operand2 , int rotateAmt) {
 //Shifts the value in register rm by a specified amount in a specified way (left, right, arithmetic etc)
 int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr) {
 
-	int val = ptr->registers[rm];
 	int carryout;
-	int amt = shift >> 3;
-	int type = (shift >> 1) & 2;
+
+	int bit4 = shift & 0x01;
+	int rs = (unsigned int) shift >> 4;
+
+	int val = ptr->registers[rm];
+	
+	int amt = bit4 == 1 ? rs & 0x000000FF : (unsigned int) shift >> 3;
+	int type = ((unsigned int) shift >> 1) & 0x3;
 
 	switch(type) {
-		case 0:
+		case LSL:
 			carryout = (val >> (REG_SIZE - amt)) & ONE_BIT_MASK;
-			val = (uint) val << amt;
+			val <<= amt;
 			break;
-		case 1:
+		case LSR:
 			carryout = (val >> amt) & ONE_BIT_MASK;
 			val = (uint) val >> amt;
 			break;
-		case 2:
+		case ASR:
 			carryout = (val >> amt) & ONE_BIT_MASK;
-			val = val >> amt;
+			val >>= amt;
 			break;
-		case 3:
+		case ROR:
 			carryout = (val >> amt) & ONE_BIT_MASK;
 			val = rotateRight(val, amt);
 			break;
 	}
-
+	
 	if (conditionCodeIsSet(setFlags)) {
 		if (carryout) {
 			ptr->registers[CPSR] |= C_mask;

@@ -22,7 +22,7 @@ void loadInstrToMem(ARM_STATE *state, char *progName){
   long int fsize = fSize(progName);
   unsigned int *loadedBin = readBin(progName);
   for(int i = 0; i < fsize; i++){
-    state->memory[i] = loadedBin[i];
+    state->memory[i] = toLittleEndian(loadedBin[i]);
   }
 }
 
@@ -38,13 +38,13 @@ void pipeline(ARM_STATE *state){
   while (type!=Halt) {
     if(pipePtr->decodedInstr == 0){
       if(pipePtr->fetchedInstr == 0){
-	pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
+	pipePtr->fetchedInstr = toLittleEndian(state->memory[state->registers[PC]/INSTRUCTION_SIZE]);
 	state->registers[PC] += 4;
       }
       type = decode(pipePtr->fetchedInstr);
       pipePtr->decodedInstr = pipePtr->fetchedInstr;
       
-      pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
+      pipePtr->fetchedInstr = toLittleEndian(state->memory[state->registers[PC]/INSTRUCTION_SIZE]);
       state->registers[PC] += 4;
       
     } else {
@@ -81,7 +81,7 @@ void pipeline(ARM_STATE *state){
       pipePtr->decodedInstr = pipePtr->fetchedInstr;
       
       fetch:
-      pipePtr->fetchedInstr = state->memory[state->registers[PC]/INSTRUCTION_SIZE];
+      pipePtr->fetchedInstr = toLittleEndian(state->memory[state->registers[PC]/INSTRUCTION_SIZE]);
       state->registers[PC] += 4;
 
     }

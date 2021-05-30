@@ -68,3 +68,11 @@ bool conditionMet(unsigned int conditionCode, ARM_STATE *machine) {
             return false;
     }
 }
+
+int toLittleEndian(int word) {
+    int byte1 = (word & 0x000000FF); //01 
+    int byte2 = (word & 0x0000FF00) >> 8; //10
+    int byte3 = (word & 0x00FF0000) >> 16; //a0
+    int byte4 = (word & 0xFF000000) >> 24; //e3
+    return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4; //it is now 01 10 a0 e3
+}
