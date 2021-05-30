@@ -32,5 +32,6 @@ typedef enum {
 
 INSTRUCTION_TYPE decode(unsigned int instruction);
 bool conditionMet(unsigned int conditionCode, ARM_STATE *machine);
+int toLittleEndian(int word);
 
 #endif

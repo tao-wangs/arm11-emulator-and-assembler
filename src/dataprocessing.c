@@ -23,7 +23,8 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 		if (immediateOperandBitIsSet(immOperand)) {
 			//printf("1");
 			int rotateAmt = operand2 >> 8;
-			operand2 = rotateRight(operand2, 2 * rotateAmt);
+			int immediate = operand2 & EIGHT_BIT_MASK;
+			operand2 = rotateRight(immediate, 2 * rotateAmt);
 		} else {
 			//printf("0");
 			int rm = operand2 & FOUR_BIT_MASK;
