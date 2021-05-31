@@ -8,6 +8,10 @@
 #include "dataprocessing.h"
 #include "decode.h"
 
+bool checkOverflow(int x, int y) {
+	return ( x > (MAX_VAL - y) || y > (MAX_VAL - x) );
+}
+
 // main method for executing a data processing instruction
 void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 
@@ -137,10 +141,14 @@ int executeEOR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
 	int res = machinePtr->registers[rn] + ~operand2 + 1;
 //	*carryptr = (res < rn) ? 0 : 1;
-	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
+/*	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
 		*carryptr = 1;
 	} 
-	if ((int32_t) machinePtr->registers[rn] >= (int32_t) operand2) {
+	if (machinePtr->registers[rn] >= operand2) {
+		*carryptr = 1;
+	}
+*/	
+	if(!checkOverflow(machinePtr->registers[rn], (~(operand2) + 1))) {
 		*carryptr = 1;
 	}
 	machinePtr->registers[rd] = machinePtr->registers[rn] - operand2;
@@ -150,23 +158,33 @@ int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* c
 int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
 	int res = operand2 + ~(machinePtr->registers[rn]) + 1;
 //	*carryptr = (res < rn) ? 0 : 1;
-	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
+/*	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
 		*carryptr = 1;
 	} 
-	if ((int32_t) machinePtr->registers[rn] >= (int32_t) operand2) {
+	if (machinePtr->registers[rn] >= operand2) {
 		*carryptr = 1;
 	}
+*/	
+	if(!checkOverflow(operand2, ((~machinePtr->registers[rn]) + 1)) && !(machinePtr->registers[rn] > operand2)) {
+		*carryptr = 1;
+	}	
 	machinePtr->registers[rd] = operand2 - machinePtr->registers[rn];
 	return machinePtr->registers[rd];
 }
 
 int executeADD(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
-	uint res = machinePtr->registers[rn] + operand2;
+	int res = machinePtr->registers[rn] + operand2;
 //	*carryptr = (res < rn) ? 1 : 0;
-
-	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
+/*	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
 		*carryptr = 1;
 	} 
+	if (machinePtr->registers[rn] >= operand2) {
+		*carryptr = 1;
+	}
+*/	
+	if(checkOverflow(machinePtr->registers[rn], (~(operand2) + 1))) {
+		*carryptr = 1;
+	}	
 	machinePtr->registers[rd] = res;
 	return machinePtr->registers[rd];
 }
@@ -182,12 +200,16 @@ int executeTEQ(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 int executeCMP(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
 	int res = machinePtr->registers[rn] + ~operand2 + 1;
 //	*carryptr = (res < rn) ? 0 : 1;
-	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
+/*	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
 		*carryptr = 1;
 	} 
-	if ((int32_t) machinePtr->registers[rn] >= (int32_t) operand2) {
+	if (machinePtr->registers[rn] >= operand2) {
 		*carryptr = 1;
-	}
+	} 
+*/	
+	if(!(operand2 > machinePtr->registers[rn])) {
+		*carryptr = 1;
+	}	
 	return machinePtr->registers[rn] - operand2;
 }
 
@@ -264,3 +286,4 @@ int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr) {
 	}
 	return val;
 }
+
