@@ -9,7 +9,7 @@
 #include "decode.h"
 
 bool checkOverflow(int x, int y) {
-	return ( x > (MAX_VAL - y) || y > (MAX_VAL - x) );
+	return (x > (MAX_VAL - y) || y > (MAX_VAL - x));
 }
 
 // main method for executing a data processing instruction
@@ -198,7 +198,7 @@ int executeTEQ(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 }
 
 int executeCMP(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
-	int res = machinePtr->registers[rn] + ~operand2 + 1;
+	int res = machinePtr->registers[rn] + (~(operand2) + 1);
 //	*carryptr = (res < rn) ? 0 : 1;
 /*	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
 		*carryptr = 1;
@@ -210,7 +210,8 @@ int executeCMP(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* c
 	if(!(operand2 > machinePtr->registers[rn])) {
 		*carryptr = 1;
 	}	
-	return machinePtr->registers[rn] - operand2;
+//	return machinePtr->registers[rn] - operand2;
+	return res;
 }
 
 int executeORR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
