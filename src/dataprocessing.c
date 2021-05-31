@@ -178,23 +178,6 @@ void executeMOV(uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 	machinePtr->registers[rd] = operand2;
 }
 
-//Converts a binary string into its denary value
-int binConverter(char *str) {
-	int res = 0;
-	int cnt = 1;
-	int len = strlen(str);
-
-	for (int i = 0; i < len; i++) {
-		if (str[(len - 1) - i] == '1') {
-			res += cnt;
-		}
-
-		cnt *= 2;
-	}
-
-	return res;
-}
-
 //Rotates a binary string by a specified amount
 uint32_t rotateRight(uint32_t operand2 , int rotateAmt) {
 	int rotated = operand2 >> rotateAmt | operand2 << (REG_SIZE - rotateAmt);
