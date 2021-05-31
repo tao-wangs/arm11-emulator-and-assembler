@@ -135,13 +135,13 @@ int executeEOR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 }
 
 int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
-	int res = machinePtr->registers[rn] + ~operand2 + 1;
+	//int res = machinePtr->registers[rn] + ~operand2 + 1;
 	//*carryptr = (res < machinePtr->registers[rn]) ? 0 : 1;
-	
+
 	if ((INT_MAX - operand2) < machinePtr->registers[rn]) {
 		*carryptr = 1;
 	}
-	if ((int32_t) machinePtr->registers[rn] >= (int32_t) operand2) {
+	if (machinePtr->registers[rn] >= operand2) {
 		*carryptr = 1;
 	}
 	
@@ -150,13 +150,13 @@ int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* c
 }
 
 int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
-	int res = operand2 + ~(machinePtr->registers[rn]) + 1;
+	//int res = operand2 + ~(machinePtr->registers[rn]) + 1;
 	//*carryptr = (res < machinePtr->registers[rn]) ? 0 : 1;
-	
+
 	if ((INT_MAX - operand2) < machinePtr->registers[rn]) {
                 *carryptr = 1;
         }
-        if ((int32_t) machinePtr->registers[rn] >= (int32_t) operand2) {
+        if (machinePtr->registers[rn] >= operand2) {
                 *carryptr = 1;
         }
 	
@@ -165,7 +165,7 @@ int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* c
 }
 
 int executeADD(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
-	uint res = machinePtr->registers[rn] + operand2;
+	int res = machinePtr->registers[rn] + operand2;
 	//*carryptr = (res < machinePtr->registers[rn]) ? 1 : 0;
 	
 	if ((INT_MAX - operand2) < machinePtr->registers[rn]) {
@@ -185,13 +185,13 @@ int executeTEQ(int rn, uint32_t operand2 , ARM_STATE *machinePtr) {
 }
 
 int executeCMP(int rn, uint32_t operand2 , ARM_STATE *machinePtr, int* carryptr) {
-	int res = machinePtr->registers[rn] + ~operand2 + 1;
+	//int res = machinePtr->registers[rn] + ~operand2 + 1;
 	//*carryptr = (res < machinePtr->registers[rn]) ? 0 : 1;
-	
+
 	if ((INT_MAX - operand2) < machinePtr->registers[rn]) {
                 *carryptr = 1;
         }
-        if ((int32_t) machinePtr->registers[rn] >= (int32_t) operand2) {
+        if (machinePtr->registers[rn] >= operand2) {
                 *carryptr = 1;
         }
 	
@@ -206,6 +206,33 @@ int executeORR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 void executeMOV(uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 	machinePtr->registers[rd] = operand2;
 }
+
+//int main(void) {
+//
+//	ARM_STATE machine;
+//	ARM_STATE *ptr = &machine;
+
+//	initialise(ptr);
+
+//	executeMOV(1, 1, ptr);
+//	int op1 = ptr->registers[1];
+//	
+//	executeMOV(1, 2, ptr);
+	
+//	int cond = executeTST(1, 1, ptr);
+
+//	if (cond == 0) {
+//		executeMOV(4, 4, ptr);
+//		terminate(ptr);
+//		return 0;
+//	}
+//		
+//	executeMOV(3, 3, ptr);
+//	executeMOV(4, 4, ptr);
+//
+//	terminate(ptr);
+//	return 0;
+//}
 
 //Rotates a binary string by a specified amount
 uint32_t rotateRight(uint32_t operand2 , int rotateAmt) {
