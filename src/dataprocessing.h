@@ -53,7 +53,6 @@ int executeCMP(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int* ca
 int executeORR(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
 void executeMOV(uint32_t operand2, int rd, ARM_STATE *machinePtr);
 
-int binConverter(char *str);
 int zeroExtend(int operand2);
 uint32_t rotateRight(uint32_t operand2, int rotateAmt);
 int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr);
