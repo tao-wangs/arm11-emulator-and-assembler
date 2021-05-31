@@ -43,7 +43,7 @@ void pipeline(ARM_STATE *state){
       }
       type = decode(pipePtr->fetchedInstr);
       pipePtr->decodedInstr = pipePtr->fetchedInstr;
-      
+
       pipePtr->fetchedInstr = toLittleEndian(state->memory[state->registers[PC]/INSTRUCTION_SIZE]);
       state->registers[PC] += 4;
 

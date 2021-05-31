@@ -9,7 +9,7 @@ char* binRep(unsigned int inst);
 
 // returns int* of all instructions in the input bin file
 unsigned int* readBin(char* fileName) {
-  long int fsize = fSize(fileName); 
+  long int fsize = fSize(fileName);
   unsigned int *prog = malloc(sizeof(unsigned int) * fsize);
   FILE *fp;
   fp = fopen(fileName,"r");

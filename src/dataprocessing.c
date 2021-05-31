@@ -210,7 +210,7 @@ int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr) {
 	int rs = (unsigned int) shift >> 4;
 
 	int val = ptr->registers[rm];
-	
+
 	int amt = bit4 == 1 ? rs & 0x000000FF : (unsigned int) shift >> 3;
 	int type = ((unsigned int) shift >> 1) & 0x3;
 
@@ -232,7 +232,7 @@ int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr) {
 			val = rotateRight(val, amt);
 			break;
 	}
-	
+
 	if (conditionCodeIsSet(setFlags)) {
 		if (carryout) {
 			ptr->registers[CPSR] |= C_MASK;
