@@ -56,13 +56,13 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 				res = executeADD(rn, operand2, rd, machinePtr, carryptr);
 				break;
 			case TST:
-				res = executeTST(rn, operand2, rd, machinePtr);
+				res = executeTST(rn, operand2, machinePtr);
 				break;
 			case TEQ:
-				res = executeTEQ(rn, operand2, rd, machinePtr);
+				res = executeTEQ(rn, operand2, machinePtr);
 				break;
 			case CMP:
-				res = executeCMP(rn, operand2, rd, machinePtr, carryptr);
+				res = executeCMP(rn, operand2, machinePtr, carryptr);
 				break;
 			case ORR:
 				res = executeORR(rn, operand2, rd, machinePtr);
@@ -155,15 +155,15 @@ int executeADD(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* c
 	return machinePtr->registers[rd];
 }
 
-int executeTST(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+int executeTST(int rn, uint32_t operand2 , ARM_STATE *machinePtr) {
 	return machinePtr->registers[rn] & operand2;
 }
 
-int executeTEQ(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+int executeTEQ(int rn, uint32_t operand2 , ARM_STATE *machinePtr) {
 	return machinePtr->registers[rn] ^ operand2;
 }
 
-int executeCMP(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
+int executeCMP(int rn, uint32_t operand2 , ARM_STATE *machinePtr, int* carryptr) {
 	int res = machinePtr->registers[rn] + ~operand2 + 1;
 	*carryptr = (res < rn) ? 0 : 1;
 	return machinePtr->registers[rn] - operand2;
