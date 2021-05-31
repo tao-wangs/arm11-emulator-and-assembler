@@ -136,21 +136,21 @@ int executeEOR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 
 int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
 	int res = machinePtr->registers[rn] + ~operand2 + 1;
-	*carryptr = (res > INT_MAX) ? 1 : 0;
+	*carryptr = (res < rn) ? 0 : 1;
 	machinePtr->registers[rd] = machinePtr->registers[rn] - operand2;
 	return machinePtr->registers[rd];
 }
 
 int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
 	int res = operand2 + ~(machinePtr->registers[rn]) + 1;
-	*carryptr = (res > INT_MAX) ? 1 : 0;
+	*carryptr = (res < rn) ? 0 : 1;
 	machinePtr->registers[rd] = operand2 - machinePtr->registers[rn];
 	return machinePtr->registers[rd];
 }
 
 int executeADD(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
 	uint res = machinePtr->registers[rn] + operand2;
-	*carryptr = (res > INT_MAX) ? 1 : 0;
+	*carryptr = (res < rn) ? 1 : 0;
 	machinePtr->registers[rd] = res;
 	return machinePtr->registers[rd];
 }
@@ -165,7 +165,7 @@ int executeTEQ(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 
 int executeCMP(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
 	int res = machinePtr->registers[rn] + ~operand2 + 1;
-	*carryptr = (res > INT_MAX) ? 1 : 0;
+	*carryptr = (res < rn) ? 0 : 1;
 	return machinePtr->registers[rn] - operand2;
 }
 
