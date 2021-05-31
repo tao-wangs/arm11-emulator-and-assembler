@@ -2,8 +2,10 @@
 #define DATA_PROCESSING_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "arm_state.h"
+
 
 #define AND 0
 #define EOR 1
@@ -27,6 +29,7 @@
 
 #define INT_MAX 0xFFFFFFFF
 #define REG_SIZE 32
+#define MAX_VAL 0xffffffff
 
 #define COND_SHIFT 28
 #define IMM_SHIFT 25
