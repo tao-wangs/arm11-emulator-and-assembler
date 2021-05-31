@@ -2,8 +2,10 @@
 #define DATA_PROCESSING_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "arm_state.h"
+
 
 #define AND 0
 #define EOR 1
