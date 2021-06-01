@@ -56,10 +56,11 @@ void pipeline(ARM_STATE *state){
 	  //printf("Multiply instruction executed\n");
 	  break;
 	case Branch:
-	  executeBranch(pipePtr->decodedInstr, state);
-	  pipePtr->decodedInstr = 0;
-    	  //printf("Branch instruction executed\n");
-    	  goto fetch; // skip decode
+	  if (executeBranch(pipePtr->decodedInstr, state)){
+	    pipePtr->decodedInstr = 0;
+	    goto fetch; //skip decode
+	  }
+	  
 	  break;
 	case DataProcessing:
 	  dataProcessingInstruction(pipePtr->decodedInstr, state);
