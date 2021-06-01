@@ -3,12 +3,12 @@
 #include "branch.h"
 #include "decode.h"
 
-void executeBranch(unsigned int instr, ARM_STATE *state) {
+int executeBranch(unsigned int instr, ARM_STATE *state) {
 
   int checkSign = (instr & SIGNED_MASK) >> 23;
   int offset = (instr & OFF_MASK);
   unsigned int cond = (instr & COND_MASK) >> 28;
-
+  
   if (conditionMet(cond, state)){
     offset <<= 2;
     if (checkSign){
@@ -16,6 +16,9 @@ void executeBranch(unsigned int instr, ARM_STATE *state) {
     }
 
     state->registers[PC] += offset;
+    return 1;
+  } else {
+    return 0; //branch did not execute
   }
 
 }
