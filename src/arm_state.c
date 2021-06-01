@@ -2,9 +2,6 @@
 #include <stdio.h>
 #include "arm_state.h"
 
-void initialise(ARM_STATE *state);
-void terminate(ARM_STATE *state);
-
 //allocates space for memory
 //sets value of all registers to 0
 //sets value of all memory locations to 0

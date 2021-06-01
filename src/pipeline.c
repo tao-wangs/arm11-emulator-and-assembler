@@ -53,7 +53,6 @@ void pipeline(ARM_STATE *state){
       switch (type){
         case Multiply:
 	  decodeMultiply(pipePtr->decodedInstr, state);
-	  //printf("Multiply instruction executed\n");
 	  break;
 	case Branch:
 	  if (executeBranch(pipePtr->decodedInstr, state)){
@@ -64,17 +63,13 @@ void pipeline(ARM_STATE *state){
 	  break;
 	case DataProcessing:
 	  dataProcessingInstruction(pipePtr->decodedInstr, state);
-	  //printf("Data processing instruction executed\n");
 	  break;
 	case SingleDataTransfer:
 	  decodeSDT(pipePtr->decodedInstr, state);
-	  //printf("SDT instruction executed\n");
 	  break;
 	case Halt:
-	  //printf("Halt instruction detected...\n");
 	  goto stop;
 	default:
-	  //printf("Instruction not recognised, stopping execution...");
 	  goto stop;
       }
 
@@ -90,6 +85,5 @@ void pipeline(ARM_STATE *state){
 
   stop:
   return;
-  //printf("pipeline stopped\n");
 }
 

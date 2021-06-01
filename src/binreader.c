@@ -3,10 +3,6 @@
 #include <errno.h>
 #include "binreader.h"
 
-unsigned int* readBin(char* fileName);
-long int fSize(char* fileName);
-char* binRep(unsigned int inst);
-
 // returns int* of all instructions in the input bin file
 unsigned int* readBin(char* fileName) {
   long int fsize = fSize(fileName);
