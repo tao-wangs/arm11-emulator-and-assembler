@@ -8,6 +8,10 @@
 #include "dataprocessing.h"
 #include "decode.h"
 
+bool checkOverflow(int x, int y) {
+	return (x > (MAX_VAL - y) || y > (MAX_VAL - x));
+}
+
 // main method for executing a data processing instruction
 void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 
@@ -134,9 +138,9 @@ int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* c
 }
 
 int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
-        if (machinePtr->registers[rn] >= operand2) {
-                *carryptr = 1;
-        }
+	if(machinePtr->registers[rn] <= operand2) {
+		*carryptr = 1;
+	}		
 	
 	machinePtr->registers[rd] = operand2 - machinePtr->registers[rn];
 	return machinePtr->registers[rd];

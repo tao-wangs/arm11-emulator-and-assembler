@@ -10,3 +10,4 @@
 int executeBranch(unsigned int instr, ARM_STATE *state);
 
 #endif
+
