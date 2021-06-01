@@ -26,17 +26,13 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 	if (conditionMet(condCode, machinePtr)) {
 
 		if (immediateOperandBitIsSet(immOperand)) {
-			//printf("1");
 			int rotateAmt = operand2 >> 8;
 			int immediate = operand2 & EIGHT_BIT_MASK;
 			operand2 = rotateRight(immediate, 2 * rotateAmt);
 		} else {
-			//printf("0");
 			int rm = operand2 & FOUR_BIT_MASK;
 			int shift = operand2 >> 4;
-			//if ((shift & 0x1) == 0) {
 			operand2 = shiftByConst(rm, shift, setFlags, machinePtr);
-			//}
 		}
 
 		int res;
@@ -60,13 +56,13 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 				res = executeADD(rn, operand2, rd, machinePtr, carryptr);
 				break;
 			case TST:
-				res = executeTST(rn, operand2, rd, machinePtr);
+				res = executeTST(rn, operand2, machinePtr);
 				break;
 			case TEQ:
-				res = executeTEQ(rn, operand2, rd, machinePtr);
+				res = executeTEQ(rn, operand2, machinePtr);
 				break;
 			case CMP:
-				res = executeCMP(rn, operand2, rd, machinePtr, carryptr);
+				res = executeCMP(rn, operand2, machinePtr, carryptr);
 				break;
 			case ORR:
 				res = executeORR(rn, operand2, rd, machinePtr);
@@ -75,18 +71,12 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 				executeMOV(operand2, rd, machinePtr);
 				break;
 			default:
-				//printf("Opcode of instruction not recognised.");
-				break;
+				return;
 		}
 
 		if (conditionCodeIsSet(setFlags)) {
 			updateFlags(opcode, res, carryout, machinePtr);
 		}
-
-	//printf("The result is %u\n", res);
-
-	} else {
-		//printf("Condition not met.\n");
 	}
 }
 
@@ -138,11 +128,10 @@ int executeEOR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 	return machinePtr->registers[rd];
 }
 
-int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {	
-	if(operand2 <= machinePtr->registers[rn]) {
+int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
+	if (machinePtr->registers[rn] >= operand2) {
 		*carryptr = 1;
 	}
-	
 	
 	machinePtr->registers[rd] = machinePtr->registers[rn] - operand2;
 	return machinePtr->registers[rd];
@@ -158,26 +147,26 @@ int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* c
 }
 
 int executeADD(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
-	if(checkOverflow(machinePtr->registers[rn], operand2)) {
-		*carryptr = 1;
-	}	
+	if ((INT_MAX - operand2) < machinePtr->registers[rn]) {
+                *carryptr = 1;
+        }
 	
 	machinePtr->registers[rd] = machinePtr->registers[rn] + operand2;
 	return machinePtr->registers[rd];
 }
 
-int executeTST(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+int executeTST(int rn, uint32_t operand2 , ARM_STATE *machinePtr) {
 	return machinePtr->registers[rn] & operand2;
 }
 
-int executeTEQ(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+int executeTEQ(int rn, uint32_t operand2 , ARM_STATE *machinePtr) {
 	return machinePtr->registers[rn] ^ operand2;
 }
 
-int executeCMP(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
-	if(operand2 <= machinePtr->registers[rn]) {
-		*carryptr = 1;
-	}
+int executeCMP(int rn, uint32_t operand2 , ARM_STATE *machinePtr, int* carryptr) {
+        if (machinePtr->registers[rn] >= operand2) {
+                *carryptr = 1;
+        }
 	
 	return machinePtr->registers[rn] - operand2;
 }

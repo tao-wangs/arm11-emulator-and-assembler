@@ -50,17 +50,14 @@ int executeEOR(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
 int executeSUB(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int* carryptr);
 int executeRSB(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int* carryptr);
 int executeADD(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int* carryptr);
-int executeTST(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
-int executeTEQ(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
-int executeCMP(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int* carryptr);
+int executeTST(int rn, uint32_t operand2, ARM_STATE *machinePtr);
+int executeTEQ(int rn, uint32_t operand2, ARM_STATE *machinePtr);
+int executeCMP(int rn, uint32_t operand2, ARM_STATE *machinePtr, int* carryptr);
 int executeORR(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
 void executeMOV(uint32_t operand2, int rd, ARM_STATE *machinePtr);
 
-int binConverter(char *str);
-int zeroExtend(int operand2);
 uint32_t rotateRight(uint32_t operand2, int rotateAmt);
 int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr);
 void updateFlags(int opcode, int res, int carryout, ARM_STATE *ptr);
-bool conditionMet(unsigned int condCode, ARM_STATE *ptr);
 
 #endif
