@@ -138,23 +138,7 @@ int executeEOR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 	return machinePtr->registers[rd];
 }
 
-int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
-//	int res = machinePtr->registers[rn] + (~(operand2) + 1);
-//	*carryptr = (res < rn) ? 0 : 1;
-/*	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
-		*carryptr = 1;
-	} 
-	if (machinePtr->registers[rn] >= operand2) {
-		*carryptr = 1;
-	}
-	
-	if(!checkOverflow(machinePtr->registers[rn], (~(operand2) + 1))) {
-		*carryptr = 1;
-	}
-*/
-
-
-// 	From Piazza	
+int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {	
 	if(operand2 <= machinePtr->registers[rn]) {
 		*carryptr = 1;
 	}
@@ -165,22 +149,6 @@ int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* c
 }
 
 int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
-//	int res = operand2 + ~(machinePtr->registers[rn]) + 1;
-//	*carryptr = (res < rn) ? 0 : 1;
-/*	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
-		*carryptr = 1;
-	} 
-	if (machinePtr->registers[rn] >= operand2) {
-		*carryptr = 1;
-	}
-	
-	if(!checkOverflow(operand2, ((~machinePtr->registers[rn]) + 1)) && !(machinePtr->registers[rn] > operand2)) {
-//	if(!checkOverflow(operand2, ((~machinePtr->registers[rn]) + 1))) {
-		*carryptr = 1;
-	}	
-*/
-
-//	From Piazza
 	if(machinePtr->registers[rn] <= operand2) {
 		*carryptr = 1;
 	}		
@@ -190,17 +158,6 @@ int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* c
 }
 
 int executeADD(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
-//	int res = machinePtr->registers[rn] + operand2;
-//	*carryptr = (res < rn) ? 1 : 0;
-/*	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
-		*carryptr = 1;
-	} 
-	if (machinePtr->registers[rn] >= operand2) {
-		*carryptr = 1;
-	}
-*/	
-//	if(checkOverflow(machinePtr->registers[rn], (~(operand2) + 1))) {
-
 	if(checkOverflow(machinePtr->registers[rn], operand2)) {
 		*carryptr = 1;
 	}	
@@ -218,21 +175,6 @@ int executeTEQ(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 }
 
 int executeCMP(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
-//	int res = machinePtr->registers[rn] + (~(operand2) + 1);
-//	*carryptr = (res < rn) ? 0 : 1;
-/*	if ((MAX_VAL - operand2) < machinePtr->registers[rn]) {
-		*carryptr = 1;
-	} 
-	if (machinePtr->registers[rn] >= operand2) {
-		*carryptr = 1;
-	} 
-	
-	if(!(operand2 > machinePtr->registers[rn])) {
-		*carryptr = 1;
-	}
-*/
-
-//	From Piazza	
 	if(operand2 <= machinePtr->registers[rn]) {
 		*carryptr = 1;
 	}
@@ -247,23 +189,6 @@ int executeORR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 
 void executeMOV(uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
 	machinePtr->registers[rd] = operand2;
-}
-
-//Converts a binary string into its denary value
-int binConverter(char *str) {
-	int res = 0;
-	int cnt = 1;
-	int len = strlen(str);
-
-	for (int i = 0; i < len; i++) {
-		if (str[(len - 1) - i] == '1') {
-			res += cnt;
-		}
-
-		cnt *= 2;
-	}
-
-	return res;
 }
 
 //Rotates a binary string by a specified amount
@@ -313,5 +238,3 @@ int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr) {
 	}
 	return val;
 }
-
-
