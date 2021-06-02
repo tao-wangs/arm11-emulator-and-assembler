@@ -4,8 +4,8 @@
 #define INSTRUCTION_SIZE 4
 #define UINT_SIZE sizeof(unsigned int)
 
-unsigned int* readBin(char* fileName);
+uint32_t* readBin(char* fileName);
 long int fSize(char* fileName);
-char* binRep(unsigned int inst);
+char* binRep(uint32_t inst);
 
 #endif

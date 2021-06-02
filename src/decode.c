@@ -2,13 +2,14 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "decode.h"
 
 //decides whether an instruction is one of the four instruction types;
-INSTRUCTION_TYPE decode(unsigned int instruction) {
-    unsigned int temp = (instruction & MASK_1) >> 26;
-    unsigned int temp2 = (instruction & MASK_2) >> 4;
+INSTRUCTION_TYPE decode(uint32_t instruction) {
+    uint32_t temp = (instruction & MASK_1) >> 26;
+    uint32_t temp2 = (instruction & MASK_2) >> 4;
 
     if(!(instruction | HALT_MASK)){
     	return Halt;
@@ -37,7 +38,7 @@ n = last result was negative
 z = last result was zero
 c = last result caused a bit to be carried out
 v = last result overflowed */
-bool conditionMet(unsigned int conditionCode, ARM_STATE *machine) {
+bool conditionMet(uint32_t conditionCode, ARM_STATE *machine) {
 
     unsigned char n = (machine->registers[CPSR] & N_MASK) >> 31;
     unsigned char z = (machine->registers[CPSR] & Z_MASK) >> 30;
@@ -63,10 +64,10 @@ bool conditionMet(unsigned int conditionCode, ARM_STATE *machine) {
     }
 }
 
-int toLittleEndian(int word) {
-    int byte1 = (word & 0x000000FF); //01
-    int byte2 = (word & 0x0000FF00) >> 8; //10
-    int byte3 = (word & 0x00FF0000) >> 16; //a0
-    int byte4 = (word & 0xFF000000) >> 24; //e3
+int32_t toLittleEndian(int32_t word) {
+    int32_t byte1 = (word & 0x000000FF); //01
+    int32_t byte2 = (word & 0x0000FF00) >> 8; //10
+    int32_t byte3 = (word & 0x00FF0000) >> 16; //a0
+    int32_t byte4 = (word & 0xFF000000) >> 24; //e3
     return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4; //it is now 01 10 a0 e3
 }

@@ -8,36 +8,36 @@
 #include "dataprocessing.h"
 #include "decode.h"
 
-bool checkOverflow(int x, int y) {
+bool checkOverflow(int32_t x, int32_t y) {
 	return (x > (MAX_VAL - y) || y > (MAX_VAL - x));
 }
 
 // main method for executing a data processing instruction
-void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
+void dataProcessingInstruction(int32_t instruction, ARM_STATE *machinePtr) {
 
-	int condCode = (unsigned int) instruction >> COND_SHIFT;
-	int immOperand = (instruction >> IMM_SHIFT) & ONE_BIT_MASK;
-	int opcode = (instruction >> OPCODE_SHIFT) & FOUR_BIT_MASK;
-	int setFlags = (instruction >> SET_SHIFT) & ONE_BIT_MASK;
-	int rn = (instruction >> RN_SHIFT) & FOUR_BIT_MASK;
-	int rd = (instruction >> RD_SHIFT) & FOUR_BIT_MASK;
+	int32_t condCode = (uint32_t) instruction >> COND_SHIFT;
+	int32_t immOperand = (instruction >> IMM_SHIFT) & ONE_BIT_MASK;
+	int32_t opcode = (instruction >> OPCODE_SHIFT) & FOUR_BIT_MASK;
+	int32_t setFlags = (instruction >> SET_SHIFT) & ONE_BIT_MASK;
+	int32_t rn = (instruction >> RN_SHIFT) & FOUR_BIT_MASK;
+	int32_t rd = (instruction >> RD_SHIFT) & FOUR_BIT_MASK;
 	uint32_t operand2 = instruction & TWELVE_BIT_MASK;
 
 	if (conditionMet(condCode, machinePtr)) {
 
 		if (immediateOperandBitIsSet(immOperand)) {
-			int rotateAmt = operand2 >> 8;
-			int immediate = operand2 & EIGHT_BIT_MASK;
+			int32_t rotateAmt = operand2 >> 8;
+			int32_t immediate = operand2 & EIGHT_BIT_MASK;
 			operand2 = rotateRight(immediate, 2 * rotateAmt);
 		} else {
-			int rm = operand2 & FOUR_BIT_MASK;
-			int shift = operand2 >> 4;
+			int32_t rm = operand2 & FOUR_BIT_MASK;
+			int32_t shift = operand2 >> 4;
 			operand2 = shiftByConst(rm, shift, setFlags, machinePtr);
 		}
 
-		int res;
-		int carryout = 0;
-		int* carryptr = &carryout;
+		int32_t res;
+		int32_t carryout = 0;
+		int32_t* carryptr = &carryout;
 
 		switch (opcode) {
 			case AND:
@@ -81,7 +81,7 @@ void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr) {
 }
 
 //Sets the CPSR's flags based on the result and the carryout of the operation
-void updateFlags(int opcode, int res, int carryout, ARM_STATE *machinePtr) {
+void updateFlags(int32_t opcode, int32_t res, int32_t carryout, ARM_STATE *machinePtr) {
 
 	machinePtr->registers[CPSR] |= (res & N_MASK);
 
@@ -99,36 +99,36 @@ void updateFlags(int opcode, int res, int carryout, ARM_STATE *machinePtr) {
 }
 
 // Checks whether the immediate operand bit is set to 1 or not.
-int immediateOperandBitIsSet(int immOperand) {
+int32_t immediateOperandBitIsSet(int32_t immOperand) {
 	return immOperand == 1;
 }
 
 // Check whether the flags condition code is set.
-int conditionCodeIsSet(int setFlags) {
+int32_t conditionCodeIsSet(int32_t setFlags) {
 	return setFlags == 1;
 }
 
 // Check whether the operation is arithmetic
-int operationIsArithmetic(int opcode) {
+int32_t operationIsArithmetic(int32_t opcode) {
 	return (opcode == SUB || opcode == RSB || opcode == ADD || opcode == CMP);
 }
 
 // Check whether the operation is logical
-int operationIsLogic(int opcode) {
+int32_t operationIsLogic(int32_t opcode) {
 	return (opcode == AND || opcode == EOR || opcode == TEQ || opcode == TST || opcode == MOV);
 }
 
-int executeAND(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+int32_t executeAND(int32_t rn, uint32_t operand2 , int32_t rd, ARM_STATE *machinePtr) {
 	machinePtr->registers[rd] = machinePtr->registers[rn] & operand2;
 	return machinePtr->registers[rd];
 }
 
-int executeEOR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+int32_t executeEOR(int32_t rn, uint32_t operand2, int32_t rd, ARM_STATE *machinePtr) {
 	machinePtr->registers[rd] = machinePtr->registers[rn] ^ operand2;
 	return machinePtr->registers[rd];
 }
 
-int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
+int32_t executeSUB(int32_t rn, uint32_t operand2, int32_t rd, ARM_STATE *machinePtr, int32_t* carryptr) {
 	if (machinePtr->registers[rn] >= operand2) {
 		*carryptr = 1;
 	}
@@ -137,7 +137,7 @@ int executeSUB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* c
 	return machinePtr->registers[rd];
 }
 
-int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
+int32_t executeRSB(int32_t rn, uint32_t operand2 , int32_t rd, ARM_STATE *machinePtr, int32_t* carryptr) {
 	if(machinePtr->registers[rn] <= operand2) {
 		*carryptr = 1;
 	}		
@@ -146,7 +146,7 @@ int executeRSB(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* c
 	return machinePtr->registers[rd];
 }
 
-int executeADD(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* carryptr) {
+int32_t executeADD(int32_t rn, uint32_t operand2 , int32_t rd, ARM_STATE *machinePtr, int32_t* carryptr) {
 	if ((INT_MAX - operand2) < machinePtr->registers[rn]) {
                 *carryptr = 1;
         }
@@ -155,15 +155,15 @@ int executeADD(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr, int* c
 	return machinePtr->registers[rd];
 }
 
-int executeTST(int rn, uint32_t operand2 , ARM_STATE *machinePtr) {
+int32_t executeTST(int32_t rn, uint32_t operand2 , ARM_STATE *machinePtr) {
 	return machinePtr->registers[rn] & operand2;
 }
 
-int executeTEQ(int rn, uint32_t operand2 , ARM_STATE *machinePtr) {
+int32_t executeTEQ(int32_t rn, uint32_t operand2 , ARM_STATE *machinePtr) {
 	return machinePtr->registers[rn] ^ operand2;
 }
 
-int executeCMP(int rn, uint32_t operand2 , ARM_STATE *machinePtr, int* carryptr) {
+int32_t executeCMP(int32_t rn, uint32_t operand2 , ARM_STATE *machinePtr, int32_t* carryptr) {
         if (machinePtr->registers[rn] >= operand2) {
                 *carryptr = 1;
         }
@@ -171,33 +171,33 @@ int executeCMP(int rn, uint32_t operand2 , ARM_STATE *machinePtr, int* carryptr)
 	return machinePtr->registers[rn] - operand2;
 }
 
-int executeORR(int rn, uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+int32_t executeORR(int32_t rn, uint32_t operand2 , int32_t rd, ARM_STATE *machinePtr) {
 	machinePtr->registers[rd] = machinePtr->registers[rn] | operand2;
 	return machinePtr->registers[rd];
 }
 
-void executeMOV(uint32_t operand2 , int rd, ARM_STATE *machinePtr) {
+void executeMOV(uint32_t operand2 , int32_t rd, ARM_STATE *machinePtr) {
 	machinePtr->registers[rd] = operand2;
 }
 
 //Rotates a binary string by a specified amount
-uint32_t rotateRight(uint32_t operand2 , int rotateAmt) {
-	int rotated = operand2 >> rotateAmt | operand2 << (REG_SIZE - rotateAmt);
+uint32_t rotateRight(uint32_t operand2 , int32_t rotateAmt) {
+	int32_t rotated = operand2 >> rotateAmt | operand2 << (REG_SIZE - rotateAmt);
 	return rotated;
 }
 
 //Shifts the value in register rm by a specified amount in a specified way (left, right, arithmetic etc)
-int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr) {
+int32_t shiftByConst(int32_t rm, int32_t shift, int32_t setFlags, ARM_STATE *ptr) {
 
-	int carryout;
+	int32_t carryout;
 
-	int bit4 = shift & 0x01;
-	int rs = (unsigned int) shift >> 4;
+	int32_t bit4 = shift & 0x01;
+	int32_t rs = (uint32_t) shift >> 4;
 
-	int val = ptr->registers[rm];
+	int32_t val = ptr->registers[rm];
 
-	int amt = bit4 == 1 ? rs & 0x000000FF : (unsigned int) shift >> 3;
-	int type = ((unsigned int) shift >> 1) & 0x3;
+	int32_t amt = bit4 == 1 ? rs & 0x000000FF : (uint32_t) shift >> 3;
+	int32_t type = ((uint32_t) shift >> 1) & 0x3;
 
 	switch(type) {
 		case LSL:
@@ -206,7 +206,7 @@ int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr) {
 			break;
 		case LSR:
 			carryout = (val >> amt) & ONE_BIT_MASK;
-			val = (uint) val >> amt;
+			val = (uint32_t) val >> amt;
 			break;
 		case ASR:
 			carryout = (val >> amt) & ONE_BIT_MASK;

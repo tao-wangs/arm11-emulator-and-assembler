@@ -15,9 +15,9 @@
 #define SHIFT_MASK 0x00000FF0
 #define RM_MASK 0x0000000F
 
-void decodeSDT(unsigned int instruction, ARM_STATE *machinePtr);
-void executeLoad(int P, int U, int Rn, int Rd, unsigned int Offset, ARM_STATE *machine);
-void executeStore(int P, int U, int Rn, int Rd, int Offset, ARM_STATE *machine);
-unsigned int rotateRightSDT(unsigned int value, int shift);
+void decodeSDT(uint32_t instruction, ARM_STATE *machinePtr);
+void executeLoad(int32_t P, int32_t U, int32_t Rn, int32_t Rd, uint32_t Offset, ARM_STATE *machine);
+void executeStore(int32_t P, int32_t U, int32_t Rn, int32_t Rd, int32_t Offset, ARM_STATE *machine);
+uint32_t rotateRightSDT(uint32_t value, int32_t shift);
 
 #endif

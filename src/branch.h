@@ -7,7 +7,7 @@
 #define OFF_MASK 0x00FFFFFF
 #define SIGNED_MASK 0x00800000
 
-int executeBranch(unsigned int instr, ARM_STATE *state);
+int32_t executeBranch(uint32_t instr, ARM_STATE *state);
 
 #endif
 
