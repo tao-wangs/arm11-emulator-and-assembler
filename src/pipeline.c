@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "binreader.h"
 #include "decode.h"
@@ -8,20 +9,12 @@
 #include "singledatatransfer.h"
 #include "branch.h"
 #include "dataprocessing.h"
-
-#define eof 26
-#define PC 15
-#define INSTRUCTION_SIZE 4
-
-typedef struct {
-  int fetchedInstr;
-  int decodedInstr;
-} PIPELINE_STATE;
+#include "pipeline.h"
 
 void loadInstrToMem(ARM_STATE *state, char *progName){
   long int fsize = fSize(progName);
-  unsigned int *loadedBin = readBin(progName);
-  for(int i = 0; i < fsize; i++){
+  uint32_t *loadedBin = readBin(progName);
+  for(int32_t i = 0; i < fsize; i++){
     state->memory[i] = toLittleEndian(loadedBin[i]);
   }
 }

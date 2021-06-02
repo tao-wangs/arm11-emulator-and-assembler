@@ -13,8 +13,8 @@
 
 //data structure to capture the state of the ARM machine
 typedef struct {
-    int *memory;
-    int registers[NUM_REGISTERS];
+    int32_t *memory;
+    int32_t registers[NUM_REGISTERS];
 } ARM_STATE;
 
 void initialise(ARM_STATE *state);

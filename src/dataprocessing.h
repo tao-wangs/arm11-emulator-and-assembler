@@ -6,7 +6,6 @@
 
 #include "arm_state.h"
 
-
 #define AND 0
 #define EOR 1
 #define SUB 2
@@ -38,26 +37,26 @@
 #define RN_SHIFT 16
 #define RD_SHIFT 12
 
-void dataProcessingInstruction(int instruction, ARM_STATE *machinePtr);
+void dataProcessingInstruction(int32_t instruction, ARM_STATE *machinePtr);
 
-int immediateOperandBitIsSet(int immOperand);
-int conditionCodeIsSet(int setFlags);
-int operationIsArithmetic(int opcode);
-int operationIsLogic(int opcode);
+int32_t immediateOperandBitIsSet(int32_t immOperand);
+int32_t conditionCodeIsSet(int32_t setFlags);
+int32_t operationIsArithmetic(int32_t opcode);
+int32_t operationIsLogic(int32_t opcode);
 
-int executeAND(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
-int executeEOR(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
-int executeSUB(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int* carryptr);
-int executeRSB(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int* carryptr);
-int executeADD(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr, int* carryptr);
-int executeTST(int rn, uint32_t operand2, ARM_STATE *machinePtr);
-int executeTEQ(int rn, uint32_t operand2, ARM_STATE *machinePtr);
-int executeCMP(int rn, uint32_t operand2, ARM_STATE *machinePtr, int* carryptr);
-int executeORR(int rn, uint32_t operand2, int rd, ARM_STATE *machinePtr);
-void executeMOV(uint32_t operand2, int rd, ARM_STATE *machinePtr);
+int32_t executeAND(int32_t rn, uint32_t operand2, int32_t rd, ARM_STATE *machinePtr);
+int32_t executeEOR(int32_t rn, uint32_t operand2, int32_t rd, ARM_STATE *machinePtr);
+int32_t executeSUB(int32_t rn, uint32_t operand2, int32_t rd, ARM_STATE *machinePtr, int32_t* carryptr);
+int32_t executeRSB(int32_t rn, uint32_t operand2, int32_t rd, ARM_STATE *machinePtr, int32_t* carryptr);
+int32_t executeADD(int32_t rn, uint32_t operand2, int32_t rd, ARM_STATE *machinePtr, int32_t* carryptr);
+int32_t executeTST(int32_t rn, uint32_t operand2, ARM_STATE *machinePtr);
+int32_t executeTEQ(int32_t rn, uint32_t operand2, ARM_STATE *machinePtr);
+int32_t executeCMP(int32_t rn, uint32_t operand2, ARM_STATE *machinePtr, int32_t* carryptr);
+int32_t executeORR(int32_t rn, uint32_t operand2, int32_t rd, ARM_STATE *machinePtr);
+void executeMOV(uint32_t operand2, int32_t rd, ARM_STATE *machinePtr);
 
 uint32_t rotateRight(uint32_t operand2, int rotateAmt);
-int shiftByConst(int rm, int shift, int setFlags, ARM_STATE *ptr);
-void updateFlags(int opcode, int res, int carryout, ARM_STATE *ptr);
+int32_t shiftByConst(int32_t rm, int32_t shift, int32_t setFlags, ARM_STATE *ptr);
+void updateFlags(int32_t opcode, int32_t res, int32_t carryout, ARM_STATE *ptr);
 
 #endif

@@ -38,8 +38,8 @@ typedef enum {
 } SHIFT_TYPE;
 
 
-INSTRUCTION_TYPE decode(unsigned int instruction);
-bool conditionMet(unsigned int conditionCode, ARM_STATE *machine);
-int toLittleEndian(int word);
+INSTRUCTION_TYPE decode(uint32_t instruction);
+bool conditionMet(uint32_t conditionCode, ARM_STATE *machine);
+int32_t toLittleEndian(int32_t word);
 
 #endif

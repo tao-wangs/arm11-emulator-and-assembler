@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include "arm_state.h"
 
 //allocates space for memory
@@ -8,11 +9,11 @@
 void initialise(ARM_STATE *state) {
     state->memory = malloc(MEM_CAPACITY);
 
-    for (int i = 0; i < NUM_REGISTERS; i++) {
+    for (int32_t i = 0; i < NUM_REGISTERS; i++) {
         state->registers[i] = 0;
     }
 
-    for (int i = 0; i < NUM_ALLIGNED_ADDRS; i++) {
+    for (int32_t i = 0; i < NUM_ALLIGNED_ADDRS; i++) {
         state->memory[i] = 0;
     }
 }
@@ -22,7 +23,7 @@ this function will be called which prints out the contents of the registers and 
 */
 void terminate(ARM_STATE *state) {
     printf("Registers:\n");
-    for (int i = 0; i < NUM_REGISTERS; i++) {
+    for (int32_t i = 0; i < NUM_REGISTERS; i++) {
         switch (i)
         {
             case 10:
@@ -45,7 +46,7 @@ void terminate(ARM_STATE *state) {
     }
 
     printf("Non-zero memory:\n");
-    for (int i = 0; i < NUM_ALLIGNED_ADDRS; i++) {
+    for (int32_t i = 0; i < NUM_ALLIGNED_ADDRS; i++) {
         if (state->memory[i] != 0) {
             printf("0x%08x: 0x%08x\n", i * WORD_SIZE, state->memory[i]);
         }
