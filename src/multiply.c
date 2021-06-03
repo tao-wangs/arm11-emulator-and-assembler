@@ -3,75 +3,75 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "decode.h"
 #include "multiply.h"
+#include "utility.h"
 
 void decodeMultiply(uint32_t instruction, ARM_STATE *machinePtr) {
 
-    int32_t Cond = (instruction & COND_MASK) >> 28;
-    int32_t A = (instruction & A_MASK) >> 21;
-    int32_t S = (instruction & S_MASK) >> 20;
-    int32_t Rd = (instruction & RD_MASK_MUL) >> 16;
-    int32_t Rn = (instruction & RN_MASK_MUL) >> 12;
-    int32_t Rs = (instruction & RS_MASK) >> 8;
-    int32_t Rm = (instruction & RM_MASK);
+    int32_t cond = (instruction >> CONDCODE_SHIFT) & FOUR_BIT_MASK;
+    int32_t a = (instruction >> A_SHIFT) & ONE_BIT_MASK;
+    int32_t s = (instruction >> SET_FLAGS_SHIFT) & ONE_BIT_MASK;
+    int32_t rd = (instruction >> RD_SHIFT_MUL) & FOUR_BIT_MASK;
+    int32_t rn = (instruction >> RN_SHIFT_MUL) & FOUR_BIT_MASK;
+    int32_t rs = (instruction >> RS_SHIFT_MUL) & FOUR_BIT_MASK;
+    int32_t rm = (instruction & FOUR_BIT_MASK);
 
-    if (!conditionMet(Cond, machinePtr)) {
+    if (!conditionMet(cond, machinePtr)) {
         return;
     }
 
-    if (A == 1) {
-        executeMultiplyAccumulate(Rm, Rs, Rn, Rd, S, machinePtr);
+    if (a == 1) {
+        executeMultiplyAccumulate(rm, rs, rn, rd, s, machinePtr);
         return;
     }
 
-    executeMultiply(Rm, Rs, Rd, S, machinePtr);
+    executeMultiply(rm, rs, rd, s, machinePtr);
 }
 
-void executeMultiply(int32_t Rm, int32_t Rs, int32_t Rd, int32_t S, ARM_STATE *machine) {
-    int32_t operand1 = machine->registers[Rm];
-    int32_t operand2 = machine->registers[Rs];
+void executeMultiply(int32_t rm, int32_t rs, int32_t rd, int32_t s, ARM_STATE *machine) {
+    int32_t operand1 = machine->registers[rm];
+    int32_t operand2 = machine->registers[rs];
 
     int32_t result = operand1 * operand2;
 
-    machine->registers[Rd] = result;
+    machine->registers[rd] = result;
 
-    if (S == 1) {
-        int32_t bit31 = ((uint32_t) result & BIT31_MASK) >> 31;
+    if (s == 1) {
+        int32_t bit31 = (uint32_t) (result >> BIT31_SHIFT);
 
         if (result == 0) {
             machine->registers[CPSR] |= Z_MASK;
         }
 
         if (bit31 == 1) {
-            machine->registers[CPSR] |= BIT31_MASK;
+            machine->registers[CPSR] |= N_MASK;
             return;
         }
 
-        machine->registers[CPSR] &= ~BIT31_MASK;
+        machine->registers[CPSR] &= ~N_MASK;
     }
 }
 
-void executeMultiplyAccumulate(int32_t Rm, int32_t Rs, int32_t Rn, int32_t Rd, int32_t S, ARM_STATE *machine) {
-    int32_t operand1 = machine->registers[Rm];
-    int32_t operand2 = machine->registers[Rs];
-    int32_t operand3 = machine->registers[Rn];
+void executeMultiplyAccumulate(int32_t rm, int32_t rs, int32_t rn, int32_t rd, int32_t s, ARM_STATE *machine) {
+    int32_t operand1 = machine->registers[rm];
+    int32_t operand2 = machine->registers[rs];
+    int32_t operand3 = machine->registers[rn];
 
     int32_t result = operand1 * operand2 + operand3;
-    machine->registers[Rd] = result;	
+    machine->registers[rd] = result;	
 
-    if (S == 1) {
-        int32_t bit31 = ((unsigned int) result & BIT31_MASK) >> 31;
+    if (s == 1) {
+        int32_t bit31 = (uint32_t) ((result >> BIT31_SHIFT) & ONE_BIT_MASK);
 
         if (result == 0) {
             machine->registers[CPSR] |= Z_MASK;
         }
 
         if (bit31 == 1) {
-            machine->registers[CPSR] |= BIT31_MASK;
+            machine->registers[CPSR] |= N_MASK;
             return;
         }
 
-        machine->registers[CPSR] &= ~BIT31_MASK;
+        machine->registers[CPSR] &= ~N_MASK;
     }
 }

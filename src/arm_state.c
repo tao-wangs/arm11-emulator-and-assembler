@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "arm_state.h"
+#include "utility.h"
 
 //allocates space for memory
 //sets value of all registers to 0
@@ -34,10 +35,10 @@ void terminate(ARM_STATE *state) {
             case SP:
             case LR:
                 break;
-            case 15:
+            case PC:
                 printf("PC  : %10d (0x%08x)\n", state->registers[PC], state->registers[PC]);
                 break;
-            case 16:
+            case CPSR:
                 printf("CPSR: %10d (0x%08x)\n", state->registers[CPSR], state->registers[CPSR]);
                 break;
             default:

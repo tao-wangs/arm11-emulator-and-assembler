@@ -2,18 +2,18 @@
 #include <stdint.h>
 
 #include "branch.h"
-#include "decode.h"
+#include "utility.h"
 
 int32_t executeBranch(uint32_t instr, ARM_STATE *state) {
 
-  int32_t checkSign = (instr & SIGNED_MASK) >> 23;
-  int32_t offset = (instr & OFF_MASK);
-  uint32_t cond = (instr & COND_MASK) >> 28;
+  int32_t checkSign = (instr >> SIGN_SHIFT) & ONE_BIT_MASK;
+  int32_t offset = (instr & OFFSET_MASK_BRANCH);
+  uint32_t cond = (instr >> CONDCODE_SHIFT) & FOUR_BIT_MASK;
   
   if (conditionMet(cond, state)){
     offset <<= 2;
     if (checkSign){
-      offset |= 0xFC000000; //add 6 1's for sign extension
+      offset |= SIGN_EXTEND_MASK; //sign extend to 32 bits
     }
 
     state->registers[PC] += offset;

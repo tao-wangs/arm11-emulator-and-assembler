@@ -8,8 +8,6 @@
 
 #define SP 13
 #define LR 14
-#define PC 15
-#define CPSR 16
 
 //data structure to capture the state of the ARM machine
 typedef struct {

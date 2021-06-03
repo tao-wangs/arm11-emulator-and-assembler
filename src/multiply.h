@@ -3,18 +3,15 @@
 
 #include "arm_state.h"
 
-#define BIT31_MASK 0x80000000
+#define BIT31_SHIFT 31
 
-#define COND_MASK 0xF0000000
-#define A_MASK 0x00200000
-#define S_MASK 0x00100000
-#define RD_MASK_MUL 0x000F0000
-#define RN_MASK_MUL 0x0000F000
-#define RS_MASK 0x00000F00
-#define RM_MASK 0x0000000F
+#define A_SHIFT 21
+#define RD_SHIFT_MUL 16
+#define RN_SHIFT_MUL 12
+#define RS_SHIFT_MUL 8
 
 void decodeMultiply(uint32_t instruction, ARM_STATE *machinePtr);
-void executeMultiply(int32_t Rm, int32_t Rs, int32_t Rd, int32_t S, ARM_STATE *machine);
-void executeMultiplyAccumulate(int32_t Rm, int32_t Rs, int32_t Rn, int32_t Rd, int32_t S, ARM_STATE *machine);
+void executeMultiply(int32_t rm, int32_t rs, int32_t rd, int32_t s, ARM_STATE *machine);
+void executeMultiplyAccumulate(int32_t rm, int32_t rs, int32_t rn, int32_t rd, int32_t s, ARM_STATE *machine);
 
 #endif
