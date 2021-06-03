@@ -6,21 +6,18 @@
 #include <assert.h>
 
 #include "dataprocessing.h"
-#include "decode.h"
-
-bool checkOverflow(int32_t x, int32_t y) {
-	return (x > (MAX_VAL - y) || y > (MAX_VAL - x));
-}
+#include "arm_state.h"
+#include "utility.h"
 
 // main method for executing a data processing instruction
 void dataProcessingInstruction(int32_t instruction, ARM_STATE *machinePtr) {
 
-	int32_t condCode = (uint32_t) instruction >> COND_SHIFT;
-	int32_t immOperand = (instruction >> IMM_SHIFT) & ONE_BIT_MASK;
+	int32_t condCode = (uint32_t) instruction >> CONDCODE_SHIFT;
+	int32_t immOperand = (instruction >> IMM_OPERAND_SHIFT) & ONE_BIT_MASK;
 	int32_t opcode = (instruction >> OPCODE_SHIFT) & FOUR_BIT_MASK;
-	int32_t setFlags = (instruction >> SET_SHIFT) & ONE_BIT_MASK;
-	int32_t rn = (instruction >> RN_SHIFT) & FOUR_BIT_MASK;
-	int32_t rd = (instruction >> RD_SHIFT) & FOUR_BIT_MASK;
+	int32_t setFlags = (instruction >> SET_FLAGS_SHIFT) & ONE_BIT_MASK;
+	int32_t rn = (instruction >> RN_SHIFT_DP) & FOUR_BIT_MASK;
+	int32_t rd = (instruction >> RD_SHIFT_DP) & FOUR_BIT_MASK;
 	uint32_t operand2 = instruction & TWELVE_BIT_MASK;
 
 	if (conditionMet(condCode, machinePtr)) {
@@ -180,24 +177,18 @@ void executeMOV(uint32_t operand2 , int32_t rd, ARM_STATE *machinePtr) {
 	machinePtr->registers[rd] = operand2;
 }
 
-//Rotates a binary string by a specified amount
-uint32_t rotateRight(uint32_t operand2 , int32_t rotateAmt) {
-	int32_t rotated = operand2 >> rotateAmt | operand2 << (REG_SIZE - rotateAmt);
-	return rotated;
-}
-
 //Shifts the value in register rm by a specified amount in a specified way (left, right, arithmetic etc)
 int32_t shiftByConst(int32_t rm, int32_t shift, int32_t setFlags, ARM_STATE *ptr) {
 
 	int32_t carryout;
 
-	int32_t bit4 = shift & 0x01;
-	int32_t rs = (uint32_t) shift >> 4;
+	int32_t bit4 = shift & ONE_BIT_MASK;
+	int32_t rs = (uint32_t) shift >> RS_SHIFT_DP;
 
 	int32_t val = ptr->registers[rm];
 
-	int32_t amt = bit4 == 1 ? rs & 0x000000FF : (uint32_t) shift >> 3;
-	int32_t type = ((uint32_t) shift >> 1) & 0x3;
+	int32_t amt = bit4 == 1 ? rs & EIGHT_BIT_MASK : (uint32_t) shift >> 3;
+	int32_t type = ((uint32_t) shift >> 1) & TWO_BIT_MASK;
 
 	switch(type) {
 		case LSL:

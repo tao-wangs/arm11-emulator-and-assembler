@@ -9,6 +9,7 @@
 #include "singledatatransfer.h"
 #include "branch.h"
 #include "dataprocessing.h"
+#include "utility.h"
 #include "pipeline.h"
 
 void loadInstrToMem(ARM_STATE *state, char *progName){
@@ -52,7 +53,6 @@ void pipeline(ARM_STATE *state){
 	    pipePtr->decodedInstr = 0;
 	    goto fetch; //skip decode
 	  }
-	  
 	  break;
 	case DataProcessing:
 	  dataProcessingInstruction(pipePtr->decodedInstr, state);

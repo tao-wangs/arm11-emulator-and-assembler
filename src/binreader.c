@@ -3,13 +3,14 @@
 #include <errno.h>
 #include <stdint.h>
 #include "binreader.h"
+#include "utility.h"
 
 // returns int* of all instructions in the input bin file
 uint32_t* readBin(char* fileName) {
   long int fsize = fSize(fileName);
   uint32_t *prog = malloc(sizeof(uint32_t) * fsize);
   FILE *fp;
-  fp = fopen(fileName,"r");
+  fp = fopen(fileName, "r");
 
   if(errno != 0){
     printf("Action returned the following errno: %i\n", errno);
@@ -22,7 +23,7 @@ uint32_t* readBin(char* fileName) {
 }
 
 //returns the size of a file in bytes
-long int fSize(char* fileName){
+long int fSize(char* fileName) {
   FILE *fp = fopen(fileName, "r");
 
   if(errno != 0){
@@ -43,10 +44,10 @@ char* binRep(uint32_t inst){
   for(int32_t i = 0; i < UINT_SIZE * 8; i++){
     shifted = inst >> i;
     if (shifted & 1){
-      rep[((UINT_SIZE*8)-1)-i] = '1';
+      rep[((UINT_SIZE * 8) - 1) - i] = '1';
 
     } else {
-      rep[((UINT_SIZE*8)-1)-i] = '0';
+      rep[((UINT_SIZE * 8) - 1) - i] = '0';
 
     }
   }

@@ -3,21 +3,22 @@
 
 #include "arm_state.h"
 
-#define COND_MASK 0xF0000000
-#define I_MASK 0x02000000
-#define P_MASK 0x01000000
-#define U_MASK 0x00800000
-#define L_MASK 0x00100000
-#define RN_MASK 0x000F0000
-#define RD_MASK 0x0000F000
-#define OFFSET_MASK 0x00000FFF
+#define P_SHIFT 24
+#define U_SHIFT 23
+#define L_SHIFT 20
+#define RN_SHIFT_SDT 16
+#define RD_SHIFT_SDT 12
+#define RS_SHIFT_SDT 4
 
-#define SHIFT_MASK 0x00000FF0
-#define RM_MASK 0x0000000F
+#define OFFSET_MASK_SDT 0x00000FFF
+#define FIVE_BIT_MASK 0x1F
 
-void decodeSDT(uint32_t instruction, ARM_STATE *machinePtr);
-void executeLoad(int32_t P, int32_t U, int32_t Rn, int32_t Rd, uint32_t Offset, ARM_STATE *machine);
-void executeStore(int32_t P, int32_t U, int32_t Rn, int32_t Rd, int32_t Offset, ARM_STATE *machine);
-uint32_t rotateRightSDT(uint32_t value, int32_t shift);
+#define SHIFT_SHIFT 4
+#define INTEGER_SHIFT 3
+#define TYPE_SHIFT 1
+
+void decodeSDT(uint32_t instruction, ARM_STATE *machineptr);
+void executeLoad(int32_t p, int32_t u, int32_t rn, int32_t rd, uint32_t offset, ARM_STATE *machine);
+void executeStore(int32_t p, int32_t u, int32_t rn, int32_t rd, int32_t offset, ARM_STATE *machine);
 
 #endif
