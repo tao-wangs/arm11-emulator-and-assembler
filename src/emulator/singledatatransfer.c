@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include "utility.h"
+#include "../utility.h"
 #include "singledatatransfer.h"
 
 void decodeSDT(uint32_t instruction, ARM_STATE *machinePtr) {

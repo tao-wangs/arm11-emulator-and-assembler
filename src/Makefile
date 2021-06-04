@@ -11,7 +11,7 @@ all: assemble emulate
 
 assemble: assemble.o
 
-emulate: emulate.o decode.c binreader.c multiply.c pipeline.c arm_state.c branch.c singledatatransfer.c dataprocessing.c utility.c
+emulate: emulate.o emulator/decode.c emulator/binreader.c emulator/multiply.c emulator/pipeline.c emulator/arm_state.c emulator/branch.c emulator/singledatatransfer.c emulator/dataprocessing.c utility.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 clean:

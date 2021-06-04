@@ -9,7 +9,7 @@
 #include "singledatatransfer.h"
 #include "branch.h"
 #include "dataprocessing.h"
-#include "utility.h"
+#include "../utility.h"
 #include "pipeline.h"
 
 void loadInstrToMem(ARM_STATE *state, char *progName){

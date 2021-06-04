@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "arm_state.h"
+#include "emulator/arm_state.h"
 
 #define PC 15
 #define CPSR 16

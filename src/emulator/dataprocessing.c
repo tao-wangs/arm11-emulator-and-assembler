@@ -7,7 +7,7 @@
 
 #include "dataprocessing.h"
 #include "arm_state.h"
-#include "utility.h"
+#include "../utility.h"
 
 // main method for executing a data processing instruction
 void dataProcessingInstruction(int32_t instruction, ARM_STATE *machinePtr) {

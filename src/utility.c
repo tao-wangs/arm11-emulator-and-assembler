@@ -4,7 +4,6 @@
 #include <stdbool.h>
 
 #include "utility.h"
-#include "arm_state.h"
 
 bool conditionMet(uint32_t conditionCode, ARM_STATE *machine) {
 

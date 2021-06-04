@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <stdint.h>
 #include "binreader.h"
-#include "utility.h"
+#include "../utility.h"
 
 // returns int* of all instructions in the input bin file
 uint32_t* readBin(char* fileName) {

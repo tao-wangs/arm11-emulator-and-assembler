@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #include "multiply.h"
-#include "utility.h"
+#include "../utility.h"
 
 void decodeMultiply(uint32_t instruction, ARM_STATE *machinePtr) {
 
