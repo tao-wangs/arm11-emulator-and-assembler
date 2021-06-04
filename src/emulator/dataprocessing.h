@@ -1,9 +1,7 @@
 #ifndef DATA_PROCESSING_H
 #define DATA_PROCESSING_H
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "arm_state.h"
+#include "../utility.h"
 
 typedef enum {
 	AND = 0x0,

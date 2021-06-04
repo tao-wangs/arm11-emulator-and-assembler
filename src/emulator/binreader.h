@@ -1,6 +1,8 @@
 #ifndef BINREADER_H
 #define BINREADER_H
 
+#include "../utility.h"
+
 #define UINT_SIZE sizeof(unsigned int)
 
 uint32_t* readBin(char* fileName);

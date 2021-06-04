@@ -1,7 +1,7 @@
 #ifndef MULTIPLY_H
 #define MULTIPLY_H
 
-#include "arm_state.h"
+#include "../utility.h"
 
 #define BIT31_SHIFT 31
 

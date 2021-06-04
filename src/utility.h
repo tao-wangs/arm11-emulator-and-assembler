@@ -1,8 +1,13 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
+#include <assert.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "emulator/arm_state.h"
 
 #define PC 15

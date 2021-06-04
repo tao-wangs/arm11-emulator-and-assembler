@@ -1,7 +1,7 @@
 #ifndef SINGLEDATATRANSFER_H
 #define SINGLEDATATRANSFER_H
 
-#include "arm_state.h"
+#include "../utility.h"
 
 #define P_SHIFT 24
 #define U_SHIFT 23

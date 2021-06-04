@@ -1,7 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
 
-#include "emulator/arm_state.h"
 #include "emulator/pipeline.h"
 
 int main(int argc, char **argv) {

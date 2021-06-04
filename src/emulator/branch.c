@@ -1,8 +1,5 @@
-#include <stdio.h>
-#include <stdint.h>
 
 #include "branch.h"
-#include "../utility.h"
 
 int32_t executeBranch(uint32_t instr, ARM_STATE *state) {
 

@@ -1,10 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <assert.h>
-#include <stdint.h>
 
-#include "../utility.h"
 #include "singledatatransfer.h"
 
 void decodeSDT(uint32_t instruction, ARM_STATE *machinePtr) {

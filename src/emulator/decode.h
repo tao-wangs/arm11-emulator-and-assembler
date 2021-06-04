@@ -1,7 +1,7 @@
 #ifndef DECODE_H
 #define DECODE_H
 
-#include <stdint.h>
+#include "../utility.h"
 
 #define TEMP_SHIFT 26
 #define TEMP2_SHIFT 4

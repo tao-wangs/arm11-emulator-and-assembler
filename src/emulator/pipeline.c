@@ -1,15 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
 
-#include "binreader.h"
-#include "decode.h"
-#include "arm_state.h"
-#include "multiply.h"
-#include "singledatatransfer.h"
-#include "branch.h"
-#include "dataprocessing.h"
-#include "../utility.h"
 #include "pipeline.h"
 
 void loadInstrToMem(ARM_STATE *state, char *progName){
