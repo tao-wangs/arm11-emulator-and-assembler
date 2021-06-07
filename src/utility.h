@@ -61,4 +61,6 @@ bool conditionMet(uint32_t conditionCode, ARM_STATE *machine);
 int32_t toLittleEndian(int32_t word);
 uint32_t rotateRight(uint32_t value, int32_t shift);
 
+int32_t decodeOperand(char* opToken);
+
 #endif
