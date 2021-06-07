@@ -1,10 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdint.h>
 
 #include "multiply.h"
-#include "utility.h"
 
 void decodeMultiply(uint32_t instruction, ARM_STATE *machinePtr) {
 

@@ -1,7 +1,7 @@
 #ifndef BRANCH_H
 #define BRANCH_H
 
-#include "arm_state.h"
+#include "../utility.h"
 
 #define OFFSET_MASK_BRANCH 0x00FFFFFF
 #define SIGN_EXTEND_MASK 0xFC000000

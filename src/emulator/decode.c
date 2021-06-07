@@ -1,10 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#include <stdint.h>
 
 #include "decode.h"
-#include "utility.h"
 
 //decides whether an instruction is one of the four instruction types;
 INSTRUCTION_TYPE decode(uint32_t instruction) {

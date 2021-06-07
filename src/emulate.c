@@ -1,8 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
 
-#include "arm_state.h"
-#include "pipeline.h"
+#include "emulator/pipeline.h"
 
 int main(int argc, char **argv) {
   if(argc != 2){

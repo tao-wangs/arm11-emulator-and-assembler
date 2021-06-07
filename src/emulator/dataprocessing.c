@@ -1,13 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <assert.h>
 
 #include "dataprocessing.h"
-#include "arm_state.h"
-#include "utility.h"
 
 // main method for executing a data processing instruction
 void dataProcessingInstruction(int32_t instruction, ARM_STATE *machinePtr) {

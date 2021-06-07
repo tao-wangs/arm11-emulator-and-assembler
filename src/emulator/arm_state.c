@@ -1,8 +1,6 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
+
+#include "../utility.h"
 #include "arm_state.h"
-#include "utility.h"
 
 //allocates space for memory
 //sets value of all registers to 0

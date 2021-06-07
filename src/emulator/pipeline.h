@@ -1,6 +1,14 @@
 #ifndef PIPELINE_H
 #define PIPELINE_H
 
+#include "binreader.h"
+#include "decode.h"
+#include "multiply.h"
+#include "singledatatransfer.h"
+#include "branch.h"
+#include "dataprocessing.h"
+#include "../utility.h"
+
 typedef struct {
   int32_t fetchedInstr;
   int32_t decodedInstr;
