@@ -8,10 +8,10 @@ int32_t assembleMultiply(char *mnemonic, char *op1, char *op2, char *op3, char *
     int32_t s = 0x0 << 20;
     int32_t filler = 0x9 << 4;
     
-    int32_t rd = decodeOperand(op1) << 16;
-    int32_t rm = decodeOperand(op2);
-    int32_t rs = decodeOperand(op3) << 8;
-    int32_t rn = decodeOperand(op4) << 12;
+    int32_t rd = stringToInt(op1) << 16;
+    int32_t rm = stringToInt(op2);
+    int32_t rs = stringToInt(op3) << 8;
+    int32_t rn = stringToInt(op4) << 12;
 
     if (!strcmp(mnemonic, "mla")) {
         a = 0x1 << 21;

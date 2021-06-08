@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "emulator/arm_state.h"
 
@@ -61,6 +62,6 @@ bool conditionMet(uint32_t conditionCode, ARM_STATE *machine);
 int32_t toLittleEndian(int32_t word);
 uint32_t rotateRight(uint32_t value, int32_t shift);
 
-int32_t decodeOperand(char* opToken);
+int32_t stringToInt(char* opToken);
 
 #endif

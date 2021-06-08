@@ -42,7 +42,7 @@ uint32_t rotateRight(uint32_t value, int32_t shift) {
     return (value >> shift) | (value << (32 - shift));
 }
 
-int32_t decodeOperand(char* opToken) {
-    return atoi(strtok_r(opToken,"r#"));
+int32_t stringToInt(char* opToken) {
+    return (int32_t) strtol(strtok(opToken, "r#="), NULL, 0);
 }
 
