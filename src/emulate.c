@@ -7,8 +7,8 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  ARM_STATE ARM_machine;
-  ARM_STATE *machinePtr = &ARM_machine;
+  ARM_STATE ARMmachine;
+  ARM_STATE *machinePtr = &ARMmachine;
 
   initialise(machinePtr);
 

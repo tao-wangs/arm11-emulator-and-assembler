@@ -3,11 +3,11 @@
 
 void decodeSDT(uint32_t instruction, ARM_STATE *machinePtr) {
 
-    int32_t cond = (instruction >> CONDCODE_SHIFT) & FOUR_BIT_MASK;
-    int32_t i = (instruction >> IMM_OPERAND_SHIFT) & ONE_BIT_MASK;
-    int32_t p = (instruction >> P_SHIFT) & ONE_BIT_MASK;
-    int32_t u = (instruction >> U_SHIFT) & ONE_BIT_MASK;
-    int32_t l = (instruction >> L_SHIFT) & ONE_BIT_MASK;
+    int32_t condCode = (instruction >> CONDCODE_SHIFT) & FOUR_BIT_MASK;
+    int32_t immOffset = (instruction >> IMM_OPERAND_SHIFT) & ONE_BIT_MASK;
+    int32_t pIndexingBit = (instruction >> P_SHIFT) & ONE_BIT_MASK;
+    int32_t upBit = (instruction >> U_SHIFT) & ONE_BIT_MASK;
+    int32_t loadBit = (instruction >> L_SHIFT) & ONE_BIT_MASK;
     int32_t rn = (instruction >> RN_SHIFT_SDT) & FOUR_BIT_MASK;
     int32_t rd = (instruction >> RD_SHIFT_SDT) & FOUR_BIT_MASK;
     int32_t offset = (instruction & OFFSET_MASK_SDT);
@@ -22,31 +22,27 @@ void decodeSDT(uint32_t instruction, ARM_STATE *machinePtr) {
 
     int32_t shiftType = (shift >> TYPE_SHIFT) & TWO_BIT_MASK;
 
-    if (!conditionMet(cond, machinePtr)) {
+    if (!conditionMet(condCode, machinePtr)) {
         printf("Condition not met. SDT instruction skipped");
         return;
     }
 
     //this section can definitely be condensed, not sure how yet though.
-    if (i == 1) { //means offset is a shifted register
+    if (immOffset == 1) { //means offset is a shifted register
         if (bit4 == 0) {
             switch (shiftType) {
-                case LSL: ;
-                    offset =
-                        machinePtr->registers[rm] << integer;
+                case LSL:
+                    offset = machinePtr->registers[rm] << integer;
                     break;
-                case LSR: ;
-                    offset =
-                        (uint32_t) machinePtr->registers[rm] >> integer;
+                case LSR: 
+                    offset = (uint32_t) machinePtr->registers[rm] >> integer;
                     break;
-                case ASR: ;
-                    offset =
-                        machinePtr->registers[rm] >> integer;
+                case ASR: 
+                    offset = machinePtr->registers[rm] >> integer;
                     break;
-                default: ;
+                default: 
                     assert (shiftType == ROR);
-                    offset =
-                        rotateRight(machinePtr->registers[rm], integer);
+                    offset = rotateRight(machinePtr->registers[rm], integer);
             }
         } else { //this is the optional part on page 7 of spec
             assert (bit4 == 1);
@@ -54,42 +50,38 @@ void decodeSDT(uint32_t instruction, ARM_STATE *machinePtr) {
             int32_t shiftAmount = (machinePtr->registers[rs] & EIGHT_BIT_MASK); //last byte of Rs
 
             switch (shiftType) {
-                case LSL: ;
-                    offset =
-                        machinePtr->registers[rm] << shiftAmount;
+                case LSL:
+                    offset = machinePtr->registers[rm] << shiftAmount;
                     break;
-                case LSR: ;
-                    offset =
-                        (uint32_t) machinePtr->registers[rm] >> shiftAmount;
+                case LSR:
+                    offset = (uint32_t) machinePtr->registers[rm] >> shiftAmount;
                     break;
-                case ASR: ;
-                    offset =
-                        machinePtr->registers[rm] >> shiftAmount;
+                case ASR:
+                    offset = machinePtr->registers[rm] >> shiftAmount;
                     break;
-                default: ;
+                default:
                     assert (shiftType == ROR);
-                    offset =
-                        rotateRight(machinePtr->registers[rm], shiftAmount);
+                    offset = rotateRight(machinePtr->registers[rm], shiftAmount);
             }
         }
     }
     
-    (l == 1) ?
-    executeLoad(p, u, rn, rd, offset, machinePtr) :
-    executeStore(p, u, rn, rd, offset, machinePtr);
+    (loadBit == 1) ?
+    executeLoad(pIndexingBit, upBit, rn, rd, offset, machinePtr) :
+    executeStore(pIndexingBit, upBit, rn, rd, offset, machinePtr);
 }
 
-void executeLoad(int32_t p, int32_t u, int32_t rn, int32_t rd, uint32_t offset, ARM_STATE *machine) { //Rn is the base register
+void executeLoad(int32_t pIndexingBit, int32_t upBit, int32_t rn, int32_t rd, uint32_t offset, ARM_STATE *machine) { //Rn is the base register
 
     int32_t baseAddress = machine->registers[rn];
-    int32_t address = (u == 1) ? baseAddress + offset : baseAddress - offset;
+    int32_t address = (upBit == 1) ? baseAddress + offset : baseAddress - offset;
 
     if (address > NUM_ALLIGNED_ADDRS) {
         printf("Error: Out of bounds memory access at address 0x%08x\n", address);
         return;
     }
 
-    if (p == 1) { //pre indexing
+    if (pIndexingBit == 1) { //pre indexing
         switch(address % WORD_SIZE) {
             case 0: ;
                 machine->registers[rd] = toLittleEndian(machine->memory[address / WORD_SIZE]);
@@ -135,16 +127,17 @@ void executeLoad(int32_t p, int32_t u, int32_t rn, int32_t rd, uint32_t offset, 
     machine->registers[rn] = address;
 }
 
-void executeStore(int32_t p, int32_t u, int32_t rn, int32_t rd, int32_t offset, ARM_STATE *machine) { //this code is literally unreadable but it works ;)
+// since this is similar to previous, we could try a way to combine the two?
+void executeStore(int32_t pIndexingBit, int32_t upBit, int32_t rn, int32_t rd, int32_t offset, ARM_STATE *machine) {
     int32_t baseAddress = machine->registers[rn];
-    int32_t address = (u == 1) ? baseAddress + offset : baseAddress - offset;
+    int32_t address = (upBit == 1) ? baseAddress + offset : baseAddress - offset;
 
     if (address > NUM_ALLIGNED_ADDRS) {
         printf("Error: Out of bounds memory access at address 0x%08x\n", address);
         return;
     }
 
-    if (p == 1) {
+    if (pIndexingBit == 1) {
         switch(address % WORD_SIZE) {
             case 0: ;
                 machine->memory[address / WORD_SIZE] = toLittleEndian(machine->registers[rd]);
@@ -217,6 +210,7 @@ void executeStore(int32_t p, int32_t u, int32_t rn, int32_t rd, int32_t offset, 
                 machine->memory[baseAddress / WORD_SIZE] = old3Bytes | ((uint32_t) newReplacement1Byte >> THREE_BYTE_SHIFT);
                 machine->memory[(baseAddress / WORD_SIZE) + 1] = oldByte | (newReplacement3Bytes << ONE_BYTE_SHIFT);
                 break;
-        }
+    }
+
     machine->registers[rn] = address;
 }
