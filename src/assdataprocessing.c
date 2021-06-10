@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #define max_8bit_value 0b11111111
+#define ONE_NIBBLE_MAX_INT 15
 #define MAX_AMOUNT_CAN_ROTATE 16
 
 int32_t assembleDataProcessing(char *mnemonic, char *srcreg, char *dstreg, char *operand2) {
@@ -26,12 +27,12 @@ int32_t assembleDataProcessing(char *mnemonic, char *srcreg, char *dstreg, char 
     setFlags = 0 << 20;
   }
   
-  rn = stringToInt(srcreg) << 16;
-  rd = stringToInt(dstreg) << 12;
-  
+    rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << 16; 
+    rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << 12;
+
   
   /* some code */
-  if(operand2 > max_8bit_value) {
+  if(atoi(operand2) > max_8bit_value) {
     operand2 =  generate8BitImmediate(operand2);
   }
   return condCode | filler | immOperand | opcode | setFlags | rn | rd | operand2;
@@ -60,6 +61,10 @@ int32_t undoRotation(int32_t operand2_as_int) {
   if(shift_amount % 2 == 1) {
     operand2_as_int = operand2_as_int << 1;
   }
-  int32_t rotate = MAX_AMOUNT_CAN_ROTATE - shift_amount / 2;
-  return (rotate << 8) + operand2_as_int;
+  int32_t rotate = (MAX_AMOUNT_CAN_ROTATE - shift_amount) / 2;
+  if(rotate > ONE_NIBBLE_MAX_INT) {
+    perror("The immediate value of operand2 cannot be represented using 8 bits");
+    exit(EXIT_FAILURE);
+  }
+  return (rotate << 8) | operand2_as_int;
 }
