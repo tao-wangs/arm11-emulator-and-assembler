@@ -18,7 +18,7 @@ void pipeline(ARM_STATE *state){
   pipePtr->fetchedInstr = 0;
   pipePtr->decodedInstr = 0;
 
-  while (type!=Halt) {
+  while (type != Halt) {
     if(pipePtr->decodedInstr == 0){
       if(pipePtr->fetchedInstr == 0){
 	pipePtr->fetchedInstr = toLittleEndian(state->memory[state->registers[PC]/INSTRUCTION_SIZE]);
