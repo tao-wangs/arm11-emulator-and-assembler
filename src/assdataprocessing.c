@@ -30,8 +30,6 @@ int32_t assembleDataProcessing(char *mnemonic, char *srcreg, char *dstreg, char 
     rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << 16; 
     rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << 12;
 
-  
-  /* some code */
   if(atoi(operand2) > max_8bit_value) {
     operand2 =  generate8BitImmediate(operand2);
   }
