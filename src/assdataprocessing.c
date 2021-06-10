@@ -7,7 +7,7 @@
 #include "utility.h"
 #include "assdataprocessing.h"
 
-int32_t assembleDataProcessing(char *mnemonic, char *srcreg, char *dstreg, char *op2, hashTable *table) {
+int32_t assembleDataProcessing(char *mnemonic, char *dstreg, char *srcreg, char *op2, hashTable *table) {
 
 	int32_t condCode = 0xE << CONDCODE_SHIFT;
 	int32_t opcode = lookupVal(table, mnemonic);
@@ -28,15 +28,13 @@ int32_t assembleDataProcessing(char *mnemonic, char *srcreg, char *dstreg, char 
 	rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << 16; 
 	rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << 12;
 
-	if(atoi(op2) > ONE_BYTE_MAX_INT) {
-    		operand2 = generate8BitImmediate(op2);
-  	}
+	operand2 = generate8BitImmediate(op2);
 
 	return condCode | filler | immOperand | opcode | setFlags | rn | rd | operand2;
 }
 
 int32_t generate8BitImmediate(char *operand2) {
-	int32_t operand2_as_int = atoi(operand2);
+	int32_t operand2_as_int = stringToInt(operand2);
   	if (operand2_as_int > ONE_BYTE_MAX_INT) {
     		return undoRotation(operand2_as_int);
   	}
