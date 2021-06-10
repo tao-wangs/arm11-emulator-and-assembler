@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "utility.c"
-#include "emulator/binreader.c"
+
+#include "utility.h"
+#include "binfilewriter.h"
 
 void fileWrite(uint32_t instr, char* filename) {
 
@@ -14,8 +15,7 @@ void fileWrite(uint32_t instr, char* filename) {
 		exit(EXIT_FAILURE);
 	}
 
-
-	char *instrString = malloc(32 * sizeof(char));
+	char *instrString = malloc(INSTRUCTION_BITS * sizeof(char));
 	if (!instrString) {
 		perror("Memory allocation error");
 		exit(EXIT_FAILURE);
