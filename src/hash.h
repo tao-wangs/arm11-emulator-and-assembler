@@ -8,10 +8,13 @@ typedef struct hashItem_t {
 typedef struct hashTable_t {
     hashItem **table;
     uint32_t size;
+    uint32_t size_multi;
 } hashTable;
 
 hashTable *createHashTable(uint32_t size);
+void resetHashTable(hashTable *hTable);
 void freeHashTable(hashTable *hTable);
+void freeHashItems(hashTable *hTable);
 bool addHashItem(hashTable *hTable, char* key, uint32_t value);
 unsigned long hashString(char* item);
 uint32_t lookupVal(hashTable *hTable, char *item);
