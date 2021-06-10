@@ -54,7 +54,7 @@ int32_t undoRotation(int32_t operand2_as_int) {
   while(operand2_as_int % 2 == 0) {
     operand2_as_int = operand2_as_int >> 1;
     shift_amount++;
-  } if(operand2_as_int > max_8bit_value) {
+  } if(operand2_as_int >= max_8bit_value) {
     perror("The immediate value of operand2 cannot be represented using 8 bits");
     exit(EXIT_FAILURE);
   } // If our shift amount is odd then we reverse it, as we can only rotate to the right by an even number of positions.
