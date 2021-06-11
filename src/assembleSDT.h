@@ -6,4 +6,8 @@
 
 int32_t assembleSDT(char *mnemonic, char *op1, char *op2);
 
+int32_t assembleLDR(char* mnemonic, char* op1, char* op2);
+
+int32_t assembleSTR(char* mnemonic, char* op1, char* op2);
+
 #endif
