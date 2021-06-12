@@ -76,6 +76,20 @@ void executeLoad(int32_t pIndexingBit, int32_t upBit, int32_t rn, int32_t rd, ui
     int32_t baseAddress = machine->registers[rn];
     int32_t address = (upBit == 1) ? baseAddress + offset : baseAddress - offset;
 
+    if (address == 0x20200000) {
+        printf("One GPIO pin from 0 to 9 has been accessed\n");
+        machine->registers[rd] = address;
+        return;
+    } else if (address == 0x20200004) {
+        printf("One GPIO pin from 10 to 19 has been accessed\n");
+        machine->registers[rd] = address;
+        return;
+    } else if (address == 0x20200008) {
+        printf("One GPIO pin from 20 to 29 has been accessed\n");
+        machine->registers[rd] = address;
+        return;
+    }
+
     if (address > NUM_ALLIGNED_ADDRS) {
         printf("Error: Out of bounds memory access at address 0x%08x\n", address);
         return;
@@ -131,6 +145,26 @@ void executeLoad(int32_t pIndexingBit, int32_t upBit, int32_t rn, int32_t rd, ui
 void executeStore(int32_t pIndexingBit, int32_t upBit, int32_t rn, int32_t rd, int32_t offset, ARM_STATE *machine) {
     int32_t baseAddress = machine->registers[rn];
     int32_t address = (upBit == 1) ? baseAddress + offset : baseAddress - offset;
+
+    if (address == 0x20200000) {
+        printf("One GPIO pin from 0 to 9 has been accessed\n");
+        machine->registers[rd] = address;
+        return;
+    } else if (address == 0x20200004) {
+        printf("One GPIO pin from 10 to 19 has been accessed\n");
+        machine->registers[rd] = address;
+        return;
+    } else if (address == 0x20200008) {
+        printf("One GPIO pin from 20 to 29 has been accessed\n");
+        machine->registers[rd] = address;
+        return;
+    } else if (address == 0x20200028) {
+        printf("PIN OFF\n");
+        return;
+    } else if (address == 0x2020001C) {
+        printf("PIN ON\n");
+        return;
+    }
 
     if (address > NUM_ALLIGNED_ADDRS) {
         printf("Error: Out of bounds memory access at address 0x%08x\n", address);
