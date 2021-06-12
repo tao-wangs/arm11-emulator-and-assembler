@@ -1,23 +1,29 @@
 #ifndef __HASH_H__
 #define __HASH_H__
 
+#include <stdbool.h>
+
 typedef struct hashItem_t {
-    uint32_t val;
+    uint64_t val;
 } hashItem;
 
 typedef struct hashTable_t {
     hashItem **table;
-    uint32_t size;
-    uint32_t size_multi;
+    char **words;
+    uint64_t wordsIndex;
+    uint64_t size;
+    uint64_t size_multi;
 } hashTable;
 
-hashTable *createHashTable(uint32_t size);
+hashTable *createHashTable(uint64_t size);
 void resetHashTable(hashTable *hTable);
 void freeHashTable(hashTable *hTable);
 void freeHashItems(hashTable *hTable);
-bool addHashItem(hashTable *hTable, char* key, uint32_t value);
+void freeWordsList(hashTable *hTable);
+bool addHashItem(hashTable *hTable, char* key, uint64_t value);
 unsigned long hashString(char* item);
-uint32_t lookupVal(hashTable *hTable, char *item);
-bool addHashList(hashTable *hTable, char **items, uint32_t *vals);
+uint64_t lookupVal(hashTable *hTable, char *item);
+void addHashList(hashTable *hTable, char **items, uint64_t *vals);
+uint64_t getOriginalSize(hashTable *hTable);
 
 #endif
