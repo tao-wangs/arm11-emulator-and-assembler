@@ -9,7 +9,7 @@
 
 #define MAGIC_PRIME 7
 
-hashTable *createHashTable(uint32_t size){
+hashTable *createHashTable(uint64_t size){
     
     hashTable *hTable = malloc(sizeof(hashTable));
     if (!(hTable)){
@@ -17,13 +17,20 @@ hashTable *createHashTable(uint32_t size){
         exit(1); //malloc failed
     }
 
-    hTable->size = size * MAGIC_PRIME;
-    hTable->size_multi = MAGIC_PRIME;
+    hTable->size = size;
+    hTable->size_multi = 1;
     hTable->table = malloc(hTable->size * sizeof(hashItem*));
+    hTable->wordsIndex = 0;
+    hTable->words = malloc(hTable->size * sizeof(char**));
 
     if(!(hTable->table)){
         printf("memory allocation failed for hashtable value table");
         exit(1);
+    }
+
+    if(!(hTable->words)){
+        printf("memory allocation failed for hashtable word list");
+	exit(1);
     }
 
     for(int i = 0; i < hTable->size ; i++){
@@ -50,6 +57,7 @@ void resetHashTable(hashTable *hTable){
 
 void freeHashTable(hashTable *hTable){
     freeHashItems(hTable);
+    free(hTable->words);
     free(hTable->table);
     free(hTable);
 }
@@ -60,15 +68,17 @@ void freeHashItems(hashTable *hTable){
     }
 }
 
-bool addHashItem(hashTable *hTable, char* key, uint32_t value){
+//please avoid this function and use addHashList where possible. This function does NOT handle collision conflicts
+bool addHashItem(hashTable *hTable, char* key, uint64_t value){ 
     unsigned long hash = hashString(key);
-    uint32_t index = hash % hTable->size;
+    uint64_t index = hash % hTable->size;
     if(hTable->table[index]){
-	printf("index collision, at index %u\n", index);
+	//printf("index collision, at index %lu\n", index);
 	return false;
     } else {
 	hashItem *item = malloc(sizeof(hashItem));
-        
+	hTable->words[hTable->wordsIndex] = key;
+        hTable->wordsIndex += 1; 
 	if(!(item)){
 	    printf("memory allocation failed for a hashItem");
 	}
@@ -88,24 +98,30 @@ unsigned long hashString(char *item){
     return hash;
 }
 
-uint32_t lookupVal(hashTable *hTable, char *item){
-     return (hTable->table[hashString(item) % hTable->size])->val;
+uint64_t lookupVal(hashTable *hTable, char *item){
+    for(int i = 0; i < getOriginalSize(hTable); i++){
+        if(item == hTable->words[i]){
+            return (hTable->table[hashString(item) % hTable->size])->val;
+	}
+    }
+    return 0; //item not added to hashList
 }
 
-bool addHashList(hashTable *hTable, char **items, uint32_t *vals){
-    for(int i = 0; i < ((hTable->size) / (hTable->size_multi)); i++){
+void addHashList(hashTable *hTable, char **items, uint64_t *vals){
+    for(int i = 0; i < getOriginalSize(hTable); i++){
         if(!(addHashItem(hTable, items[i], vals[i]))){ //will run in case of collision
-	    freeHashItems(hTable); //delete all hash values so far
-	    
+  
 	    hTable->size *= MAGIC_PRIME; //increase size
 	    hTable->size_multi *= MAGIC_PRIME;
 
 	    resetHashTable(hTable); //get a new table for values
 
 	    addHashList(hTable, items, vals);//redistribute with increased size
+	    break;
 	}
     }
-
-    return true; //all items added, no collisions
 }
 
+uint64_t getOriginalSize(hashTable *hTable){
+    return hTable->size / hTable->size_multi;
+}
