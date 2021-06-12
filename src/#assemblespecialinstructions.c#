@@ -1,0 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "hash.h"
+#include "utility.h"
+
+int32_t assembleSpecialInstructions(char *mnemonic, char *dstreg, char *srcreg, char *op2, hashTable *table) {

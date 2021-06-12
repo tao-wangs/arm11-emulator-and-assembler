@@ -2,24 +2,15 @@
 #include "utility.h"
 #include "hash.h"
     
-hashTable *createDataProcessingTable(void) {
-
-	hashTable *table = createHashTable(10);
-
-	char *operands[10] = {"and", "eor", "sub", "rsb", "add", "tst", "teq", "cmp", "orr", "mov"};
-	uint32_t opcodes[10] = {0, 1, 2, 3, 4, 8, 9, 10, 12, 13};
-
-	if(!addHashList(table, operands, opcodes)) {
-		perror("The symbol table for dataprocessing could not be made");
-		exit(EXIT_FAILURE);
-	}
-
-	return table;
-}
-
 int main(int argc, char **argv) {
-	
-	hashTable *dataprocessingTable = createDataProcessingTable();
-	
-	return EXIT_SUCCESS;
+    hashTable *hTable = createHashTable(16);
+    char *operations[16] = {"and", "eor", "sub", "rsb", "add", "tst", "teq", "cmp", "orr", "mov", "eq", "ne", "ge", "lt","gt","le"};
+    uint32_t opcodes[16] = {0, 1, 2, 3, 4, 8, 9, 10, 12, 13, 0, 1, 10, 11, 12, 13};
+    
+    addHashList(hTable, operations, opcodes);    
+
+    printf("%u\n", lookupVal(hTable, "tst"));    
+    freeHashTable(hTable);
+    return EXIT_SUCCESS;
 }
+

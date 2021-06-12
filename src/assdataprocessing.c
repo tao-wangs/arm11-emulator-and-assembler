@@ -7,9 +7,29 @@
 #include "utility.h"
 #include "assdataprocessing.h"
 
+int32_t assembleSpecialInstruction(char *mnemonic, char *dstreg, char *srcreg, char *op2, hashTable *table) {
+  if(!strcmp(mnemonic, "lsl")) {
+    int32_t condCode = AL << CONDCODE_SHIFT; // Should be 14 << 28
+    // As we compile it as thought it were mov.
+    int32_t opcode = lookupVal(table, "mov"); // Should give 13
+    int32_t rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg));
+    int32_t setFlags = 0 << SET_FLAGS_SHIFT;
+    int32_t filler = 0x0 << FILLER_SHIFT;
+    int32_t immOperand = 0 << IMM_OPERAND_SHIFT;
+    int32_t shiftValue = generate8BitImmediate(op2);
+  }
+
+  return condCode | filler | immOperand | (opCode << 21) | setFlags | (rn << RN_SHIFT) | (shiftValue << 7) | rn;
+
+  if(!(strcmp(mnemonic, "andeq") && strcmp(dstreg, "r0") && strcmp(srcreg, "r0") && strcmp(op2, "r0"))) {
+    return 0x00000000;
+  }
+}
+
 int32_t assembleDataProcessing(char *mnemonic, char *dstreg, char *srcreg, char *op2, hashTable *table) {
 
 	int32_t condCode = AL << CONDCODE_SHIFT;
+	// Does this need to be shifted << 21?
 	int32_t opcode = lookupVal(table, mnemonic);
 	int32_t filler = 0x0 << FILLER_SHIFT;
 	
@@ -25,13 +45,15 @@ int32_t assembleDataProcessing(char *mnemonic, char *dstreg, char *srcreg, char 
   	} else {
   	  setFlags = 0 << SET_FLAGS_SHIFT;
   	}
-  
+  	
     	rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << RN_SHIFT; 
     	rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
 
 	operand2 = generate8BitImmediate(op2);
 
 	return condCode | filler | immOperand | opcode | setFlags | rn | rd | operand2;
+
+}
 
 int32_t generate8BitImmediate(char *operand2) {
 	int32_t operand2_as_int = stringToInt(operand2);
