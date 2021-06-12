@@ -108,4 +108,3 @@ bool addHashList(hashTable *hTable, char **items, uint32_t *vals){
 
     return true; //all items added, no collisions
 }
-

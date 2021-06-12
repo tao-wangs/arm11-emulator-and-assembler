@@ -9,25 +9,25 @@
 
 int32_t assembleDataProcessing(char *mnemonic, char *dstreg, char *srcreg, char *op2, hashTable *table) {
 
-	int32_t condCode = 0xE << CONDCODE_SHIFT;
+	int32_t condCode = AL << CONDCODE_SHIFT;
 	int32_t opcode = lookupVal(table, mnemonic);
-	int32_t filler = 0x0 << 26;
+	int32_t filler = 0x0 << FILLER_SHIFT;
 	
   	int32_t rn;
   	int32_t rd;
-  	int32_t setFlags = 0 << 20;
-  	int32_t immOperand = 1 << 25;
+  	int32_t setFlags;
+  	int32_t immOperand = 1 << IMM_OPERAND_SHIFT;
   	int32_t operand2;
 
   	// If it is not one of the testing instructions then we should set the S bit to one, for all other instructions you should set the S bit to -.
   	if (!(strcmp(mnemonic, "tst") && strcmp(mnemonic, "teq") && strcmp(mnemonic, "cmp"))) {
-  	  setFlags = 1 << 20;
+  	  setFlags = 1 << SET_FLAGS_SHIFT;
   	} else {
-  	  setFlags = 0 << 20;
+  	  setFlags = 0 << SET_FLAGS_SHIFT;
   	}
   
-    	rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << 16; 
-    	rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << 12;
+    	rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << RN_SHIFT; 
+    	rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
 
 	operand2 = generate8BitImmediate(op2);
 
@@ -66,5 +66,5 @@ int32_t undoRotation(int32_t immOperand) {
 		exit(EXIT_FAILURE);
 	}
 
-	return rotate_amt << 8 | immOperand;
+	return rotate_amt << ROTATE_AMT_SHIFT | immOperand;
 }	
