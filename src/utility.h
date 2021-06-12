@@ -15,6 +15,7 @@
 #define CPSR 16
 
 #define INSTRUCTION_SIZE 4
+#define INSTRUCTION_BITS 32
 
 #define ONE_BIT_MASK 0x1
 #define TWO_BIT_MASK 0x3
