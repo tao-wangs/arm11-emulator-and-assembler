@@ -1,7 +1,7 @@
 
 #include "assembleSDT.h"
 
-uint32_t assembleSDT(char* instruction, uint32_t lastAddress, uint32_t pc, hashTable *table) {
+uint32_t assembleSDT(char* instruction, uint32_t lastAddress, uint32_t pc, hashTable *table, uint32_t *values[]) {
 
     char *endPtr = instruction;
     char* mnemonic = strtok_r(endPtr, " ,", &endPtr);
@@ -9,13 +9,13 @@ uint32_t assembleSDT(char* instruction, uint32_t lastAddress, uint32_t pc, hashT
     char* op2 = strtok_r(endPtr, " ,", &endPtr);
 
     if (!strcmp(mnemonic, "ldr")) {
-        return assembleLDR(mnemonic, op1, op2, lastAddress, pc, &table);
+        return assembleLDR(mnemonic, op1, op2, lastAddress, pc, &table, values);
     }
     
     return assembleSTR(mnemonic, op1, op2);
 }
 
-uint32_t assembleLDR(char* mnemonic, char* op1, char* op2, uint32_t lastAddress, uint32_t pc, hashTable *table) {
+uint32_t assembleLDR(char* mnemonic, char* op1, char* op2, uint32_t lastAddress, uint32_t pc, hashTable *table, uint32_t *values[]) {
     uint32_t cond = 9 << 28;
     uint32_t filler = 1 << 26;
     uint32_t i = 0 << 25;
