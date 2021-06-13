@@ -117,4 +117,18 @@ int32_t undoRotation(int32_t immOperand) {
 	}
 
 	return rotate_amt << ROTATE_AMT_SHIFT | immOperand;
-}	
+}
+
+/*
+int main(int argc, char **argv) {
+
+	hashTable *hTable = createHashTable(10);
+
+	char *operands[10] = {"and", "eor", "sub", "rsb", "add", "tst", "teq", "cmp", "orr", "mov"};
+	uint64_t opcodes[10] = {0, 1, 2, 3, 4, 8, 9, 10, 12, 13};
+
+	addHashList(hTable, operands, opcodes);
+
+	assembleSpecialInstruction(argv[1], table);
+}
+*/

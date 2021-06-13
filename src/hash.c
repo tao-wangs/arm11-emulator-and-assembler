@@ -4,12 +4,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "hash.h"
 
 #define MAGIC_PRIME 7
 
-hashTable *createHashTable(uint32_t size){
+hashTable *createHashTable(uint64_t size){
     
     hashTable *hTable = malloc(sizeof(hashTable));
     if (!(hTable)){
@@ -17,13 +18,20 @@ hashTable *createHashTable(uint32_t size){
         exit(1); //malloc failed
     }
 
-    hTable->size = size * MAGIC_PRIME;
-    hTable->size_multi = MAGIC_PRIME;
+    hTable->size = size;
+    hTable->size_multi = 1;
     hTable->table = malloc(hTable->size * sizeof(hashItem*));
+    hTable->wordsIndex = 0;
+    hTable->words = malloc(hTable->size * sizeof(char**));
 
     if(!(hTable->table)){
         printf("memory allocation failed for hashtable value table");
         exit(1);
+    }
+
+    if(!(hTable->words)){
+        printf("memory allocation failed for hashtable word list");
+	exit(1);
     }
 
     for(int i = 0; i < hTable->size ; i++){
@@ -33,42 +41,51 @@ hashTable *createHashTable(uint32_t size){
     return hTable;
 }
 
-void resetHashTable(hashTable *hTable){
-    free(hTable->table);
-
-    hTable->table = malloc(hTable->size * sizeof(hashItem*));
-
-    if(!(hTable->table)){
-        printf("memory allocation failed for hashtable value table");
-        exit(1);
-    }
-
-    for(int i = 0; i < hTable->size; i++){
-        hTable->table[i] = NULL;
-    }
-}
-
-void freeHashTable(hashTable *hTable){
+void increaseHashTable(hashTable *hTable, uint32_t multiplier){
     freeHashItems(hTable);
     free(hTable->table);
-    free(hTable);
+    free(hTable->words);
+    hTable->wordsIndex = 0;
+
+    //increase size
+    hTable->size *= multiplier;
+    hTable->size_multi *= multiplier;
+
+    hTable->table = malloc(sizeof(hashItem*) * hTable->size);
+    hTable->words = malloc(sizeof(char*) * hTable->size);
+    
+    for(int i = 0; i < hTable->size; i++){
+        hTable->table[i] = NULL;    
+    }
 }
 
 void freeHashItems(hashTable *hTable){
     for(int i = 0; i < hTable->size; i++){
-        free(hTable->table[i]);
-    }
+        if(hTable->table[i]){
+	    free(hTable->table[i]);
+	}    
+    }	
 }
 
-bool addHashItem(hashTable *hTable, char* key, uint32_t value){
+void freeHashTable(hashTable *hTable){
+    freeHashItems(hTable);
+    free(hTable->words);
+    free(hTable->table);
+    free(hTable);
+}
+
+
+//please avoid this function and use addHashList where possible. This function does NOT handle collision conflicts
+bool addHashItem(hashTable *hTable, char* key, uint64_t value){ 
     unsigned long hash = hashString(key);
-    uint32_t index = hash % hTable->size;
+    uint64_t index = hash % hTable->size;
     if(hTable->table[index]){
-	printf("index collision, at index %u\n", index);
+	//printf("index collision, at index %lu\n", index);
 	return false;
     } else {
 	hashItem *item = malloc(sizeof(hashItem));
-        
+	hTable->words[hTable->wordsIndex] = key;
+        hTable->wordsIndex += 1; 
 	if(!(item)){
 	    printf("memory allocation failed for a hashItem");
 	}
@@ -88,23 +105,30 @@ unsigned long hashString(char *item){
     return hash;
 }
 
-uint32_t lookupVal(hashTable *hTable, char *item){
-     return (hTable->table[hashString(item) % hTable->size])->val;
-}
-
-bool addHashList(hashTable *hTable, char **items, uint32_t *vals){
-    for(int i = 0; i < ((hTable->size) / (hTable->size_multi)); i++){
-        if(!(addHashItem(hTable, items[i], vals[i]))){ //will run in case of collision
-	    freeHashItems(hTable); //delete all hash values so far
-	    
-	    hTable->size *= MAGIC_PRIME; //increase size
-	    hTable->size_multi *= MAGIC_PRIME;
-
-	    resetHashTable(hTable); //get a new table for values
-
-	    addHashList(hTable, items, vals);//redistribute with increased size
+uint64_t lookupVal(hashTable *hTable, char *item){
+    for(int i = 0; i < getOriginalSize(hTable); i++){
+        if(!strcmp(item, hTable->words[i])){
+            return (hTable->table[hashString(item) % hTable->size])->val;
 	}
     }
+    return 0; //item not added to hashList
+}
 
-    return true; //all items added, no collisions
+void addHashList(hashTable *hTable, char **items, uint64_t *vals){
+    for(int i = 0; i < getOriginalSize(hTable); i++){
+        if(!(addHashItem(hTable, items[i], vals[i]))){ //will run in case of collision
+            
+	   increaseHashTable(hTable, MAGIC_PRIME);//increase size
+	   //printf("increasing size\n"); 
+	   addHashList(hTable, items, vals);//redistribute with increased size
+
+	   break; 
+
+	}
+    }
+}
+
+uint64_t getOriginalSize(hashTable *hTable){
+    //printf("size: %lu mult: %lu\n", hTable->size, hTable->size_multi);
+    return hTable->size / hTable->size_multi;
 }
