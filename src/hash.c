@@ -107,7 +107,7 @@ unsigned long hashString(char *item){
 
 uint64_t lookupVal(hashTable *hTable, char *item){
     for(int i = 0; i < getOriginalSize(hTable); i++){
-        if(strcmp(item, hTable->words[i])){
+        if(!strcmp(item, hTable->words[i])){
             return (hTable->table[hashString(item) % hTable->size])->val;
 	}
     }
