@@ -4,49 +4,52 @@
 #include <stdbool.h>
 
 #include "hash.h"
+#include "tokeniser.h"
 #include "utility.h"
 #include "assdataprocessing.h"
 
 int32_t assembleDataProcessing(char *instrString, hashTable *table) {
 	
 	char *saveptr;
+	char **tokens;
+
 	char *mnemonic;
 	char *dstreg;
 	char *srcreg;
 	char *op2;
-
-	mnemonic = strtok_r(instrString, " ", &saveptr);
 	
-	int32_t condCode = AL << CONDCODE_SHIFT;
-	int32_t opcode = ((int32_t) lookupVal(table, mnemonic)) << OPCODE_SHIFT;
-	int32_t filler = 0x0 << FILLER_SHIFT;
-	
-	int32_t rn;
-        int32_t rd;
         int32_t setFlags;
-        int32_t immOperand = 1 << IMM_OPERAND_SHIFT;
-        int32_t operand2;
 	
+	mnemonic = strtok_r(instrString, " ", &saveptr);
+
 	// If it is not one of the testing instructions then we should set the S bit to 1, for all other instructions you should set the S bit to 0.
         if (!(strcmp(mnemonic, "tst") && strcmp(mnemonic, "teq") && strcmp(mnemonic, "cmp"))) {
+		tokens = tok(saveptr, 2);
 		dstreg = NULL;
-		srcreg = strtok_r(NULL, " ", &saveptr);	
+		srcreg = tokens[0];
+		op2 = tokens[1];
         	setFlags = 1 << SET_FLAGS_SHIFT;
         } else if (!strcmp(mnemonic, "mov")) {
-		dstreg = strtok_r(NULL, " ", &saveptr);
+		tokens = tok(saveptr, 2);
+		dstreg = tokens[0];
 		srcreg = NULL;
+		op2 = tokens[1];
 		setFlags = 0 << SET_FLAGS_SHIFT;
 	} else {
-		dstreg = strtok_r(NULL, " ", &saveptr);
-		srcreg = strtok_r(NULL, " ", &saveptr);
+		tokens = tok(saveptr, 3);
+		dstreg = tokens[0];
+		srcreg = tokens[1];
+		op2 = tokens[2];
 		setFlags = 0 << SET_FLAGS_SHIFT;
 	}
 	
-	op2 = strtok_r(NULL, " ", &saveptr);
-	
-	rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << RN_SHIFT;
-	rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
-	operand2 = generate8BitImmediate(op2);
+	int32_t condCode = AL << CONDCODE_SHIFT;
+	int32_t filler = 0x0 << FILLER_SHIFT;
+	int32_t immOperand = 1 << IMM_OPERAND_SHIFT;
+	int32_t opcode = lookupVal(table, mnemonic) << OPCODE_SHIFT;
+	int32_t rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << RN_SHIFT;
+	int32_t rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
+	int32_t operand2 = generate8BitImmediate(op2);
 
 	return condCode | filler | immOperand | opcode | setFlags | rn | rd | operand2;
 
