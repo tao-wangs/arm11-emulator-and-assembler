@@ -12,12 +12,13 @@ char** tok(char* instr, uint32_t ops){
 
     while(token != NULL && i < ops){
         if(i == 0){
-	    token = strtok_r(instr, " :,", &savePtr);
-	} else {
-	    token = strtok_r(NULL, " :,", &savePtr);	
-	}
+	        token = strtok_r(instr, " :,", &savePtr);
+	    } else {
+	        token = strtok_r(NULL, " :,", &savePtr);	
+	    }
 
-	tokens[i] = token;    
+	    tokens[i] = token;
+        i++;
     }
 
     return tokens;
