@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "hash.h"
 
@@ -100,10 +101,12 @@ unsigned long hashString(char *item){
 
 uint64_t lookupVal(hashTable *hTable, char *item){
     for(int i = 0; i < getOriginalSize(hTable); i++){
-        if(item == hTable->words[i]){
+        if(!strcmp(item, hTable->words[i])){
             return (hTable->table[hashString(item) % hTable->size])->val;
 	}
     }
+
+    printf("%s\n", item);
     return 0; //item not added to hashList
 }
 
