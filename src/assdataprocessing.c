@@ -4,11 +4,11 @@
 #include <stdbool.h>
 
 #include "hash.h"
-#include "tokeniser.c"
+#include "tokeniser.h"
 #include "utility.h"
 #include "assdataprocessing.h"
 
-int32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
+uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
 	
 	char **tokens;
 	char *saveptr;
@@ -20,12 +20,12 @@ int32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
 		int32_t condCode = AL << CONDCODE_SHIFT;
 		int32_t filler = 0x0 << FILLER_SHIFT;
 		int32_t opcode = lookupVal(table, "mov") << OPCODE_SHIFT;
-    		int32_t rn = tokens[0];
+    		int32_t rn = stringToInt(tokens[0]);
     		int32_t setFlags = 0 << SET_FLAGS_SHIFT;
     		int32_t immOperand = 0 << IMM_OPERAND_SHIFT;
-		int32_t shiftValue = generate8BitImmediate(op2);
+		int32_t shiftValue = generate8BitImmediate(tokens[1]);
 	
-		return condCode | filler | immOperand | opCode | setFlags | (rn << RN_SHIFT) | (shiftValue << 7) | rn;
+		return condCode | filler | immOperand | opcode | setFlags | (rn << RN_SHIFT) | (shiftValue << 7) | rn;
 	}
 	
 	if (!strcmp(mnemonic, "andeq")) {
@@ -119,16 +119,17 @@ int32_t undoRotation(int32_t immOperand) {
 	return rotate_amt << ROTATE_AMT_SHIFT | immOperand;
 }
 
-/*
 int main(int argc, char **argv) {
 
-	hashTable *hTable = createHashTable(10);
+	hashTable *table = createHashTable(10);
 
 	char *operands[10] = {"and", "eor", "sub", "rsb", "add", "tst", "teq", "cmp", "orr", "mov"};
 	uint64_t opcodes[10] = {0, 1, 2, 3, 4, 8, 9, 10, 12, 13};
 
-	addHashList(hTable, operands, opcodes);
+	addHashList(table, operands, opcodes);
 
-	assembleSpecialInstruction(argv[1], table);
+	int32_t res = assembleSpecialInstruction(argv[1], table);
+	
+	printf("%u\n", res);
+	return EXIT_SUCCESS;
 }
-*/
