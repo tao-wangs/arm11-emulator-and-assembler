@@ -111,6 +111,8 @@ uint64_t lookupVal(hashTable *hTable, char *item){
             return (hTable->table[hashString(item) % hTable->size])->val;
 	}
     }
+
+    printf("%s\n", item);
     return 0; //item not added to hashList
 }
 
