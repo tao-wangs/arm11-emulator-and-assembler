@@ -3,11 +3,10 @@
 #include "hash.h"
 
 #include "firstpass.h"
-#include "assemblebranch.h"
+#include "secondpass.h"
 
 int main(int argc, char **argv) {
-    hashTable *assemblyInstructions = createHashTable(NUM_INSTRS_BRANCH);
-    addHashList(assemblyInstructions, branchOperations, branchOpCodes);
+    
     /* 
     hashTable *hTable = createHashTable(10);
     char *operations[16] = {"and", "eor", "sub", "rsb", "add", "tst", "teq", "cmp", "orr", "mov", "eq", "ne", "ge", "lt","gt","le"};
@@ -15,18 +14,22 @@ int main(int argc, char **argv) {
     
 hashTable *createDataProcessingTable(void) {
 
-	hashTable *table = createHashTable(10);
+	hashTable *hTable = createHashTable(10);
 
 	char *operands[10] = {"and", "eor", "sub", "rsb", "add", "tst", "teq", "cmp", "orr", "mov"};
-	uint32_t opcodes[10] = {0, 1, 2, 3, 4, 8, 9, 10, 12, 13};
+	uint64_t opcodes[10] = {0, 1, 2, 3, 4, 8, 9, 10, 12, 13};
 
-    printf("%lu\n", lookupVal(hTable, "tst"));    
+	addHashList(hTable, operands, opcodes);
+    printf("%lu\n", lookupVal(hTable, "orr"));   
     freeHashTable(hTable);
-    */
+    */ 
 
     long int max_labels = fSize(argv[1]);
     hashTable *labels = createHashTable(max_labels);
+    uint32_t last_addr = firstPass(labels, argv[1]);
     
+    secondPass(labels, argv[1], last_addr);
+
         
     return EXIT_SUCCESS;
 }
