@@ -16,10 +16,9 @@ typedef struct hashTable_t {
 } hashTable;
 
 hashTable *createHashTable(uint64_t size);
-void resetHashTable(hashTable *hTable);
+void increaseHashTable(hashTable *hTable, uint32_t multiplier);
 void freeHashTable(hashTable *hTable);
 void freeHashItems(hashTable *hTable);
-void freeWordsList(hashTable *hTable);
 bool addHashItem(hashTable *hTable, char* key, uint64_t value);
 unsigned long hashString(char* item);
 uint64_t lookupVal(hashTable *hTable, char *item);

@@ -10,13 +10,13 @@
 
 #define MAX_LINE_SIZE 511
 
-int firstPass(hashTable *labels, char *filename){ //returns final address in the program for SDT
+uint32_t firstPass(hashTable *labels, char *filename){ //returns final address in the program for SDT
     FILE *fp = fopen(filename, "r");
     char *labelList[getOriginalSize(labels)];
     uint64_t valList[getOriginalSize(labels)];
     char buffer[MAX_LINE_SIZE];
-    int addr = 0;
-    int i = 0;
+    uint32_t addr = 0;
+    uint32_t i = 0;
 
     while(!feof(fp)){
         fgets(buffer, MAX_LINE_SIZE, fp);
