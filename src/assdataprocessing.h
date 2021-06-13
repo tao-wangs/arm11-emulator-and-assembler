@@ -10,7 +10,7 @@
 #define RD_SHIFT 12
 #define ROTATE_AMT_SHIFT 8 
 
-int32_t assembleDataProcessing(char *instrString, hashTable *table);
+uint32_t assembleDataProcessing(char *instrString, hashTable *table);
 int32_t generate8BitImmediate(char *operand2);
 int32_t undoRotation(int32_t immOperand);
 

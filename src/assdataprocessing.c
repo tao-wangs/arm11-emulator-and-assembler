@@ -8,7 +8,7 @@
 #include "utility.h"
 #include "assdataprocessing.h"
 
-int32_t assembleDataProcessing(char *instrString, hashTable *table) {
+uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 	
 	char *saveptr;
 	char **tokens;
