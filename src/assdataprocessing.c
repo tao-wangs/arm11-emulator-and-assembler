@@ -3,9 +3,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "hash.h"
-#include "tokeniser.h"
-#include "utility.h"
 #include "assdataprocessing.h"
 
 uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
@@ -39,6 +36,8 @@ uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
 			return 0x00000000;
 		}
 	}
+
+	return 0;
 }
 
 uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
