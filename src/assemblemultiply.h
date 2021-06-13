@@ -3,6 +3,6 @@
 
 #include "utility.h"
 
-int32_t assembleMultiply(char* instruction);
+uint32_t assembleMultiply(char* instruction);
 
 #endif
