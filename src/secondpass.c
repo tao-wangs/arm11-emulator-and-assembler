@@ -47,8 +47,8 @@ void secondPass(hashTable *labels, char* filename, uint32_t last_addr){
             case B: fileWrite(assembleBranch(buffer, branchTable, labels, pc), filename); break;
             case SDT: fileWrite(assembleSDT(buffer, last_addr, pc, dpTable), filename); break;
             case MUL: fileWrite(assembleMultiply(buffer), filename); break;
-            case SPEC: printf("to be implemented"); break; 
-	    case DP: printf("to be implemented"); break;
+            case SPEC: fileWrite(assembleSpecialInstruction(buffer, dpTable), filename); break; 
+	    case DP: fileWrite(assembleDataProcessing(buffer, dpTable), filename); break;
             default: printf("instruction type not recognised");
 	}
     }
