@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "hash.h"
 
@@ -40,19 +41,30 @@ hashTable *createHashTable(uint64_t size){
     return hTable;
 }
 
-void resetHashTable(hashTable *hTable){
+void increaseHashTable(hashTable *hTable, uint32_t multiplier){
+    freeHashItems(hTable);
     free(hTable->table);
+    free(hTable->words);
+    hTable->wordsIndex = 0;
 
-    hTable->table = malloc(hTable->size * sizeof(hashItem*));
+    //increase size
+    hTable->size *= multiplier;
+    hTable->size_multi *= multiplier;
 
-    if(!(hTable->table)){
-        printf("memory allocation failed for hashtable value table");
-        exit(1);
-    }
-
+    hTable->table = malloc(sizeof(hashItem*) * hTable->size);
+    hTable->words = malloc(sizeof(char*) * hTable->size);
+    
     for(int i = 0; i < hTable->size; i++){
-        hTable->table[i] = NULL;
+        hTable->table[i] = NULL;    
     }
+}
+
+void freeHashItems(hashTable *hTable){
+    for(int i = 0; i < hTable->size; i++){
+        if(hTable->table[i]){
+	    free(hTable->table[i]);
+	}    
+    }	
 }
 
 void freeHashTable(hashTable *hTable){
@@ -62,11 +74,6 @@ void freeHashTable(hashTable *hTable){
     free(hTable);
 }
 
-void freeHashItems(hashTable *hTable){
-    for(int i = 0; i < hTable->size; i++){
-        free(hTable->table[i]);
-    }
-}
 
 //please avoid this function and use addHashList where possible. This function does NOT handle collision conflicts
 bool addHashItem(hashTable *hTable, char* key, uint64_t value){ 
@@ -100,7 +107,7 @@ unsigned long hashString(char *item){
 
 uint64_t lookupVal(hashTable *hTable, char *item){
     for(int i = 0; i < getOriginalSize(hTable); i++){
-        if(item == hTable->words[i]){
+        if(strcmp(item, hTable->words[i])){
             return (hTable->table[hashString(item) % hTable->size])->val;
 	}
     }
@@ -110,18 +117,18 @@ uint64_t lookupVal(hashTable *hTable, char *item){
 void addHashList(hashTable *hTable, char **items, uint64_t *vals){
     for(int i = 0; i < getOriginalSize(hTable); i++){
         if(!(addHashItem(hTable, items[i], vals[i]))){ //will run in case of collision
-  
-	    hTable->size *= MAGIC_PRIME; //increase size
-	    hTable->size_multi *= MAGIC_PRIME;
+            
+	   increaseHashTable(hTable, MAGIC_PRIME);//increase size
+	   //printf("increasing size\n"); 
+	   addHashList(hTable, items, vals);//redistribute with increased size
 
-	    resetHashTable(hTable); //get a new table for values
+	   break; 
 
-	    addHashList(hTable, items, vals);//redistribute with increased size
-	    break;
 	}
     }
 }
 
 uint64_t getOriginalSize(hashTable *hTable){
+    //printf("size: %lu mult: %lu\n", hTable->size, hTable->size_multi);
     return hTable->size / hTable->size_multi;
 }
