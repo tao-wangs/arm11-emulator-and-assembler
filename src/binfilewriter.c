@@ -8,7 +8,7 @@
 void fileWrite(uint32_t instr, char* filename) {
 
 	FILE *fptr;
-	fptr = fopen(filename, "wb");
+	fptr = fopen(filename, "ab");
 
 	if (!fptr) {
 		perror("Error opening file");
