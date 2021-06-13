@@ -19,13 +19,18 @@ uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
 		tokens = tok(saveptr, 2);
 		int32_t condCode = AL << CONDCODE_SHIFT;
 		int32_t filler = 0x0 << FILLER_SHIFT;
+		int32_t immOperand = 0 << IMM_OPERAND_SHIFT;
 		int32_t opcode = lookupVal(table, "mov") << OPCODE_SHIFT;
     		int32_t rn = stringToInt(tokens[0]);
     		int32_t setFlags = 0 << SET_FLAGS_SHIFT;
-    		int32_t immOperand = 0 << IMM_OPERAND_SHIFT;
-		int32_t shiftValue = generate8BitImmediate(tokens[1]);
+		int32_t shiftValue = stringToInt(tokens[1]);
+
+		if (shiftValue > FIVE_BIT_MAX_INT) {
+			perror("Cannot be shifted by this much");
+			exit(EXIT_FAILURE);
+		}
 	
-		return condCode | filler | immOperand | opcode | setFlags | (rn << RN_SHIFT) | (shiftValue << 7) | rn;
+		return condCode | filler | immOperand | opcode | setFlags | (rn << RD_SHIFT) | (shiftValue << SHIFT_VALUE_SHIFT) | rn;
 	}
 	
 	if (!strcmp(mnemonic, "andeq")) {
@@ -119,6 +124,7 @@ int32_t undoRotation(int32_t immOperand) {
 	return rotate_amt << ROTATE_AMT_SHIFT | immOperand;
 }
 
+/*
 int main(int argc, char **argv) {
 
 	hashTable *table = createHashTable(10);
@@ -133,3 +139,4 @@ int main(int argc, char **argv) {
 	printf("%u\n", res);
 	return EXIT_SUCCESS;
 }
+*/
