@@ -4,34 +4,84 @@
 #include <stdbool.h>
 
 #include "hash.h"
+#include "tokeniser.c"
 #include "utility.h"
 #include "assdataprocessing.h"
 
-int32_t assembleDataProcessing(char *mnemonic, char *dstreg, char *srcreg, char *op2, hashTable *table) {
-
-	int32_t condCode = AL << CONDCODE_SHIFT;
-	int32_t opcode = lookupVal(table, mnemonic);
-	int32_t filler = 0x0 << FILLER_SHIFT;
+int32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
 	
-  	int32_t rn;
-  	int32_t rd;
-  	int32_t setFlags;
-  	int32_t immOperand = 1 << IMM_OPERAND_SHIFT;
-  	int32_t operand2;
+	char **tokens;
+	char *saveptr;
 
-  	// If it is not one of the testing instructions then we should set the S bit to one, for all other instructions you should set the S bit to -.
-  	if (!(strcmp(mnemonic, "tst") && strcmp(mnemonic, "teq") && strcmp(mnemonic, "cmp"))) {
-  	  setFlags = 1 << SET_FLAGS_SHIFT;
-  	} else {
-  	  setFlags = 0 << SET_FLAGS_SHIFT;
-  	}
-  
-    	rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << RN_SHIFT; 
-    	rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
+	char *mnemonic = strtok_r(instrString, " ", &saveptr);
 
-	operand2 = generate8BitImmediate(op2);
+	if (!strcmp(mnemonic, "lsl")) {
+		tokens = tok(saveptr, 2);
+		int32_t condCode = AL << CONDCODE_SHIFT;
+		int32_t filler = 0x0 << FILLER_SHIFT;
+		int32_t opcode = lookupVal(table, "mov") << OPCODE_SHIFT;
+    		int32_t rn = tokens[0];
+    		int32_t setFlags = 0 << SET_FLAGS_SHIFT;
+    		int32_t immOperand = 0 << IMM_OPERAND_SHIFT;
+		int32_t shiftValue = generate8BitImmediate(op2);
+	
+		return condCode | filler | immOperand | opCode | setFlags | (rn << RN_SHIFT) | (shiftValue << 7) | rn;
+	}
+	
+	if (!strcmp(mnemonic, "andeq")) {
+		tokens = tok(saveptr, 3);
+		if (!strcmp(tokens[0], "r0") && !strcmp(tokens[1], "r0") && !strcmp(tokens[2], "r0")) {
+			return 0x00000000;
+		}
+	}
+}
+
+uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
+	
+	char *saveptr;
+	char **tokens;
+
+	char *mnemonic;
+	char *dstreg;
+	char *srcreg;
+	char *op2;
+	
+        int32_t setFlags;
+	
+	mnemonic = strtok_r(instrString, " ", &saveptr);
+
+	// If it is not one of the testing instructions then we should set the S bit to 1, for all other instructions you should set the S bit to 0.
+        if (!(strcmp(mnemonic, "tst") && strcmp(mnemonic, "teq") && strcmp(mnemonic, "cmp"))) {
+		tokens = tok(saveptr, 2);
+		dstreg = NULL;
+		srcreg = tokens[0];
+		op2 = tokens[1];
+        	setFlags = 1 << SET_FLAGS_SHIFT;
+        } else if (!strcmp(mnemonic, "mov")) {
+		tokens = tok(saveptr, 2);
+		dstreg = tokens[0];
+		srcreg = NULL;
+		op2 = tokens[1];
+		setFlags = 0 << SET_FLAGS_SHIFT;
+	} else {
+		tokens = tok(saveptr, 3);
+		dstreg = tokens[0];
+		srcreg = tokens[1];
+		op2 = tokens[2];
+		setFlags = 0 << SET_FLAGS_SHIFT;
+	}
+	
+	int32_t condCode = AL << CONDCODE_SHIFT;
+	int32_t filler = 0x0 << FILLER_SHIFT;
+	int32_t immOperand = 1 << IMM_OPERAND_SHIFT;
+	int32_t opcode = lookupVal(table, mnemonic) << OPCODE_SHIFT;
+	int32_t rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << RN_SHIFT;
+	int32_t rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
+	int32_t operand2 = generate8BitImmediate(op2);
 
 	return condCode | filler | immOperand | opcode | setFlags | rn | rd | operand2;
+
+}
 
 int32_t generate8BitImmediate(char *operand2) {
 	int32_t operand2_as_int = stringToInt(operand2);
@@ -45,7 +95,7 @@ int32_t undoRotation(int32_t immOperand) {
 
 	int32_t shift_amt = 0;
 
-	while (immOperand % 2 == 0) { //keep shifting left until our immediate operand is odd i.e. until LSB is 1
+	while (immOperand % 2 == 0) { //keep shifting left until our immediate operand until LSB is 1
 		immOperand >>= 1;
 		shift_amt++;
 	}
@@ -67,4 +117,18 @@ int32_t undoRotation(int32_t immOperand) {
 	}
 
 	return rotate_amt << ROTATE_AMT_SHIFT | immOperand;
-}	
+}
+
+/*
+int main(int argc, char **argv) {
+
+	hashTable *hTable = createHashTable(10);
+
+	char *operands[10] = {"and", "eor", "sub", "rsb", "add", "tst", "teq", "cmp", "orr", "mov"};
+	uint64_t opcodes[10] = {0, 1, 2, 3, 4, 8, 9, 10, 12, 13};
+
+	addHashList(hTable, operands, opcodes);
+
+	assembleSpecialInstruction(argv[1], table);
+}
+*/
