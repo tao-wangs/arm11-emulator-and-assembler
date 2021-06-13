@@ -5,14 +5,17 @@
 
 #include "assemblebranch.h"
 #include "hash.h"
+#include "tokeniser.h"
 
 uint32_t assembleBranch(char* instruction, hashTable *instrs, hashTable *labels, uint32_t pc){
     uint32_t offsetBitMask = 0x3FFFFFF;
     uint32_t instrIDBits = 0xA000000;
-    char* tokref;
+        
+    char **tokens = tok(instruction, 2);
+    char* mnemonic = tokens[0];
+    char* label = tokens[1];
     
-    char* mnemonic = strtok_r(instruction, " ", &tokref);
-    char* label = strtok_r(NULL, " ", &tokref);
+    freeTok(tokens);
 
     uint32_t opcode = (uint32_t) lookupVal(instrs, mnemonic);
     opcode <<= 28;
