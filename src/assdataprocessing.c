@@ -87,23 +87,3 @@ int32_t undoRotation(int32_t immOperand) {
 
 	return rotate_amt << ROTATE_AMT_SHIFT | immOperand;
 }
-
-int main(int argc, char **argv) {
-
-	assert (argc == 2);
-	
-	hashTable *table = createHashTable(10);
-
-	char *operands[10] = {"and", "eor", "sub", "rsb", "add", "tst", "teq", "cmp", "orr", "mov"};
-	uint64_t opcodes[10] = {0, 1, 2, 3, 4, 8, 9, 10, 12, 13};
-	
-	addHashList(table, operands, opcodes);
-
-	//int32_t res = assembleDataProcessing(argv[1], table);
-	int32_t res = lookupVal(table, argv[1]);
-
-	printf("%u\n", res);
-
-	return EXIT_SUCCESS;
-
-}
