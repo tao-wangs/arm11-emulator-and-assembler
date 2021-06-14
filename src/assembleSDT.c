@@ -1,4 +1,5 @@
 #include "assembleSDT.h"
+#include <string.h>
 
 int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTable *table) {
 
@@ -27,8 +28,7 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
 
     if (op2[0] == '=') {
         if (stringToInt(op2) <= 0xFF) {
-	    char *instruction = "mov op1, op2"; //needs implementing somehow
-            return assembleDataProcessing(instruction, table);
+            return assembleDataProcessing(strcat("mov ", strcat(op1, strcat(" ", op2))), table);
         } else {
             int32_t expression = stringToInt(op2);
             //put expression at the end of the program
