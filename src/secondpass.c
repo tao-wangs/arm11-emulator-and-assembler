@@ -33,7 +33,8 @@ void secondPass(hashTable *labels, char* filename, uint32_t last_addr){
     addHashList(typeTable, allOperations, typeCodes);
     addHashList(dpTable, dpOperations, dpOpCodes);
     addHashList(branchTable, branchOperations, branchOpCodes);
-
+    
+    uint32_t mem_addresses[last_addr]; 
     uint32_t pc = 0;
     FILE *fp = fopen(filename, "r");
     char buffer[MAX_LINE_SIZE];
@@ -42,18 +43,27 @@ void secondPass(hashTable *labels, char* filename, uint32_t last_addr){
     while(!feof(fp)){
         fgets(buffer, MAX_LINE_SIZE, fp);
         mnemonic = tok(buffer, 1);
-	switch(lookupVal(typeTable, *mnemonic)){
+	uint64_t type = lookupVal(typeTable, *mnemonic);
+	switch(type){
 	    case LAB: break;
             case B: fileWrite(assembleBranch(buffer, branchTable, labels, pc), filename); break;
-            case SDT: fileWrite(assembleSDT(buffer, last_addr, pc, dpTable), filename); break;
+            case SDT: fileWrite(assembleSDT(buffer, last_addr, pc, dpTable, mem_addresses), filename); break;
             case MUL: fileWrite(assembleMultiply(buffer), filename); break;
             case SPEC: fileWrite(assembleSpecialInstruction(buffer, dpTable), filename); break; 
 	    case DP: fileWrite(assembleDataProcessing(buffer, dpTable), filename); break;
             default: printf("instruction type not recognised");
 	}
+	pc += 4;
+    }
+    
+    fileWrite(0, filename); //HALT instruction
+
+    for(int i = 0; i < last_addr; i++){
+        if(mem_addresses[i] != 0){
+	    fileWrite(mem_addresses[i], filename);	
+	}    
     }
 
     fclose(fp);
-    fileWrite(0, filename); //HALT instruction
 }
 
