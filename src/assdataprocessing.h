@@ -1,6 +1,10 @@
 #ifndef ASSEMBLEDATAPROCESSING_H
 #define ASSEMBLEDATAPROCESSING_H
 
+#include "hash.h"
+#include "tokeniser.h"
+#include "utility.h"
+
 #define ONE_BYTE_MAX_INT 255
 #define ONE_NIBBLE_MAX_INT 15
 #define FIVE_BIT_MAX_INT 31

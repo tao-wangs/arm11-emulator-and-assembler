@@ -1,5 +1,5 @@
-
 #include "assembleSDT.h"
+#include <string.h>
 
 int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTable *table) {
 
@@ -9,7 +9,7 @@ int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTabl
     char* op2 = strtok_r(endPtr, " ,", &endPtr);
 
     if (!strcmp(mnemonic, "ldr")) {
-        return assembleLDR(mnemonic, op1, op2, lastAddress, pc, &table);
+        return assembleLDR(mnemonic, op1, op2, lastAddress, pc, table);
     }
     
     return assembleSTR(mnemonic, op1, op2);
@@ -26,9 +26,9 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
     int32_t rd = stringToInt(op1) << 12;
     int32_t offset = 0;
 
-    if (!strcmp(op2[0], "=")) {
+    if (op2[0] == '=') {
         if (stringToInt(op2) <= 0xFF) {
-            return assembleDataProcessing("mov", op1, NULL, op2, &table);
+            return assembleDataProcessing(strcat("mov ", strcat(op1, strcat(" ", op2))), table);
         } else {
             int32_t expression = stringToInt(op2);
             //put expression at the end of the program
@@ -47,12 +47,12 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
            }
         }
         char* endPtr;
-        if ((!index == 3) && !(index == 4)) {
+        if (!(index == 3) && !(index == 4)) {
             rn = stringToInt(strtok_r(removeBrackets(op2), ",", &endPtr)) << 16;
             offset = stringToInt(endPtr);
         } else {
             p = 0 << 24;
-            rn = stringToInt(removeBrackets(strtok_r(op2, ",", endPtr))) << 16;
+            rn = stringToInt(removeBrackets(strtok_r(op2, ",", &endPtr))) << 16;
             offset = stringToInt(endPtr);
         }
     }
@@ -81,14 +81,14 @@ int32_t assembleSTR(char* mnemonic, char* op1, char* op2) {
                break;
            }
         }
-        if ((!index == 3) && !(index == 4)) {
+        if (!(index == 3) && !(index == 4)) {
             char* endPtr;
             rn = stringToInt(strtok_r(removeBrackets(op2), ",", &endPtr));
             offset = stringToInt(endPtr);
         } else {
             p = 0 << 24;
             char* endPtr;
-            rn = stringToInt(removeBrackets(strtok_r(op2, ",", endPtr)));
+            rn = stringToInt(removeBrackets(strtok_r(op2, ",", &endPtr)));
             offset = stringToInt(endPtr);
         }
     }
