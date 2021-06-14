@@ -81,7 +81,7 @@ bool addHashItem(hashTable *hTable, char* key, uint64_t value){
     item->key = key;
     item->val = value;
     item->next = NULL;
-    hTable->table[index] = item;
+    
     return true;
 }
 
@@ -107,7 +107,7 @@ uint64_t lookupVal(hashTable *hTable, char *item){
         if(!strcmp(item, hTable->words[i])){
             hashItem *hItem = hTable->table[hashString(item) % hTable->size];
 	    
-	    while(!strcmp(item, hItem->key)){
+	    while(strcmp(item, hItem->key)){
 	        hItem = hItem->next;
 	    }
 

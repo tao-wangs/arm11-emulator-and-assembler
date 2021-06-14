@@ -43,7 +43,8 @@ void secondPass(hashTable *labels, char* filename, uint32_t last_addr){
     while(!feof(fp)){
         fgets(buffer, MAX_LINE_SIZE, fp);
         mnemonic = tok(buffer, 1);
-	switch(lookupVal(typeTable, *mnemonic)){
+	uint64_t type = lookupVal(typeTable, *mnemonic);
+	switch(type){
 	    case LAB: break;
             case B: fileWrite(assembleBranch(buffer, branchTable, labels, pc), filename); break;
             case SDT: fileWrite(assembleSDT(buffer, last_addr, pc, dpTable, mem_addresses), filename); break;
@@ -52,6 +53,7 @@ void secondPass(hashTable *labels, char* filename, uint32_t last_addr){
 	    case DP: fileWrite(assembleDataProcessing(buffer, dpTable), filename); break;
             default: printf("instruction type not recognised");
 	}
+	pc += 4;
     }
     
     fileWrite(0, filename); //HALT instruction
