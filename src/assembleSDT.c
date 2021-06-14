@@ -1,21 +1,21 @@
 #include "assembleSDT.h"
 #include <string.h>
 
-int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTable *table) {
+int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[]) {
 
-    char *endPtr = instruction;
-    char* mnemonic = strtok_r(endPtr, " ,", &endPtr);
-    char* op1 = strtok_r(endPtr, " ,", &endPtr);
-    char* op2 = strtok_r(endPtr, " ,", &endPtr);
+    char** tokens = tok(instruction, 3);
+    char* mnemonic = tokens[0];
+    char* op1 = tokens[1];
+    char* op2 = tokens[2];
 
     if (!strcmp(mnemonic, "ldr")) {
-        return assembleLDR(mnemonic, op1, op2, lastAddress, pc, table);
+        return assembleLDR(mnemonic, op1, op2, lastAddress, pc, table, values);
     }
     
     return assembleSTR(mnemonic, op1, op2);
 }
 
-int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, int32_t pc, hashTable *table) {
+int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[]) {
     int32_t cond = 9 << 28;
     int32_t filler = 1 << 26;
     int32_t i = 0 << 25;
@@ -30,11 +30,14 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
         if (stringToInt(op2) <= 0xFF) {
             return assembleDataProcessing(strcat("mov ", strcat(op1, strcat(" ", op2))), table);
         } else {
-            int32_t expression = stringToInt(op2);
-            //put expression at the end of the program
-            //use the address of this value with the PC as the base register and a
-            //calculated offset (ldr rd,[PC,offset]) where offset = (value address) - [PC];
-            //something like fileWrite(expression, fileName);
+            uint32_t expression = stringToInt(op2);
+            uint32_t arraySize = sizeof(values) / sizeof(values[0]);
+            for (int i = 0; i < arraySize; i++) {
+                if (values[i] == 0) {
+                    values[i] = expression;
+                    break;
+                }
+            }
             offset = lastAddress - pc;
         }
     } else if (strlen(op2) <= 5) {
