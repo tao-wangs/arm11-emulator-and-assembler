@@ -28,7 +28,12 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
 
     if (op2[0] == '=') {
         if (stringToInt(op2) <= 0xFF) {
-            return assembleDataProcessing(strcat("mov ", strcat(op1, strcat(" ", op2))), table);
+            char str[512];
+            strcat(str, "mov ");
+            strcat(str, op1);
+            strcat(str, " ");
+            strcat(str, op2);
+            return assembleDataProcessing(str, table);
         } else {
             uint32_t expression = stringToInt(op2);
             uint32_t arraySize = sizeof(values) / sizeof(values[0]);
