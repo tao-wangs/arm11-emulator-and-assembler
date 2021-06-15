@@ -25,7 +25,7 @@ uint64_t dpOpCodes[NUM_INSTRS_DP] = {0, 1, 2, 3, 4, 8, 9, 10, 12, 13};
 
 //TODO: special
 
-void secondPass(hashTable *labels, char* filename, uint32_t last_addr){
+void secondPass(hashTable *labels, char* readfile, char* outfile, uint32_t last_addr){
     hashTable *typeTable = createHashTable(NUM_INSTRS_TOTAL);
     hashTable *dpTable = createHashTable(NUM_INSTRS_DP);
     hashTable *branchTable = createHashTable(NUM_INSTRS_BRANCH);
@@ -34,33 +34,45 @@ void secondPass(hashTable *labels, char* filename, uint32_t last_addr){
     addHashList(dpTable, dpOperations, dpOpCodes);
     addHashList(branchTable, branchOperations, branchOpCodes);
     
-    uint32_t mem_addresses[last_addr]; 
+    uint32_t mem_addresses[last_addr];
+    for(int i = 0; i < last_addr; i++){
+        mem_addresses[i] = 0;    
+    }
+
+
     uint32_t pc = 0;
-    FILE *fp = fopen(filename, "r");
+
+    FILE *fp = fopen(readfile, "r");
+    
+    FILE *fpw = fopen(outfile, "w"); //create empty file to write to
+    fclose(fpw);
+
     char buffer[MAX_LINE_SIZE];
     char **mnemonic;
+    fgets(buffer, MAX_LINE_SIZE, fp);
 
     while(!feof(fp)){
-        fgets(buffer, MAX_LINE_SIZE, fp);
         mnemonic = tok(buffer, 1);
-	uint64_t type = lookupVal(typeTable, *mnemonic);
+	uint64_t type = lookupVal(typeTable, mnemonic[0]);
 	switch(type){
 	    case LAB: break;
-            case B: fileWrite(assembleBranch(buffer, branchTable, labels, pc), filename); break;
-            case SDT: fileWrite(assembleSDT(buffer, last_addr, pc, dpTable, mem_addresses), filename); break;
-            case MUL: fileWrite(assembleMultiply(buffer), filename); break;
-            case SPEC: fileWrite(assembleSpecialInstruction(buffer, dpTable), filename); break; 
-	    case DP: fileWrite(assembleDataProcessing(buffer, dpTable), filename); break;
+            case B: fileWrite(assembleBranch(buffer, branchTable, labels, pc), outfile); break;
+            case SDT: fileWrite(assembleSDT(buffer, last_addr, pc, dpTable, mem_addresses), outfile); break;
+            case MUL: fileWrite(assembleMultiply(buffer), outfile); break;
+            case SPEC: fileWrite(assembleSpecialInstruction(buffer, dpTable), outfile); break; 
+	    case DP: fileWrite(assembleDataProcessing(buffer, dpTable), outfile); break;
             default: printf("instruction type not recognised");
 	}
+	freeTok(mnemonic);
 	pc += 4;
+        fgets(buffer, MAX_LINE_SIZE, fp);
     }
     
-    fileWrite(0, filename); //HALT instruction
+    //fileWrite(0, outfile); //HALT instruction
 
     for(int i = 0; i < last_addr; i++){
         if(mem_addresses[i] != 0){
-	    fileWrite(mem_addresses[i], filename);	
+	    fileWrite(mem_addresses[i], outfile);	
 	}    
     }
 

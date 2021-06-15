@@ -19,7 +19,6 @@ hashTable *createHashTable(uint64_t size){
     }
 
     hTable->size = size;
-    hTable->size_multi = 1;
     hTable->table = malloc(hTable->size * sizeof(hashItem*));
     hTable->wordsIndex = 0;
     hTable->words = malloc(hTable->size * sizeof(char**));
@@ -103,6 +102,7 @@ unsigned long hashString(char *item){
 }
 
 uint64_t lookupVal(hashTable *hTable, char *item){
+    strcat(item, "\0");
     for(int i = 0; i < getOriginalSize(hTable); i++){
         if(!strcmp(item, hTable->words[i])){
             hashItem *hItem = hTable->table[hashString(item) % hTable->size];
@@ -124,6 +124,5 @@ void addHashList(hashTable *hTable, char **items, uint64_t *vals){
 }
 
 uint64_t getOriginalSize(hashTable *hTable){
-    //printf("size: %lu mult: %lu\n", hTable->size, hTable->size_multi);
-    return hTable->size / hTable->size_multi;
+    return hTable->size;
 }

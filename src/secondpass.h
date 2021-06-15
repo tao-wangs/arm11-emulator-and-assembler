@@ -8,6 +8,6 @@
 #define NUM_INSTRS_DP 10
 #define MAX_LINE_SIZE 511
 
-void secondPass(hashTable *labels, char* filename, uint32_t last_addr);
+void secondPass(hashTable *labels, char* readfile, char* outfile, uint32_t last_addr);
 
 #endif

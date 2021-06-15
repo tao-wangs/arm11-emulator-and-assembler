@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
     hashTable *labels = createHashTable(max_labels);
     uint32_t last_addr = firstPass(labels, argv[1]);
     
-    secondPass(labels, argv[1], last_addr);
+    secondPass(labels, argv[1], argv[2], last_addr);
 
         
     return EXIT_SUCCESS;
