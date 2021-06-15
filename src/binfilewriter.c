@@ -15,8 +15,6 @@ void fileWrite(uint32_t instr, char* filename) {
 		perror("Error opening file");
 		exit(EXIT_FAILURE);
 	}
-
-//	uint32_t lEndInstr = toLittleEndian(instr);
 	
 	if (fwrite((const void *) &instr, sizeof(uint32_t), 1, fptr) <= 0) {
 		perror("Error writing to file");
