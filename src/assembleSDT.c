@@ -8,15 +8,26 @@ int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTabl
     char* op1 = tokens[1];
     char* op2 = tokens[2];
 
+    //disgusting code, sorry
+    char temp[strlen(instruction)];
+    strcpy(temp, instruction);
+    char *strPtr = temp;
+    for (int i = 0; i < 2; i++) {
+        op2 = strtok_r(strPtr, " ,", &strPtr);
+    }
+    op2 = strPtr;
+    //ends here
+
     if (!strcmp(mnemonic, "ldr")) {
         return assembleLDR(mnemonic, op1, op2, lastAddress, pc, table, values);
     }
     
+    assert(!strcmp(mnemonic, "str"));
     return assembleSTR(mnemonic, op1, op2);
 }
 
 int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[]) {
-    int32_t cond = 9 << 28;
+    int32_t cond = 14 << 28;
     int32_t filler = 1 << 26;
     int32_t i = 0 << 25;
     int32_t p = 1 << 24;
@@ -28,10 +39,10 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
 
     if (op2[0] == '=') {
         if (stringToInt(op2) <= 0xFF) {
-            char str[512];
+            char str[512] = {0};
             strcat(str, "mov ");
             strcat(str, op1);
-            strcat(str, " ");
+            strcat(str, ",");
             strcat(str, op2);
             return assembleDataProcessing(str, table);
         } else {
@@ -43,10 +54,15 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
                     break;
                 }
             }
-            offset = lastAddress - pc;
+            rn = 0xF << 16;
+            printf("Last address is %d\n", lastAddress);
+            printf("pc is %d\n", pc);
+            offset = lastAddress - pc - 8;
         }
     } else if (strlen(op2) <= 5) {
-        rn = stringToInt(removeBrackets(op2));
+        //printf("Entered\n");
+        //printf("%s\n", op2);
+        rn = stringToInt(removeBrackets(op2)) << 16;
     } else {
         int32_t index = 0;
         for (int32_t i = 0; i < strlen(op2); i++) {
@@ -56,8 +72,13 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
         }
         char* endPtr;
         if (!(index == 3) && !(index == 4)) {
+            //printf("Operand 2 is %s\n", op2);
             rn = stringToInt(strtok_r(removeBrackets(op2), ",", &endPtr)) << 16;
+            //printf("fine\n");
+            //printf("endPtr is %s\n", endPtr);
             offset = stringToInt(endPtr);
+            //printf("fine\n");
+            //printf("Offset is %d\n", offset);
         } else {
             p = 0 << 24;
             rn = stringToInt(removeBrackets(strtok_r(op2, ",", &endPtr))) << 16;
@@ -69,19 +90,18 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
 }
 
 int32_t assembleSTR(char* mnemonic, char* op1, char* op2) {
-    int32_t cond = 9 << 28;
+    int32_t cond = 14 << 28;
     int32_t filler = 1 << 26;
     int32_t i = 0 << 25;
     int32_t p = 1 << 24;
     int32_t u = 1 << 23;
     int32_t l = 0 << 20;
-    int32_t rn;
+    int32_t rn = 0;
     int32_t rd = stringToInt(op1) << 12;
-    int32_t offset;
+    int32_t offset = 0;
 
     if (strlen(op2) <= 5) {
-        rn = stringToInt(removeBrackets(op2));
-        offset = 0;
+        rn = stringToInt(removeBrackets(op2)) << 16;
     } else {
         int32_t index = 0;
         for (int32_t i = 0; i < strlen(op2); i++) {
@@ -89,14 +109,20 @@ int32_t assembleSTR(char* mnemonic, char* op1, char* op2) {
                break;
            }
         }
+        char* endPtr;
         if (!(index == 3) && !(index == 4)) {
-            char* endPtr;
-            rn = stringToInt(strtok_r(removeBrackets(op2), ",", &endPtr));
+            printf("Operand 2 is %s\n", op2);
+            printf("%d\n", strlen(op2));
+            printf("Before seg fault\n");
+            rn = stringToInt(strtok_r(removeBrackets(trim(op2)), " ,", &endPtr)) << 16;
+            printf("fine, rn is %d\n", rn);
+            printf("endPtr is %s\n", endPtr);
             offset = stringToInt(endPtr);
+            printf("fine\n");
+            printf("Offset is %d\n", offset);
         } else {
             p = 0 << 24;
-            char* endPtr;
-            rn = stringToInt(removeBrackets(strtok_r(op2, ",", &endPtr)));
+            rn = stringToInt(removeBrackets(strtok_r(op2, " ,", &endPtr))) << 16;
             offset = stringToInt(endPtr);
         }
     }
@@ -106,4 +132,22 @@ int32_t assembleSTR(char* mnemonic, char* op1, char* op2) {
 
 char *removeBrackets(char *token) {
     return strtok(token, "[]");
+}
+
+char *trim(char *str)
+{
+  char *end;
+
+  while(isspace((unsigned char)*str)) str++;
+
+  if(*str == 0)
+    return str;
+
+  
+  end = str + strlen(str) - 1;
+  while(end > str && isspace((unsigned char)*end)) end--;
+
+  end[1] = '\0';
+
+  return str;
 }
