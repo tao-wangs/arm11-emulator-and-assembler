@@ -78,7 +78,7 @@ uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 	
 	int32_t condCode = AL << CONDCODE_SHIFT;
 	int32_t filler = 0x0 << FILLER_SHIFT;
-	int32_t immOperand = 1 << IMM_OPERAND_SHIFT;
+	int32_t immOperand = (operandIsConstant(op2) ? 1 : 0) << IMM_OPERAND_SHIFT;
 	int32_t opcode = lookupVal(table, mnemonic) << OPCODE_SHIFT;
 	int32_t rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << RN_SHIFT;
 	int32_t rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
@@ -86,6 +86,10 @@ uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 
 	return condCode | filler | immOperand | opcode | setFlags | rn | rd | operand2;
 
+}
+
+bool operandIsConstant(char *immOperandToken) {
+	return immOperandToken[0] == '#';
 }
 
 int32_t generate8BitImmediate(char *operand2) {
@@ -123,20 +127,3 @@ int32_t undoRotation(int32_t immOperand) {
 
 	return rotate_amt << ROTATE_AMT_SHIFT | immOperand;
 }
-
-/*
-int main(int argc, char **argv) {
-
-	hashTable *table = createHashTable(10);
-
-	char *operands[10] = {"and", "eor", "sub", "rsb", "add", "tst", "teq", "cmp", "orr", "mov"};
-	uint64_t opcodes[10] = {0, 1, 2, 3, 4, 8, 9, 10, 12, 13};
-
-	addHashList(table, operands, opcodes);
-
-	int32_t res = assembleSpecialInstruction(argv[1], table);
-	
-	printf("%u\n", res);
-	return EXIT_SUCCESS;
-}
-*/
