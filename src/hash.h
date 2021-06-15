@@ -15,7 +15,6 @@ typedef struct hashTable_t {
     char **words;
     uint64_t wordsIndex;
     uint64_t size;
-    uint64_t size_multi;
 } hashTable;
 
 hashTable *createHashTable(uint64_t size);

@@ -16,9 +16,8 @@ uint32_t firstPass(hashTable *labels, char *filename){ //returns final address i
     //uint64_t valList[getOriginalSize(labels)];
     char buffer[MAX_LINE_SIZE];
     uint32_t addr = 0;
-
+    fgets(buffer, MAX_LINE_SIZE, fp);
     while(!feof(fp)){
-        fgets(buffer, MAX_LINE_SIZE, fp);
         if(isLabel(buffer)){
 	    //labelList[i] = buffer;
 	    //valList[i] = addr;
@@ -26,6 +25,7 @@ uint32_t firstPass(hashTable *labels, char *filename){ //returns final address i
 	    //printf("%s %lu\n", buffer, addr);
 	}
 	addr += 4;
+        fgets(buffer, MAX_LINE_SIZE, fp);
     }
     //addHashList(labels, labelList, valList);
     fclose(fp);

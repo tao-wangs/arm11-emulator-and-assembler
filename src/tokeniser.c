@@ -4,11 +4,14 @@
 
 #include "tokeniser.h"
 
-char** tok(char* instr, uint32_t ops){
+char** tok(char* line, uint32_t ops){
     uint32_t i = 0;
+    char *instr = malloc(sizeof(char) * 511);
     char *savePtr;
     char **tokens = malloc(sizeof(char*) * ops);
     char *token = " ";
+    
+    strcpy(instr, line);
 
     while(token != NULL && i < ops){
         if(i == 0){

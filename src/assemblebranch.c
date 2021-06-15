@@ -15,8 +15,6 @@ uint32_t assembleBranch(char* instruction, hashTable *instrs, hashTable *labels,
     char* mnemonic = tokens[0];
     char* label = tokens[1];
     
-    freeTok(tokens);
-
     uint32_t opcode = (uint32_t) lookupVal(instrs, mnemonic);
     opcode <<= 28;
 
@@ -31,6 +29,6 @@ uint32_t assembleBranch(char* instruction, hashTable *instrs, hashTable *labels,
     int32_t offset = addr - (pc + 8);
     offset &= offsetBitMask;
     offset >>= 2;
-    
+    freeTok(tokens);
     return (opcode | instrIDBits | offset); 
 }
