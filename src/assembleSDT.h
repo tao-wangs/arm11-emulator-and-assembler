@@ -14,4 +14,6 @@ int32_t assembleSTR(char* mnemonic, char* op1, char* op2);
 
 char *removeBrackets(char *token);
 
+char *trim(char *token);
+
 #endif
