@@ -69,6 +69,7 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
            if (op2[i] == ']') {
                break;
            }
+           index++;
         }
         char* endPtr;
         if (!(index == 3) && !(index == 4)) {
@@ -106,15 +107,32 @@ int32_t assembleSTR(char* mnemonic, char* op1, char* op2) {
            if (op2[i] == ']') {
                break;
            }
+           index++;
         }
         char* endPtr;
         if (!(index == 3) && !(index == 4)) {
+            int cnt = 0;
+            for (int i = 0; i < strlen(op2); i++) {
+                if (op2[i] == 'r') {
+                    cnt++;
+                }
+            }
+            if (cnt == 2) {
+                i = 1 << 25;
+            }
             rn = stringToInt(strtok_r(removeBrackets(trim(op2)), " ,", &endPtr)) << 16;
             offset = stringToInt(endPtr);
         } else {
-            p = 0 << 24;
-            rn = stringToInt(removeBrackets(strtok_r(op2, " ,", &endPtr))) << 16;
-            offset = stringToInt(endPtr);
+            if (op2[index + 1] == ',') {
+                p = 0 << 24;
+                i = 1 << 25;
+                rn = stringToInt(removeBrackets(strtok_r(op2, " ,", &endPtr))) << 16;
+                offset = stringToInt(endPtr);
+            } else {
+                p = 0 << 24;
+                rn = stringToInt(removeBrackets(strtok_r(op2, " ,", &endPtr))) << 16;
+                offset = stringToInt(endPtr);
+            }
         }
     }
 
