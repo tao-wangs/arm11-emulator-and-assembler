@@ -60,6 +60,7 @@ bool addHashItem(hashTable *hTable, char* key, uint64_t value){
     uint64_t index = hash % hTable->size;
     hashItem *item = malloc(sizeof(hashItem));
     
+    
     if(!(item)){
         printf("memory allocation failed for a hashItem");
     }
