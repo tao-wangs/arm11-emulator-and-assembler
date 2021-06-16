@@ -17,12 +17,14 @@ uint32_t firstPass(hashTable *labels, char *filename){ //returns final address i
     //uint64_t valList[getOriginalSize(labels)];
     char buffer[MAX_LINE_SIZE];
     uint32_t addr = 0;
+
     fgets(buffer, MAX_LINE_SIZE, fp);
     while(!feof(fp)){
         if(isLabel(buffer)){
 	    char *copiedBuffer = malloc(sizeof(char) * MAX_LINE_SIZE);
 	    strcpy(copiedBuffer, buffer);
 	    addHashItem(labels, copiedBuffer, addr);
+	    addr -= 4;
 	}
 	addr += 4;
         fgets(buffer, MAX_LINE_SIZE, fp);

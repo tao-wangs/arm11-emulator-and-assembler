@@ -38,8 +38,7 @@ void secondPass(hashTable *labels, char* readfile, char* outfile, uint32_t last_
     for(int i = 0; i < last_addr; i++){
         mem_addresses[i] = 0;    
     }
-
-
+    
     uint32_t pc = 0;
 
     FILE *fp = fopen(readfile, "r");
@@ -53,18 +52,24 @@ void secondPass(hashTable *labels, char* readfile, char* outfile, uint32_t last_
 
     while(!feof(fp)){
         mnemonic = tok(buffer, 1);
+	if(!mnemonic[0]){
+	    goto label;
+	}
 	uint64_t type = lookupVal(typeTable, mnemonic[0]);
 	switch(type){
 	    case LAB: break;
             case B: fileWrite(assembleBranch(buffer, branchTable, labels, pc), outfile); break;
-            case SDT: fileWrite(assembleSDT(buffer, last_addr, pc, dpTable, mem_addresses), outfile); break;
+            case SDT: fileWrite(assembleSDT(buffer, last_addr, pc, dpTable, mem_addresses), outfile); break; 
             case MUL: fileWrite(assembleMultiply(buffer), outfile); break;
-            case SPEC: fileWrite(assembleSpecialInstruction(buffer, dpTable), outfile); break; 
+            case SPEC: fileWrite(assembleSpecialInstruction(buffer, dpTable), outfile); break;  
 	    case DP: fileWrite(assembleDataProcessing(buffer, dpTable), outfile); break;
-            default: printf("instruction type not recognised");
+            default: printf("instruction not recognised");
 	}
+	label:
 	freeTok(mnemonic);
-	pc += 4;
+	if(type != LAB){
+	    pc += 4;
+	} 
         fgets(buffer, MAX_LINE_SIZE, fp);
     }
     
