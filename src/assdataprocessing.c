@@ -89,7 +89,7 @@ uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 }
 
 bool operandIsConstant(char *immOperandToken) {
-	return immOperandToken[0] == '#';
+	return immOperandToken[0] == '#' || immOperandToken[0] == '=';
 }
 
 int32_t generate8BitImmediate(char *operand2) {
