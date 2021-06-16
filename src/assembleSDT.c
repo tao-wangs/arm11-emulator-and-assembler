@@ -1,5 +1,6 @@
 #include "assembleSDT.h"
 #include <string.h>
+#include <ctype.h>
 
 int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[]) {
 
@@ -52,16 +53,15 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
                 if (values[i] == 0) {
                     values[i] = expression;
                     break;
+                } else {
+                    lastAddress += 4;
                 }
             }
             rn = 0xF << 16;
-            printf("Last address is %d\n", lastAddress);
-            printf("pc is %d\n", pc);
+
             offset = lastAddress - pc - 8;
         }
     } else if (strlen(op2) <= 5) {
-        //printf("Entered\n");
-        //printf("%s\n", op2);
         rn = stringToInt(removeBrackets(op2)) << 16;
     } else {
         int32_t index = 0;
@@ -72,13 +72,11 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
         }
         char* endPtr;
         if (!(index == 3) && !(index == 4)) {
-            //printf("Operand 2 is %s\n", op2);
             rn = stringToInt(strtok_r(removeBrackets(op2), ",", &endPtr)) << 16;
-            //printf("fine\n");
-            //printf("endPtr is %s\n", endPtr);
-            offset = stringToInt(endPtr);
-            //printf("fine\n");
-            //printf("Offset is %d\n", offset);
+            if (stringToInt(endPtr) < 0) {
+                u = 0 << 23;
+            }
+            offset = abs(stringToInt(endPtr));
         } else {
             p = 0 << 24;
             rn = stringToInt(removeBrackets(strtok_r(op2, ",", &endPtr))) << 16;
@@ -111,15 +109,8 @@ int32_t assembleSTR(char* mnemonic, char* op1, char* op2) {
         }
         char* endPtr;
         if (!(index == 3) && !(index == 4)) {
-            printf("Operand 2 is %s\n", op2);
-            printf("%d\n", strlen(op2));
-            printf("Before seg fault\n");
             rn = stringToInt(strtok_r(removeBrackets(trim(op2)), " ,", &endPtr)) << 16;
-            printf("fine, rn is %d\n", rn);
-            printf("endPtr is %s\n", endPtr);
             offset = stringToInt(endPtr);
-            printf("fine\n");
-            printf("Offset is %d\n", offset);
         } else {
             p = 0 << 24;
             rn = stringToInt(removeBrackets(strtok_r(op2, " ,", &endPtr))) << 16;
