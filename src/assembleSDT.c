@@ -4,6 +4,8 @@
 
 int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[]) {
 
+    printf("Checkpoint\n");
+
     char** tokens = tok(instruction, 3);
     char* mnemonic = tokens[0];
     char* op1 = tokens[1];
@@ -59,7 +61,8 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
             }
             rn = 0xF << 16;
 
-            offset = lastAddress - pc - 8;
+            offset = lastAddress - (pc + 8);
+
         }
     } else if (strlen(op2) <= 5) {
         rn = stringToInt(removeBrackets(op2)) << 16;
