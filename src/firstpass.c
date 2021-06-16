@@ -4,8 +4,9 @@
 #include <errno.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "hash.h"
+#include <string.h>
 
+#include "hash.h"
 #include "firstpass.h"
 
 #define MAX_LINE_SIZE 511
@@ -19,10 +20,9 @@ uint32_t firstPass(hashTable *labels, char *filename){ //returns final address i
     fgets(buffer, MAX_LINE_SIZE, fp);
     while(!feof(fp)){
         if(isLabel(buffer)){
-	    //labelList[i] = buffer;
-	    //valList[i] = addr;
-	    addHashItem(labels, buffer, addr);
-	    //printf("%s %lu\n", buffer, addr);
+	    char *copiedBuffer = malloc(sizeof(char) * MAX_LINE_SIZE);
+	    strcpy(copiedBuffer, buffer);
+	    addHashItem(labels, copiedBuffer, addr);
 	}
 	addr += 4;
         fgets(buffer, MAX_LINE_SIZE, fp);
