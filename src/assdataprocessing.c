@@ -42,7 +42,7 @@ uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
 }
 
 uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
-	
+
 	char *saveptr;
 	char **tokens;
 
