@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "hash.h"
 #include "firstpass.h"
@@ -26,8 +27,11 @@ uint32_t firstPass(hashTable *labels, char *filename){ //returns final address i
 	    addHashItem(labels, copiedBuffer, addr);
 	    addr -= 4;
 	}
-	addr += 4;
-        fgets(buffer, MAX_LINE_SIZE, fp);
+  if (!isspace(buffer[0])) {
+    addr += 4;
+  }
+	
+  fgets(buffer, MAX_LINE_SIZE, fp);
     }
     //addHashList(labels, labelList, valList);
     fclose(fp);
