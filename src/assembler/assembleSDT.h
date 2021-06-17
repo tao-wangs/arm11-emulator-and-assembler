@@ -1,7 +1,7 @@
 #ifndef ASSEMBLESDT_H
 #define ASSEMBLESDT_H
 
-#include "utility.h"
+#include "../utility.h"
 #include "tokeniser.h"
 #include "assdataprocessing.h"
 #include "hash.h"
