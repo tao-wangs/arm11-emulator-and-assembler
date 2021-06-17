@@ -50,6 +50,11 @@ uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 	
         int32_t setFlags;
 	
+	hashTable *shifts = createHashTable(4);
+	char *shiftTypes[4] = {"lsl", "lsr", "asr", "ror"};
+	uint64_t vals[4] = {LSL, LSR, ASR, ROR}; //shift values from enum in utility.h
+	addHashList(shifts, shiftTypes, vals); 
+
 	tokens = tok(instrString, 6);
 	mnemonic = tokens[0];
 
@@ -76,7 +81,18 @@ uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 	int32_t opcode = lookupVal(table, mnemonic) << OPCODE_SHIFT;
 	int32_t rn = (!srcreg ? 0x0 : stringToInt(srcreg)) << RN_SHIFT;
 	int32_t rd = (!dstreg ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
-	int32_t operand2 = generate8BitImmediate(op2);
+	
+	int32_t operand2;
+
+	if (operandIsConstant(op2)) {
+		operand2 = generate8BitImmediate(op2);
+	} else {
+		if (!tokens[4]) {
+			operand2 = stringToInt(op2);
+		} else {
+			operand2 = generateRegOperand2(op2, tokens[4], tokens[5], shifts);
+		}
+	}		
 
 	return condCode | filler | immOperand | opcode | setFlags | rn | rd | operand2;
 
@@ -86,11 +102,34 @@ bool operandIsConstant(char *immOperandToken) {
 	return immOperandToken[0] == '#' || immOperandToken[0] == '=';
 }
 
+int32_t generateRegOperand2(char *reg, char *shiftType, char *shiftVal, hashTable *shiftTable) {
+	int32_t type = lookupVal(shiftTable, shiftType);
+	int32_t rm = stringToInt(reg);
+	
+	int32_t shift;
+
+	if (operandIsConstant(shiftVal)) {
+		int32_t val = stringToInt(shiftVal);
+		if (val > FIVE_BIT_MAX_INT) {
+			perror("shiftVal is too large");
+			exit(EXIT_FAILURE);
+		}
+
+		shift = (val << 3) | (type << 1);	
+	} else {
+		int32_t rs = stringToInt(shiftVal);
+		shift = (rs << 4) | (type << 1) | 1;
+	}
+
+	return (shift << 4) | rm;
+}
+
 int32_t generate8BitImmediate(char *operand2) {
 	int32_t operand2_as_int = stringToInt(operand2);
   	if (operand2_as_int > ONE_BYTE_MAX_INT) {
     		return undoRotation(operand2_as_int);
   	}
+
   	return operand2_as_int;
 }
 
