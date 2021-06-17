@@ -7,21 +7,25 @@
 #include "assdataprocessing.h"
 
 uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
-	
 	char **tokens;
-	char *saveptr;
+	char *mnemonic;
 
-	char *mnemonic = strtok_r(instrString, " ", &saveptr);
+	tokens = tok(instrString, MAX_NUM_TOKENS);
+	mnemonic = tokens[0];
+	
+	int32_t condCode;
+	int32_t filler = 0x0 << FILLER_SHIFT;
+	int32_t immOperand;
+	int32_t	opcode;
+	int32_t rn;
+	int32_t setFlags = 0 << SET_FLAGS_SHIFT;
 
 	if (!strcmp(mnemonic, "lsl")) {
-		tokens = tok(saveptr, 2);
-		int32_t condCode = AL << CONDCODE_SHIFT;
-		int32_t filler = 0x0 << FILLER_SHIFT;
-		int32_t immOperand = 0 << IMM_OPERAND_SHIFT;
-		int32_t opcode = lookupVal(table, "mov") << OPCODE_SHIFT;
-    		int32_t rn = stringToInt(tokens[0]);
-    		int32_t setFlags = 0 << SET_FLAGS_SHIFT;
-		int32_t shiftValue = stringToInt(tokens[1]);
+		condCode = AL << CONDCODE_SHIFT;
+		immOperand = 0 << IMM_OPERAND_SHIFT;
+		opcode = lookupVal(table, "mov") << OPCODE_SHIFT;
+    		rn = stringToInt(tokens[1]);
+		int32_t shiftValue = stringToInt(tokens[2]);
 
 		if (shiftValue > FIVE_BIT_MAX_INT) {
 			perror("Cannot be shifted by this much");
@@ -29,23 +33,26 @@ uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
 		}
 	
 		return condCode | filler | immOperand | opcode | setFlags | (rn << RD_SHIFT) | (shiftValue << SHIFT_VALUE_SHIFT) | rn;
-	}
-	
-	if (!strcmp(mnemonic, "andeq")) {
-		tokens = tok(saveptr, 3);
-		if (!strcmp(tokens[0], "r0") && !strcmp(tokens[1], "r0") && !strcmp(tokens[2], "r0")) {
-			return 0x00000000;
-		}
-	}
+	} else if (!strcmp(mnemonic, "andeq")) {
+		hashTable *shifts = generateShiftTable();
 
-	return 0;
+		condCode = EQ << CONDCODE_SHIFT;
+		immOperand = operandIsConstant(tokens[3]) << IMM_OPERAND_SHIFT;
+		opcode = lookupVal(table, "and") << OPCODE_SHIFT;
+		rn = stringToInt(tokens[2]) << RN_SHIFT;
+		int32_t rd = stringToInt(tokens[1]) << RD_SHIFT;
+		int32_t operand2 = generateOperand2(tokens[3], tokens[4], tokens[5], shifts);
+		
+		return condCode | filler | immOperand | opcode | setFlags | rn | rd | operand2;
+	} else {
+		perror("Special instruction not recognised.");
+		exit(EXIT_FAILURE);
+	}
 }
 
 uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 
-	char *saveptr;
 	char **tokens;
-
 	char *mnemonic;
 	char *dstreg;
 	char *srcreg;
@@ -53,43 +60,76 @@ uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 	
         int32_t setFlags;
 	
-	mnemonic = strtok_r(instrString, " ", &saveptr);
+	hashTable *shifts = generateShiftTable();
 
-	// If it is not one of the testing instructions then we should set the S bit to 1, for all other instructions you should set the S bit to 0.
-        if (!(strcmp(mnemonic, "tst") && strcmp(mnemonic, "teq") && strcmp(mnemonic, "cmp"))) {
-		tokens = tok(saveptr, 2);
+	tokens = tok(instrString, MAX_NUM_TOKENS);
+	mnemonic = tokens[0];
+
+        if (!strcmp(mnemonic, "tst") || !strcmp(mnemonic, "teq") || !strcmp(mnemonic, "cmp")) {
 		dstreg = NULL;
-		srcreg = tokens[0];
-		op2 = tokens[1];
-        	setFlags = 1 << SET_FLAGS_SHIFT;
-        } else if (!strcmp(mnemonic, "mov")) {
-		tokens = tok(saveptr, 2);
-		dstreg = tokens[0];
-		srcreg = NULL;
-		op2 = tokens[1];
-		setFlags = 0 << SET_FLAGS_SHIFT;
-	} else {
-		tokens = tok(saveptr, 3);
-		dstreg = tokens[0];
 		srcreg = tokens[1];
 		op2 = tokens[2];
+        	setFlags = 1 << SET_FLAGS_SHIFT;
+        } else if (!strcmp(mnemonic, "mov")) {
+		dstreg = tokens[1];
+		srcreg = NULL;
+		op2 = tokens[2];
+		setFlags = 0 << SET_FLAGS_SHIFT;
+	} else {
+		dstreg = tokens[1];
+		srcreg = tokens[2];
+		op2 = tokens[3];
 		setFlags = 0 << SET_FLAGS_SHIFT;
 	}
 	
 	int32_t condCode = AL << CONDCODE_SHIFT;
 	int32_t filler = 0x0 << FILLER_SHIFT;
-	int32_t immOperand = (operandIsConstant(op2) ? 1 : 0) << IMM_OPERAND_SHIFT;
+	int32_t immOperand = operandIsConstant(op2) << IMM_OPERAND_SHIFT;
 	int32_t opcode = lookupVal(table, mnemonic) << OPCODE_SHIFT;
-	int32_t rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << RN_SHIFT;
-	int32_t rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
-	int32_t operand2 = generate8BitImmediate(op2);
+	int32_t rn = (!srcreg ? 0x0 : stringToInt(srcreg)) << RN_SHIFT;
+	int32_t rd = (!dstreg ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
+	
+	int32_t operand2 = generateOperand2(op2, tokens[4], tokens[5], shifts);
 
 	return condCode | filler | immOperand | opcode | setFlags | rn | rd | operand2;
-
 }
 
 bool operandIsConstant(char *immOperandToken) {
 	return immOperandToken[0] == '#' || immOperandToken[0] == '=';
+}
+
+int32_t generateOperand2(char *op2, char *shiftType, char *shiftVal, hashTable *shiftTable) {
+	if (operandIsConstant(op2)) {
+		return generate8BitImmediate(op2);
+	} else {
+		if (!shiftType && !shiftVal) { //not shift case but just normal register case
+			return stringToInt(op2);
+		} else {
+			return generateRegOperand(op2, shiftType, shiftVal, shiftTable);
+		}
+	}
+}	
+
+int32_t generateRegOperand(char *reg, char *shiftType, char *shiftVal, hashTable *shiftTable) {
+	int32_t type = lookupVal(shiftTable, shiftType);
+	int32_t rm = stringToInt(reg);
+	
+	int32_t shift;
+
+	if (operandIsConstant(shiftVal)) {
+		int32_t val = stringToInt(shiftVal);
+		if (val > FIVE_BIT_MAX_INT) {
+			perror("shiftVal is too large");
+			exit(EXIT_FAILURE);
+		}
+
+		shift = (val << 3) | (type << 1);	
+	} else {
+		int32_t rs = stringToInt(shiftVal);
+		shift = (rs << 4) | (type << 1) | 1;
+	}
+
+	return (shift << 4) | rm;
 }
 
 int32_t generate8BitImmediate(char *operand2) {
@@ -97,6 +137,7 @@ int32_t generate8BitImmediate(char *operand2) {
   	if (operand2_as_int > ONE_BYTE_MAX_INT) {
     		return undoRotation(operand2_as_int);
   	}
+
   	return operand2_as_int;
 }
 
@@ -104,12 +145,12 @@ int32_t undoRotation(int32_t immOperand) {
 
 	int32_t shift_amt = 0;
 
-	while (immOperand % 2 == 0) { //keep shifting left until our immediate operand until LSB is 1
+	while (immOperand % 2 == 0) { //keep shifting left until LSB is 1
 		immOperand >>= 1;
 		shift_amt++;
 	}
 
-	if (shift_amt % 2 == 1) { //shift_amt is halved the end so it must be even. if odd, shift right once to decrease shift_amt and make it even
+	if (shift_amt % 2 == 1) { //shift_amt is halved at the end so it must be even. if odd, shift right once to decrease shift_amt and make it even
 		immOperand <<= 1;
 		shift_amt--;
 	}
@@ -126,4 +167,13 @@ int32_t undoRotation(int32_t immOperand) {
 	}
 
 	return rotate_amt << ROTATE_AMT_SHIFT | immOperand;
+}
+
+hashTable *generateShiftTable(void) {
+	hashTable *shifts = createHashTable(4);
+        char *shiftTypes[4] = {"lsl", "lsr", "asr", "ror"};
+        uint64_t vals[4] = {LSL, LSR, ASR, ROR}; //shift values from enum in utility.h
+        addHashList(shifts, shiftTypes, vals);
+
+	return shifts;
 }

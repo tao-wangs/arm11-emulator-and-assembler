@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "utility.h"
 #include "binfilewriter.h"
 
 void fileWrite(uint32_t instr, char* filename) {

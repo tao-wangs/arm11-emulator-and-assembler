@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include "utility.h"
 #include "hash.h"
-
 #include "firstpass.h"
 #include "secondpass.h"
 
