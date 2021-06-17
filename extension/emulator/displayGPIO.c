@@ -29,7 +29,7 @@ void displayGPIO(uint32_t address) {
         printf("2  4  6  8  10 12 14" ANSI_COLOR_GREEN " 16 18" ANSI_COLOR_RESET " 20" ANSI_COLOR_GREEN " 22" ANSI_COLOR_RESET " 24 26\n\n");
         break;
       default:
-        //address does not access anything
+        //address does not access anything so do nothing
         break;  
   }
 }
