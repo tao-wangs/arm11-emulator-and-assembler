@@ -7,20 +7,24 @@
 #include "assdataprocessing.h"
 
 uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
-	
 	char **tokens;
 	char *mnemonic;
 
 	tokens = tok(instrString, 6);
 	mnemonic = tokens[0];
+	
+	int32_t condCode;
+	int32_t filler = 0x0 << FILLER_SHIFT;
+	int32_t immOperand;
+	int32_t	opcode;
+	int32_t rn;
+	int32_t setFlags = 0 << SET_FLAGS_SHIFT;
 
 	if (!strcmp(mnemonic, "lsl")) {
-		int32_t condCode = AL << CONDCODE_SHIFT;
-		int32_t filler = 0x0 << FILLER_SHIFT;
-		int32_t immOperand = 0 << IMM_OPERAND_SHIFT;
-		int32_t opcode = lookupVal(table, "mov") << OPCODE_SHIFT;
-    		int32_t rn = stringToInt(tokens[1]);
-    		int32_t setFlags = 0 << SET_FLAGS_SHIFT;
+		condCode = AL << CONDCODE_SHIFT;
+		immOperand = 0 << IMM_OPERAND_SHIFT;
+		opcode = lookupVal(table, "mov") << OPCODE_SHIFT;
+    		rn = stringToInt(tokens[1]);
 		int32_t shiftValue = stringToInt(tokens[2]);
 
 		if (shiftValue > FIVE_BIT_MAX_INT) {
@@ -29,15 +33,21 @@ uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
 		}
 	
 		return condCode | filler | immOperand | opcode | setFlags | (rn << RD_SHIFT) | (shiftValue << SHIFT_VALUE_SHIFT) | rn;
-	}
-	
-	if (!strcmp(mnemonic, "andeq")) {
-		if (!(strcmp(tokens[1], "r0") || strcmp(tokens[2], "r0") || strcmp(tokens[3], "r0"))) {
-			return 0x00000000;
-		}
-	}
+	} else if (!strcmp(mnemonic, "andeq")) {
+		hashTable *shifts = generateShiftTable();
 
-	return 0;
+		condCode = EQ << CONDCODE_SHIFT;
+		immOperand = operandIsConstant(tokens[3]) << IMM_OPERAND_SHIFT;
+		opcode = lookupVal(table, "and") << OPCODE_SHIFT;
+		rn = stringToInt(tokens[2]) << RN_SHIFT;
+		int32_t rd = stringToInt(tokens[1]) << RD_SHIFT;
+		int32_t operand2 = generateOperand2(tokens[3], tokens[4], tokens[5], shifts);
+		
+		return condCode | filler | immOperand | opcode | setFlags | rn | rd | operand2;
+	} else {
+		perror("Special instruction not recognised.");
+		exit(EXIT_FAILURE);
+	}
 }
 
 uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
@@ -50,10 +60,7 @@ uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 	
         int32_t setFlags;
 	
-	hashTable *shifts = createHashTable(4);
-	char *shiftTypes[4] = {"lsl", "lsr", "asr", "ror"};
-	uint64_t vals[4] = {LSL, LSR, ASR, ROR}; //shift values from enum in utility.h
-	addHashList(shifts, shiftTypes, vals); 
+	hashTable *shifts = generateShiftTable();
 
 	tokens = tok(instrString, 6);
 	mnemonic = tokens[0];
@@ -82,27 +89,28 @@ uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 	int32_t rn = (!srcreg ? 0x0 : stringToInt(srcreg)) << RN_SHIFT;
 	int32_t rd = (!dstreg ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
 	
-	int32_t operand2;
-
-	if (operandIsConstant(op2)) {
-		operand2 = generate8BitImmediate(op2);
-	} else {
-		if (!tokens[4]) {
-			operand2 = stringToInt(op2);
-		} else {
-			operand2 = generateRegOperand2(op2, tokens[4], tokens[5], shifts);
-		}
-	}		
+	int32_t operand2 = generateOperand2(op2, tokens[4], tokens[5], shifts);
 
 	return condCode | filler | immOperand | opcode | setFlags | rn | rd | operand2;
-
 }
 
 bool operandIsConstant(char *immOperandToken) {
 	return immOperandToken[0] == '#' || immOperandToken[0] == '=';
 }
 
-int32_t generateRegOperand2(char *reg, char *shiftType, char *shiftVal, hashTable *shiftTable) {
+int32_t generateOperand2(char *op2, char *shiftType, char *shiftVal, hashTable *shiftTable) {
+	if (operandIsConstant(op2)) {
+		return generate8BitImmediate(op2);
+	} else {
+		if (!shiftType && !shiftVal) { //not shift case but just normal register case
+			return stringToInt(op2);
+		} else {
+			return generateRegOperand(op2, shiftType, shiftVal, shiftTable);
+		}
+	}
+}	
+
+int32_t generateRegOperand(char *reg, char *shiftType, char *shiftVal, hashTable *shiftTable) {
 	int32_t type = lookupVal(shiftTable, shiftType);
 	int32_t rm = stringToInt(reg);
 	
@@ -159,4 +167,13 @@ int32_t undoRotation(int32_t immOperand) {
 	}
 
 	return rotate_amt << ROTATE_AMT_SHIFT | immOperand;
+}
+
+hashTable *generateShiftTable(void) {
+	hashTable *shifts = createHashTable(4);
+        char *shiftTypes[4] = {"lsl", "lsr", "asr", "ror"};
+        uint64_t vals[4] = {LSL, LSR, ASR, ROR}; //shift values from enum in utility.h
+        addHashList(shifts, shiftTypes, vals);
+
+	return shifts;
 }

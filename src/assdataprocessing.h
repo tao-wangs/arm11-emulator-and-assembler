@@ -19,8 +19,10 @@
 uint32_t assembleSpecialInstruction(char *instrString, hashTable *table);
 uint32_t assembleDataProcessing(char *instrString, hashTable *table);
 bool operandIsConstant(char *immOperandToken);
-int32_t generateRegOperand2(char *reg, char *shiftType, char* shiftVal, hashTable *shiftTable);
+int32_t generateOperand2(char *op2, char *shiftType, char *shiftVal, hashTable *shiftTable);
+int32_t generateRegOperand(char *reg, char *shiftType, char* shiftVal, hashTable *shiftTable);
 int32_t generate8BitImmediate(char *operand2);
 int32_t undoRotation(int32_t immOperand);
+hashTable *generateShiftTable(void);
 
 #endif 
