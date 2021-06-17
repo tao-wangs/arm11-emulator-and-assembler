@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include "utility.h"
-#include "hash.h"
-#include "firstpass.h"
-#include "secondpass.h"
+#include "assembler/hash.h"
+#include "assembler/firstpass.h"
+#include "assembler/secondpass.h"
 
 int main(int argc, char **argv) {
 

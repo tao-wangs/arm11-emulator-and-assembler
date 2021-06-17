@@ -1,7 +1,7 @@
 #ifndef ASSEMBLEMULTIPLY_H
 #define ASSEMBLEMULTIPLY_H
 
-#include "utility.h"
+#include "../utility.h"
 #include "tokeniser.h"
 
 #define A_SHIFT 21

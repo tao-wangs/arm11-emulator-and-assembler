@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "hash.h"
 #include "tokeniser.h"
-#include "utility.h"
+#include "../utility.h"
 
 #define OFFSET_BIT_MASK 0x00FFFFFF
 #define FILLER_BIT_MASK 0x0A000000
