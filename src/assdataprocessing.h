@@ -16,6 +16,8 @@
 #define ROTATE_AMT_SHIFT 8
 #define SHIFT_VALUE_SHIFT 7
 
+#define MAX_NUM_TOKENS 6
+
 uint32_t assembleSpecialInstruction(char *instrString, hashTable *table);
 uint32_t assembleDataProcessing(char *instrString, hashTable *table);
 bool operandIsConstant(char *immOperandToken);

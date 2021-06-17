@@ -30,14 +30,14 @@ int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTabl
 }
 
 int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[]) {
-    int32_t cond = 14 << 28;
-    int32_t filler = 1 << 26;
-    int32_t i = 0 << 25;
-    int32_t p = 1 << 24;
-    int32_t u = 1 << 23;
-    int32_t l = 1 << 20;
+    int32_t cond = 14 << CONDCODE_SHIFT;
+    int32_t filler = 1 << FILLER_SHIFT_SDT;
+    int32_t i = 0 << I_SHIFT;
+    int32_t p = 1 << P_SHIFT;
+    int32_t u = 1 << U_SHIFT;
+    int32_t l = 1 << L_SHIFT;
     int32_t rn = 0;
-    int32_t rd = stringToInt(op1) << 12;
+    int32_t rd = stringToInt(op1) << RD_SHIFT_SDT;
     int32_t offset = 0;
 
     if (op2[0] == '=') {
@@ -59,13 +59,13 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
                     lastAddress += 4;
                 }
             }
-            rn = 0xF << 16;
+            rn = 0xF << RN_SHIFT_SDT;
 
             offset = lastAddress - (pc + 8);
 
         }
     } else if (strlen(op2) <= 5) {
-        rn = stringToInt(removeBrackets(op2)) << 16;
+        rn = stringToInt(removeBrackets(op2)) << RN_SHIFT_SDT;
     } else {
         int32_t index = 0;
         for (int32_t i = 0; i < strlen(op2); i++) {
@@ -76,14 +76,14 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
         }
         char* endPtr;
         if (!(index == 3) && !(index == 4)) {
-            rn = stringToInt(strtok_r(removeBrackets(op2), ",", &endPtr)) << 16;
+            rn = stringToInt(strtok_r(removeBrackets(op2), ",", &endPtr)) << RN_SHIFT_SDT;
             if (stringToInt(endPtr) < 0) {
-                u = 0 << 23;
+                u = 0 << U_SHIFT;
             }
             offset = abs(stringToInt(endPtr));
         } else {
-            p = 0 << 24;
-            rn = stringToInt(removeBrackets(strtok_r(op2, ",", &endPtr))) << 16;
+            p = 0 << P_SHIFT;
+            rn = stringToInt(removeBrackets(strtok_r(op2, ",", &endPtr))) << RN_SHIFT_SDT;
             offset = stringToInt(endPtr);
         }
     }
@@ -92,18 +92,18 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
 }
 
 int32_t assembleSTR(char* mnemonic, char* op1, char* op2) {
-    int32_t cond = 14 << 28;
-    int32_t filler = 1 << 26;
-    int32_t i = 0 << 25;
-    int32_t p = 1 << 24;
-    int32_t u = 1 << 23;
-    int32_t l = 0 << 20;
+    int32_t cond = 14 << CONDCODE_SHIFT;
+    int32_t filler = 1 << FILLER_SHIFT_SDT;
+    int32_t i = 0 << I_SHIFT;
+    int32_t p = 1 << P_SHIFT;
+    int32_t u = 1 << U_SHIFT;
+    int32_t l = 0 << L_SHIFT;
     int32_t rn = 0;
-    int32_t rd = stringToInt(op1) << 12;
+    int32_t rd = stringToInt(op1) << RD_SHIFT_SDT;
     int32_t offset = 0;
 
     if (strlen(op2) <= 5) {
-        rn = stringToInt(removeBrackets(op2)) << 16;
+        rn = stringToInt(removeBrackets(op2)) << RN_SHIFT_SDT;
     } else {
         int32_t index = 0;
         for (int32_t i = 0; i < strlen(op2); i++) {
@@ -121,19 +121,19 @@ int32_t assembleSTR(char* mnemonic, char* op1, char* op2) {
                 }
             }
             if (cnt == 2) {
-                i = 1 << 25;
+                i = 1 << I_SHIFT;
             }
-            rn = stringToInt(strtok_r(removeBrackets(trim(op2)), " ,", &endPtr)) << 16;
+            rn = stringToInt(strtok_r(removeBrackets(trim(op2)), " ,", &endPtr)) << RN_SHIFT_SDT;
             offset = stringToInt(endPtr);
         } else {
             if (op2[index + 1] == ',') {
-                p = 0 << 24;
-                i = 1 << 25;
-                rn = stringToInt(removeBrackets(strtok_r(op2, " ,", &endPtr))) << 16;
+                p = 0 << P_SHIFT;
+                i = 1 << I_SHIFT;
+                rn = stringToInt(removeBrackets(strtok_r(op2, " ,", &endPtr))) << RN_SHIFT_SDT;
                 offset = stringToInt(endPtr);
             } else {
                 p = 0 << 24;
-                rn = stringToInt(removeBrackets(strtok_r(op2, " ,", &endPtr))) << 16;
+                rn = stringToInt(removeBrackets(strtok_r(op2, " ,", &endPtr))) << RN_SHIFT_SDT;
                 offset = stringToInt(endPtr);
             }
         }

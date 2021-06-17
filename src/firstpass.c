@@ -6,11 +6,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
-
-#include "hash.h"
 #include "firstpass.h"
-
-#define MAX_LINE_SIZE 511
 
 uint32_t firstPass(hashTable *labels, char *filename){ //returns final address in the program for SDT
     FILE *fp = fopen(filename, "r");

@@ -2,14 +2,6 @@
 #include <stdio.h>
 
 #include "secondpass.h"
-#include "hash.h"
-#include "tokeniser.h"
-#include "assembleSDT.h"
-#include "assemblemultiply.h"
-#include "assemblebranch.h"
-#include "binfilewriter.h"
-
-typedef enum {LAB, B, SDT, MUL, SPEC, DP} type;
 
 char *allOperations[NUM_INSTRS_TOTAL] = {"add", "sub", "rsb", "and", "eor", "orr", "mov", "tst",
        	"teq", "cmp", "mul", "mla", "ldr", "str", "beq", "bne", "bge", "blt", 
@@ -22,8 +14,6 @@ uint64_t branchOpCodes[NUM_INSTRS_BRANCH] = {0, 1, 10, 11, 12, 13, 14, 14};
 
 char *dpOperations[NUM_INSTRS_DP] = {"and", "eor", "sub", "rsb", "add", "tst", "teq", "cmp", "orr", "mov"};
 uint64_t dpOpCodes[NUM_INSTRS_DP] = {0, 1, 2, 3, 4, 8, 9, 10, 12, 13};
-
-//TODO: special
 
 void secondPass(hashTable *labels, char* readfile, char* outfile, uint32_t last_addr){
     hashTable *typeTable = createHashTable(NUM_INSTRS_TOTAL);

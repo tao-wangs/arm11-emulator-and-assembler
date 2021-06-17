@@ -2,6 +2,7 @@
 #define __HASH_H__
 
 #include <stdbool.h>
+
 typedef struct hashItem_t hashItem;
 
 struct hashItem_t {

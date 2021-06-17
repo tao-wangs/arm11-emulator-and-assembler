@@ -10,7 +10,7 @@ uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
 	char **tokens;
 	char *mnemonic;
 
-	tokens = tok(instrString, 6);
+	tokens = tok(instrString, MAX_NUM_TOKENS);
 	mnemonic = tokens[0];
 	
 	int32_t condCode;
@@ -62,10 +62,10 @@ uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 	
 	hashTable *shifts = generateShiftTable();
 
-	tokens = tok(instrString, 6);
+	tokens = tok(instrString, MAX_NUM_TOKENS);
 	mnemonic = tokens[0];
 
-        if (!(strcmp(mnemonic, "tst") && strcmp(mnemonic, "teq") && strcmp(mnemonic, "cmp"))) {
+        if (!strcmp(mnemonic, "tst") || !strcmp(mnemonic, "teq") || !strcmp(mnemonic, "cmp")) {
 		dstreg = NULL;
 		srcreg = tokens[1];
 		op2 = tokens[2];
@@ -145,12 +145,12 @@ int32_t undoRotation(int32_t immOperand) {
 
 	int32_t shift_amt = 0;
 
-	while (immOperand % 2 == 0) { //keep shifting left until our immediate operand until LSB is 1
+	while (immOperand % 2 == 0) { //keep shifting left until LSB is 1
 		immOperand >>= 1;
 		shift_amt++;
 	}
 
-	if (shift_amt % 2 == 1) { //shift_amt is halved the end so it must be even. if odd, shift right once to decrease shift_amt and make it even
+	if (shift_amt % 2 == 1) { //shift_amt is halved at the end so it must be even. if odd, shift right once to decrease shift_amt and make it even
 		immOperand <<= 1;
 		shift_amt--;
 	}
