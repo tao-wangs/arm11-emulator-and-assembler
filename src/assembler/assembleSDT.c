@@ -4,8 +4,6 @@
 
 int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[]) {
 
-    printf("Checkpoint\n");
-
     char** tokens = tok(instruction, 3);
     char* mnemonic = tokens[0];
     char* op1 = tokens[1];
@@ -39,7 +37,9 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
     int32_t rn = 0;
     int32_t rd = stringToInt(op1) << RD_SHIFT_SDT;
     int32_t offset = 0;
-
+    
+    int32_t rm = 0;
+    
     if (op2[0] == '=') {
         if (stringToInt(op2) <= 0xFF) {
             char str[512] = {0};
@@ -76,11 +76,24 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
         }
         char* endPtr;
         if (!(index == 3) && !(index == 4)) {
-            rn = stringToInt(strtok_r(removeBrackets(op2), ",", &endPtr)) << RN_SHIFT_SDT;
-            if (stringToInt(endPtr) < 0) {
-                u = 0 << U_SHIFT;
+            if (strlen(op2) == 15 || strlen(op2) == 16) {
+                rn = stringToInt(strtok_r(removeBrackets(op2), ",", &endPtr)) << RN_SHIFT_SDT;
+                rm = stringToInt(strtok_r(endPtr, " ,", &endPtr));
+                char* shiftTypeStr = strtok_r(endPtr, " ", &endPtr);
+                uint32_t shiftType = 0;
+                if (!strcmp(shiftTypeStr, "lsr")) {
+                    i = 1 << I_SHIFT;
+                    shiftType = 1 << 5;
+                }
+                uint32_t shiftAmt = stringToInt(endPtr) << 7;
+                return cond | filler | i | p | u | l | rn | rd | shiftAmt | shiftType | rm;
+            } else {
+                rn = stringToInt(strtok_r(removeBrackets(op2), ",", &endPtr)) << RN_SHIFT_SDT;
+                if (stringToInt(endPtr) < 0) {
+                    u = 0 << U_SHIFT;
+                }
+                offset = abs(stringToInt(endPtr));
             }
-            offset = abs(stringToInt(endPtr));
         } else {
             p = 0 << P_SHIFT;
             rn = stringToInt(removeBrackets(strtok_r(op2, ",", &endPtr))) << RN_SHIFT_SDT;
