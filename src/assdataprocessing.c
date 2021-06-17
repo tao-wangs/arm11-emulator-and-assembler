@@ -9,19 +9,19 @@
 uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
 	
 	char **tokens;
-	char *saveptr;
+	char *mnemonic;
 
-	char *mnemonic = strtok_r(instrString, " ", &saveptr);
+	tokens = tok(instrString, 6);
+	mnemonic = tokens[0];
 
 	if (!strcmp(mnemonic, "lsl")) {
-		tokens = tok(saveptr, 2);
 		int32_t condCode = AL << CONDCODE_SHIFT;
 		int32_t filler = 0x0 << FILLER_SHIFT;
 		int32_t immOperand = 0 << IMM_OPERAND_SHIFT;
 		int32_t opcode = lookupVal(table, "mov") << OPCODE_SHIFT;
-    		int32_t rn = stringToInt(tokens[0]);
+    		int32_t rn = stringToInt(tokens[1]);
     		int32_t setFlags = 0 << SET_FLAGS_SHIFT;
-		int32_t shiftValue = stringToInt(tokens[1]);
+		int32_t shiftValue = stringToInt(tokens[2]);
 
 		if (shiftValue > FIVE_BIT_MAX_INT) {
 			perror("Cannot be shifted by this much");
@@ -32,8 +32,7 @@ uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
 	}
 	
 	if (!strcmp(mnemonic, "andeq")) {
-		tokens = tok(saveptr, 3);
-		if (!strcmp(tokens[0], "r0") && !strcmp(tokens[1], "r0") && !strcmp(tokens[2], "r0")) {
+		if (!(strcmp(tokens[1], "r0") || strcmp(tokens[2], "r0") || strcmp(tokens[3], "r0"))) {
 			return 0x00000000;
 		}
 	}
@@ -43,9 +42,7 @@ uint32_t assembleSpecialInstruction(char *instrString, hashTable *table) {
 
 uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 
-	char *saveptr;
 	char **tokens;
-
 	char *mnemonic;
 	char *dstreg;
 	char *srcreg;
@@ -53,35 +50,32 @@ uint32_t assembleDataProcessing(char *instrString, hashTable *table) {
 	
         int32_t setFlags;
 	
-	mnemonic = strtok_r(instrString, " ", &saveptr);
+	tokens = tok(instrString, 6);
+	mnemonic = tokens[0];
 
-	// If it is not one of the testing instructions then we should set the S bit to 1, for all other instructions you should set the S bit to 0.
         if (!(strcmp(mnemonic, "tst") && strcmp(mnemonic, "teq") && strcmp(mnemonic, "cmp"))) {
-		tokens = tok(saveptr, 2);
 		dstreg = NULL;
-		srcreg = tokens[0];
-		op2 = tokens[1];
-        	setFlags = 1 << SET_FLAGS_SHIFT;
-        } else if (!strcmp(mnemonic, "mov")) {
-		tokens = tok(saveptr, 2);
-		dstreg = tokens[0];
-		srcreg = NULL;
-		op2 = tokens[1];
-		setFlags = 0 << SET_FLAGS_SHIFT;
-	} else {
-		tokens = tok(saveptr, 3);
-		dstreg = tokens[0];
 		srcreg = tokens[1];
 		op2 = tokens[2];
+        	setFlags = 1 << SET_FLAGS_SHIFT;
+        } else if (!strcmp(mnemonic, "mov")) {
+		dstreg = tokens[1];
+		srcreg = NULL;
+		op2 = tokens[2];
+		setFlags = 0 << SET_FLAGS_SHIFT;
+	} else {
+		dstreg = tokens[1];
+		srcreg = tokens[2];
+		op2 = tokens[3];
 		setFlags = 0 << SET_FLAGS_SHIFT;
 	}
 	
 	int32_t condCode = AL << CONDCODE_SHIFT;
 	int32_t filler = 0x0 << FILLER_SHIFT;
-	int32_t immOperand = (operandIsConstant(op2) ? 1 : 0) << IMM_OPERAND_SHIFT;
+	int32_t immOperand = operandIsConstant(op2) << IMM_OPERAND_SHIFT;
 	int32_t opcode = lookupVal(table, mnemonic) << OPCODE_SHIFT;
-	int32_t rn = ((srcreg == NULL) ? 0x0 : stringToInt(srcreg)) << RN_SHIFT;
-	int32_t rd = ((dstreg == NULL) ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
+	int32_t rn = (!srcreg ? 0x0 : stringToInt(srcreg)) << RN_SHIFT;
+	int32_t rd = (!dstreg ? 0x0 : stringToInt(dstreg)) << RD_SHIFT;
 	int32_t operand2 = generate8BitImmediate(op2);
 
 	return condCode | filler | immOperand | opcode | setFlags | rn | rd | operand2;
