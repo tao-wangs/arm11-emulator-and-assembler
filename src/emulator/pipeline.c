@@ -50,9 +50,9 @@ void pipeline(ARM_STATE *state){
 	  decodeSDT(pipePtr->decodedInstr, state);
 	  break;
 	case Halt:
-	  goto stop;
+	  return;
 	default:
-	  goto stop;
+	  return;
       }
 
       type = decode(pipePtr->fetchedInstr);
@@ -65,7 +65,6 @@ void pipeline(ARM_STATE *state){
     }
   }
 
-  stop:
   return;
 }
 
