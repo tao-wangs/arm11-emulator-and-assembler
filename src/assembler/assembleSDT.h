@@ -14,9 +14,9 @@
 #define RD_SHIFT_SDT 12
 #define RN_SHIFT_SDT 16
 
-int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[]);
+int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[], uint32_t mem_addrs);
 
-int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[]);
+int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[], uint32_t mem_addrs);
 
 int32_t assembleSTR(char* mnemonic, char* op1, char* op2);
 
