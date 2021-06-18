@@ -43,7 +43,7 @@ void secondPass(hashTable *labels, char* readfile, char* outfile, uint32_t last_
     while(!feof(fp)){
         mnemonic = tok(buffer, 1);
 	if(!mnemonic[0]){
-	    goto label;
+	    mnemonic[0] = "null";
 	}
 	uint64_t type = lookupVal(typeTable, mnemonic[0]);
 	switch(type){
@@ -55,7 +55,6 @@ void secondPass(hashTable *labels, char* readfile, char* outfile, uint32_t last_
 	    case DP: fileWrite(assembleDataProcessing(buffer, dpTable), outfile); break;
             default: printf("instruction not recognised");
 	}
-	label:
 	freeTok(mnemonic);
 	if(type != LAB){
 	    pc += 4;
