@@ -49,7 +49,7 @@ void secondPass(hashTable *labels, char* readfile, char* outfile, uint32_t last_
 	switch(type){
 	    case LAB: break;
             case B: fileWrite(assembleBranch(buffer, branchTable, labels, pc), outfile); break;
-            case SDT: fileWrite(assembleSDT(buffer, last_addr, pc, dpTable, mem_addresses), outfile); break; 
+            case SDT: fileWrite(assembleSDT(buffer, last_addr, pc, dpTable, mem_addresses, last_addr), outfile); break; 
             case MUL: fileWrite(assembleMultiply(buffer), outfile); break;
             case SPEC: fileWrite(assembleSpecialInstruction(buffer, dpTable), outfile); break;  
 	    case DP: fileWrite(assembleDataProcessing(buffer, dpTable), outfile); break;

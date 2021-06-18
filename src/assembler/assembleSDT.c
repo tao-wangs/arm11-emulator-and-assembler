@@ -2,7 +2,7 @@
 #include <string.h>
 #include <ctype.h>
 
-int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[]) {
+int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[], uint32_t mem_addrs) {
 
     char** tokens = tok(instruction, 3);
     char* mnemonic = tokens[0];
@@ -20,14 +20,14 @@ int32_t assembleSDT(char* instruction, int32_t lastAddress, int32_t pc, hashTabl
     //ends here
 
     if (!strcmp(mnemonic, "ldr")) {
-        return assembleLDR(mnemonic, op1, op2, lastAddress, pc, table, values);
+        return assembleLDR(mnemonic, op1, op2, lastAddress, pc, table, values, mem_addrs);
     }
     
     assert(!strcmp(mnemonic, "str"));
     return assembleSTR(mnemonic, op1, op2);
 }
 
-int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[]) {
+int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, int32_t pc, hashTable *table, uint32_t values[], uint32_t mem_addrs) {
     int32_t cond = 14 << CONDCODE_SHIFT;
     int32_t filler = 1 << FILLER_SHIFT_SDT;
     int32_t i = 0 << I_SHIFT;
@@ -50,8 +50,7 @@ int32_t assembleLDR(char* mnemonic, char* op1, char* op2, int32_t lastAddress, i
             return assembleDataProcessing(str, table);
         } else {
             uint32_t expression = stringToInt(op2);
-            uint32_t arraySize = sizeof(values) / sizeof(values[0]);
-            for (int i = 0; i < arraySize; i++) {
+            for (int i = 0; i < mem_addrs; i++) {
                 if (values[i] == 0) {
                     values[i] = expression;
                     break;
